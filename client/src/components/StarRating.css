@@ -1,0 +1,24 @@
+.star-rating-wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.star-rating-label {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  font-weight: 500;
+  min-width: 140px;
+}
+
+.star-rating-value {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--ruet-gold);
+  min-width: 28px;
+}
+
+.star.readonly {
+  cursor: default;
+  pointer-events: none;
+}

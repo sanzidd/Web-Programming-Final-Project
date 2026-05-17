@@ -1,0 +1,2570 @@
+{
+  "ECE": [
+    {
+      "name": "Prof. Dr. Md. Anwar Hossain",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "profdrmdanwarhossain@ece.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Habibur Rahaman",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdhabiburrahaman@ece.ruet.ac.bd"
+    },
+    {
+      "name": "Tasnim Binte Shawkat",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "tasnimbinteshawkat@ece.ruet.ac.bd"
+    },
+    {
+      "name": "Abdul Matin",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "abdulmatin@ece.ruet.ac.bd"
+    },
+    {
+      "name": "Sagor Chandro Bakchy",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "sagorchandrobakchy@ece.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Mahabubur Rahman",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdmahabuburrahman@ece.ruet.ac.bd"
+    },
+    {
+      "name": "Milton Kumar Kundu",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "miltonkumarkundu@ece.ruet.ac.bd"
+    },
+    {
+      "name": "Fariya Tabassum",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "fariyatabassum@ece.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Robiul Islam",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdrobiulislam@ece.ruet.ac.bd"
+    },
+    {
+      "name": "Rakibul Hassan",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "rakibulhassan@ece.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Nahiduzzaman",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdnahiduzzaman@ece.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Abu Hanif Pramanik",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdabuhanifpramanik@ece.ruet.ac.bd"
+    },
+    {
+      "name": "Hafsa Binte Kibria",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "hafsabintekibria@ece.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Omaer Faruq Goni",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdomaerfaruqgoni@ece.ruet.ac.bd"
+    },
+    {
+      "name": "Oishi Jyoti",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "oishijyoti@ece.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Faysal Ahamed",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdfaysalahamed@ece.ruet.ac.bd"
+    },
+    {
+      "name": "Moloy Kumar Ghosh",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "moloykumarghosh@ece.ruet.ac.bd"
+    }
+  ],
+  "ETE": [
+    {
+      "name": "Dr. Md. Kamal Hosain",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "drmdkamalhosain@ete.ruet.ac.bd"
+    },
+    {
+      "name": "Dr Md Munjure Mowla",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdmunjuremowla@ete.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Mst. Fateha Samad",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmstfatehasamad@ete.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Shah Ariful Hoque Chowdhury",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drshaharifulhoquechowdhury@ete.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Tushar Kanti Roy",
+      "designation": "Associate Professor",
+      "courses": [],
+      "email": "drtusharkantiroy@ete.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md Rabiul Hasan",
+      "designation": "Associate Professor",
+      "courses": [],
+      "email": "drmdrabiulhasan@ete.ruet.ac.bd"
+    },
+    {
+      "name": "JANNATUL ROBAIAT MOU",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "jannatulrobaiatmou@ete.ruet.ac.bd"
+    },
+    {
+      "name": "Sham Datto",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "shamdatto@ete.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Aslam Mollah",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdaslammollah@ete.ruet.ac.bd"
+    },
+    {
+      "name": "A. S. M. Badrudduza",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "asmbadrudduza@ete.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Yeakub Ali",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdyeakubali@ete.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Rakib Hossain",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdrakibhossain@ete.ruet.ac.bd"
+    },
+    {
+      "name": "Shuvra Prokash Biswas",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "shuvraprokashbiswas@ete.ruet.ac.bd"
+    },
+    {
+      "name": "Hasan Sarker",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "hasansarker@ete.ruet.ac.bd"
+    },
+    {
+      "name": "Farzana Akter",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "farzanaakter@ete.ruet.ac.bd"
+    },
+    {
+      "name": "Md Abu Ismail Siddique",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdabuismailsiddique@ete.ruet.ac.bd"
+    },
+    {
+      "name": "Sharaf Tasnim",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "sharaftasnim@ete.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Tarek Hassan",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "mdtarekhassan@ete.ruet.ac.bd"
+    },
+    {
+      "name": "Mohammed Nazmul Islam Nahin",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "mohammednazmulislamnahin@ete.ruet.ac.bd"
+    },
+    {
+      "name": "Rubaeat Ahammed",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "rubaeatahammed@ete.ruet.ac.bd"
+    },
+    {
+      "name": "Rifa Tabassum Mim",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "rifatabassummim@ete.ruet.ac.bd"
+    }
+  ],
+  "EEE": [
+    {
+      "name": "Dr. Md. Masud Rana",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "drmdmasudrana@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Rafiqul Islam Sheikh",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdrafiqulislamsheikh@eee.ruet.ac.bd"
+    },
+    {
+      "name": "S M Abdur Razzak",
+      "designation": "Professor",
+      "courses": [],
+      "email": "smabdurrazzak@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Zahurul Islam Sarkar",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdzahurulislamsarkar@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Ajay Krishno Sarkar",
+      "designation": "Professor",
+      "courses": [],
+      "email": "ajaykrishnosarkar@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Faruk Hossain",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdfarukhossain@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Shamim Anower",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdshamimanower@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Shahidul Islam",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdshahidulislam@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Selim Hossain",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdselimhossain@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Abdul Khaleque",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drabdulkhaleque@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Sohel Rana",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdsohelrana@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Samiul Habib",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdsamiulhabib@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Tanvir Ahmed",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drtanvirahmed@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. G.K.M. Hasanuzzaman",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drgkmhasanuzzaman@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Jishan-E-Giti",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drjishan-e-giti@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Abu Sadat Md. Sayem",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drabusadatmdsayem@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Sumaiya Kabir",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drsumaiyakabir@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Mohammod Abdul Motin",
+      "designation": "Associate Professor",
+      "courses": [],
+      "email": "drmohammodabdulmotin@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Subarto Kumar Ghosh",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "subartokumarghosh@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Mamunur Rashid",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdmamunurrashid@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Shadhon Chandra Mohonta",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "shadhonchandramohonta@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Rashidul Islam",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdrashidulislam@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Kusum Tara",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "kusumtara@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Alok Kumar Paul",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "alokkumarpaul@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Tarek Hossein",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdtarekhossein@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Ilias Rahman",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdiliasrahman@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Ahasan Habib",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdahasanhabib@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Farhamdur Reza",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdfarhamdurreza@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Razon Chowdhury",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdrazonchowdhury@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Reefat Inum",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "reefatinum@eee.ruet.ac.bd"
+    },
+    {
+      "name": "kamrun nahar shushama",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "kamrunnaharshushama@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Ruhul Amin Ratul",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdruhulaminratul@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Belal Hossain",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "belalhossain@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Abdul Malek",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdabdulmalek@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Sarwar Hosen",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdsarwarhosen@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Md Firoz Mahmud",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdfirozmahmud@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Arafat Rahman",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdarafatrahman@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Mahmudul Hasan",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdmahmudulhasan@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Sarjana Shabab",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "sarjanashabab@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Sohani Munteha Hiam",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "sohanimuntehahiam@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Sunjidah Hossain",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "sunjidahhossain@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Md Mayenul Islam",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdmayenulislam@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Nuhi-Alamin",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdnuhi-alamin@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Tasnim Sarker Joyeeta",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "tasnimsarkerjoyeeta@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Sushanto Bosak",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "sushantobosak@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Sakib Hossen",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "sakibhossen@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Asif Zaman Rizve",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "asifzamanrizve@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Ariful Islam",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "mdarifulislam@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Khayrul Islam",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "mdkhayrulislam@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Roisul Ajom Ruku",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "mdroisulajomruku@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Rakibul Islam",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "mdrakibulislam@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Kazi Khairul Islam",
+      "designation": "Retired Faculty",
+      "courses": [],
+      "email": "drkazikhairulislam@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md . Ashraful Hoque",
+      "designation": "Retired Faculty",
+      "courses": [],
+      "email": "drmdashrafulhoque@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Fayzur Rahman",
+      "designation": "Retired Faculty",
+      "courses": [],
+      "email": "drmdfayzurrahman@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Mortuza Ali",
+      "designation": "Retired Faculty",
+      "courses": [],
+      "email": "drmdmortuzaali@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Rabiul Islam",
+      "designation": "Retired Faculty",
+      "courses": [],
+      "email": "drmdrabiulislam@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Ruhul Amin",
+      "designation": "Retired Faculty",
+      "courses": [],
+      "email": "drmdruhulamin@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Yeakub Hussain",
+      "designation": "Retired Faculty",
+      "courses": [],
+      "email": "drmdyeakubhussain@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Mirza Golam Rabbani",
+      "designation": "Retired Faculty",
+      "courses": [],
+      "email": "drmirzagolamrabbani@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Muhammad Abdul Goffar Khan",
+      "designation": "Retired Faculty",
+      "courses": [],
+      "email": "drmuhammadabdulgoffarkhan@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Prof. A.M. Rezaul Karim Talukder",
+      "designation": "Retired Faculty",
+      "courses": [],
+      "email": "profamrezaulkarimtalukder@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Forhad Zaman",
+      "designation": "Retired Faculty",
+      "courses": [],
+      "email": "drforhadzaman@eee.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Shah Alam",
+      "designation": "Retired Faculty",
+      "courses": [],
+      "email": "mdshahalam@eee.ruet.ac.bd"
+    }
+  ],
+  "CSE": [
+    {
+      "name": "Dr. Md. Shahid Uz Zaman",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "drmdshahiduzzaman@cse.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Nazrul Islam Mondal",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdnazrulislammondal@cse.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Rabiul Islam",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdrabiulislam@cse.ruet.ac.bd"
+    },
+    {
+      "name": "Prof. Dr. Boshir Ahmed",
+      "designation": "Professor",
+      "courses": [],
+      "email": "profdrboshirahmed@cse.ruet.ac.bd"
+    },
+    {
+      "name": "Prof. Dr. Md. Al Mamun",
+      "designation": "Professor",
+      "courses": [],
+      "email": "profdrmdalmamun@cse.ruet.ac.bd"
+    },
+    {
+      "name": "A H M Sarowar Sattar",
+      "designation": "Professor",
+      "courses": [],
+      "email": "ahmsarowarsattar@cse.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Mir Md. Jahangir Kabir",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmirmdjahangirkabir@cse.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Al Mehedi Hasan",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdalmehedihasan@cse.ruet.ac.bd"
+    },
+    {
+      "name": "Professor Dr. Md. Ali Hossain",
+      "designation": "Professor",
+      "courses": [],
+      "email": "professordrmdalihossain@cse.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Arafat Hossain",
+      "designation": "Associate Professor",
+      "courses": [],
+      "email": "drmdarafathossain@cse.ruet.ac.bd"
+    },
+    {
+      "name": "Shyla Afroge",
+      "designation": "Associate Professor",
+      "courses": [],
+      "email": "shylaafroge@cse.ruet.ac.bd"
+    },
+    {
+      "name": "Rizoan Toufiq",
+      "designation": "Associate Professor",
+      "courses": [],
+      "email": "rizoantoufiq@cse.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Julia Rahman",
+      "designation": "Associate Professor",
+      "courses": [],
+      "email": "drjuliarahman@cse.ruet.ac.bd"
+    },
+    {
+      "name": "Syed Tauhid Zuhori",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "syedtauhidzuhori@cse.ruet.ac.bd"
+    },
+    {
+      "name": "Firoz Mahmud",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "firozmahmud@cse.ruet.ac.bd"
+    },
+    {
+      "name": "Biprodip Pal",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "biprodippal@cse.ruet.ac.bd"
+    },
+    {
+      "name": "Emrana Kabir Hashi",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "emranakabirhashi@cse.ruet.ac.bd"
+    },
+    {
+      "name": "Mumu Aktar",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mumuaktar@cse.ruet.ac.bd"
+    },
+    {
+      "name": "Sadia Zaman Mishu",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "sadiazamanmishu@cse.ruet.ac.bd"
+    },
+    {
+      "name": "Abu Sayeed",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "abusayeed@cse.ruet.ac.bd"
+    },
+    {
+      "name": "Barshon Sen",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "barshonsen@cse.ruet.ac.bd"
+    },
+    {
+      "name": "Mahit Kumar Paul",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mahitkumarpaul@cse.ruet.ac.bd"
+    },
+    {
+      "name": "S. M. Mahedy Hasan",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "smmahedyhasan@cse.ruet.ac.bd"
+    },
+    {
+      "name": "Suhrid Shakhar Ghosh",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "suhridshakharghosh@cse.ruet.ac.bd"
+    },
+    {
+      "name": "Nahin Ul Sadad",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "nahinulsadad@cse.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Zahirul Islam",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdzahirulislam@cse.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Farukuzzaman Faruk",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdfarukuzzamanfaruk@cse.ruet.ac.bd"
+    },
+    {
+      "name": "Mohiuddin Ahmed",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mohiuddinahmed@cse.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Azmain Yakin Srizon",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdazmainyakinsrizon@cse.ruet.ac.bd"
+    },
+    {
+      "name": "A. F. M. Minhazur Rahman",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "afmminhazurrahman@cse.ruet.ac.bd"
+    },
+    {
+      "name": "Farjana Parvin",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "farjanaparvin@cse.ruet.ac.bd"
+    },
+    {
+      "name": "Utsha Das",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "utshadas@cse.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Nasif Osman Khansur",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdnasifosmankhansur@cse.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Farhan Shakib",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdfarhanshakib@cse.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Sozib Hossain",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdsozibhossain@cse.ruet.ac.bd"
+    },
+    {
+      "name": "S.M. Shovan",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "smshovan@cse.ruet.ac.bd"
+    },
+    {
+      "name": "Md Rakibul Haque",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "mdrakibulhaque@cse.ruet.ac.bd"
+    },
+    {
+      "name": "Tasmia Jannat",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "tasmiajannat@cse.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Mazharul Islam",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "mdmazharulislam@cse.ruet.ac.bd"
+    },
+    {
+      "name": "Khaled Zinnurine",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "khaledzinnurine@cse.ruet.ac.bd"
+    },
+    {
+      "name": "Bayezid Islam",
+      "designation": "Retired Faculty",
+      "courses": [],
+      "email": "bayezidislam@cse.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Asifur Rahman",
+      "designation": "Retired Faculty",
+      "courses": [],
+      "email": "mdasifurrahman@cse.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Hedayetul Islam Sovon",
+      "designation": "Retired Faculty",
+      "courses": [],
+      "email": "mdhedayetulislamsovon@cse.ruet.ac.bd"
+    }
+  ],
+  "CHE": [
+    {
+      "name": "Dr. Mohammad Nurur Rahman",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "drmohammadnururrahman@che.ruet.ac.bd"
+    },
+    {
+      "name": "Safat Anam",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "safatanam@che.ruet.ac.bd"
+    },
+    {
+      "name": "Pabitra Chandra Das",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "pabitrachandradas@che.ruet.ac.bd"
+    },
+    {
+      "name": "Sadia Sattar",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "sadiasattar@che.ruet.ac.bd"
+    },
+    {
+      "name": "Sajib Dey",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "sajibdey@che.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Sajjad Hossain",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdsajjadhossain@che.ruet.ac.bd"
+    },
+    {
+      "name": "Maisa Rahman",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "maisarahman@che.ruet.ac.bd"
+    },
+    {
+      "name": "RUNA AFROZ RINTU",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "runaafrozrintu@che.ruet.ac.bd"
+    },
+    {
+      "name": "Mst.Morium khatun",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "mstmoriumkhatun@che.ruet.ac.bd"
+    },
+    {
+      "name": "Nisat Tasnim Songeeta",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "nisattasnimsongeeta@che.ruet.ac.bd"
+    }
+  ],
+  "BECM": [
+    {
+      "name": "Shayla Sharmin",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "shaylasharmin@becm.ruet.ac.bd"
+    },
+    {
+      "name": "MD. LUTFOR RAHMAN",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdlutforrahman@becm.ruet.ac.bd"
+    },
+    {
+      "name": "Ashadul Islam",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "ashadulislam@becm.ruet.ac.bd"
+    },
+    {
+      "name": "Mehedi Hasan",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mehedihasan@becm.ruet.ac.bd"
+    },
+    {
+      "name": "Aojoy kumar Shuvo",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "aojoykumarshuvo@becm.ruet.ac.bd"
+    },
+    {
+      "name": "Faruque Abdullah",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "faruqueabdullah@becm.ruet.ac.bd"
+    },
+    {
+      "name": "RAKIBUL HASAN",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "rakibulhasan@becm.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Ashraful Islam",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdashrafulislam@becm.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Nur Alam Riad",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdnuralamriad@becm.ruet.ac.bd"
+    },
+    {
+      "name": "MD. RUMMAN HOWLADER",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "mdrummanhowlader@becm.ruet.ac.bd"
+    },
+    {
+      "name": "Showaib Ahmed Chowdhury",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "showaibahmedchowdhury@becm.ruet.ac.bd"
+    },
+    {
+      "name": "MD. Mehedi Hassan Galib",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "mdmehedihassangalib@becm.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Towfik Hassan",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "mdtowfikhassan@becm.ruet.ac.bd"
+    }
+  ],
+  "CE": [
+    {
+      "name": "Prof. Dr. S. M. Zahurul Islam",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "profdrsmzahurulislam@ce.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Abdul Alim",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdabdulalim@ce.ruet.ac.bd"
+    },
+    {
+      "name": "NHM Kamrujjaman Serker",
+      "designation": "Professor",
+      "courses": [],
+      "email": "nhmkamrujjamanserker@ce.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Kumruzzaman",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdkumruzzaman@ce.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Niamul Bari",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdniamulbari@ce.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Kamruzzaman",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdkamruzzaman@ce.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Mahmud Sazzad",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdmahmudsazzad@ce.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Akhtar Hossain",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdakhtarhossain@ce.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Shafiqul Islam",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdshafiqulislam@ce.ruet.ac.bd"
+    },
+    {
+      "name": "Prof. Dr. Md. Robiul Awall",
+      "designation": "Professor",
+      "courses": [],
+      "email": "profdrmdrobiulawall@ce.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Abu Sufian Md. Zia Hasan",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drabusufianmdziahasan@ce.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. H. M. Rasel",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drhmrasel@ce.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Abu Sayeed",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdabusayeed@ce.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Zahanggir Alam",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdzahanggiralam@ce.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Anupam Chowdhury",
+      "designation": "Professor",
+      "courses": [],
+      "email": "dranupamchowdhury@ce.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Bulbul Ahmed",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drbulbulahmed@ce.ruet.ac.bd"
+    },
+    {
+      "name": "Md Masud Rana",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdmasudrana@ce.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Mintu Miah",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "drmdmintumiah@ce.ruet.ac.bd"
+    },
+    {
+      "name": "Ahmed Hossain",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "ahmedhossain@ce.ruet.ac.bd"
+    },
+    {
+      "name": "Keya Roy",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "keyaroy@ce.ruet.ac.bd"
+    },
+    {
+      "name": "G. M. Harun- Or- Rashid",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "gmharun-or-rashid@ce.ruet.ac.bd"
+    },
+    {
+      "name": "Zahidul Islam",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "zahidulislam@ce.ruet.ac.bd"
+    },
+    {
+      "name": "Mahmud Hasan",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mahmudhasan@ce.ruet.ac.bd"
+    },
+    {
+      "name": "Miraz Ahamed",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mirazahamed@ce.ruet.ac.bd"
+    },
+    {
+      "name": "MD. MOHAYMINUL ISLAM",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdmohayminulislam@ce.ruet.ac.bd"
+    },
+    {
+      "name": "Mithun Chakrabartty",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mithunchakrabartty@ce.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Sohel Rana",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdsohelrana@ce.ruet.ac.bd"
+    },
+    {
+      "name": "Atika Hossain Akhi",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "atikahossainakhi@ce.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Rafiul Islam",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdrafiulislam@ce.ruet.ac.bd"
+    },
+    {
+      "name": "Sumaya Tabassum",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "sumayatabassum@ce.ruet.ac.bd"
+    },
+    {
+      "name": "Mohammad Ali",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "mohammadali@ce.ruet.ac.bd"
+    },
+    {
+      "name": "Briti Ray",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "britiray@ce.ruet.ac.bd"
+    },
+    {
+      "name": "Ragib Noor Srijan",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "ragibnoorsrijan@ce.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Nobinur Rahman",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "mdnobinurrahman@ce.ruet.ac.bd"
+    },
+    {
+      "name": "Md Ashraful Imran",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "mdashrafulimran@ce.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Shafi Uddin Miah",
+      "designation": "Retired Faculty",
+      "courses": [],
+      "email": "drmdshafiuddinmiah@ce.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Syed Abdul Mofiz",
+      "designation": "Retired Faculty",
+      "courses": [],
+      "email": "drsyedabdulmofiz@ce.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Tarif Uddin Ahmed",
+      "designation": "Retired Faculty",
+      "courses": [],
+      "email": "drtarifuddinahmed@ce.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Tohur Ahmed",
+      "designation": "Retired Faculty",
+      "courses": [],
+      "email": "drtohurahmed@ce.ruet.ac.bd"
+    },
+    {
+      "name": "Iqbal Matin",
+      "designation": "Retired Faculty",
+      "courses": [],
+      "email": "iqbalmatin@ce.ruet.ac.bd"
+    },
+    {
+      "name": "Mohd. Abdus Sobhan",
+      "designation": "Retired Faculty",
+      "courses": [],
+      "email": "mohdabdussobhan@ce.ruet.ac.bd"
+    }
+  ],
+  "ARCH": [
+    {
+      "name": "Md. Sabbir Ahsan",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "mdsabbirahsan@arch.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Asaduzzaman",
+      "designation": "Associate Professor",
+      "courses": [],
+      "email": "mdasaduzzaman@arch.ruet.ac.bd"
+    },
+    {
+      "name": "Z H M Monjur Murshed",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "zhmmonjurmurshed@arch.ruet.ac.bd"
+    },
+    {
+      "name": "Nadia Monzur",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "nadiamonzur@arch.ruet.ac.bd"
+    },
+    {
+      "name": "Md Samiul Sabbir Islam",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdsamiulsabbirislam@arch.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Nazmul Hoda",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdnazmulhoda@arch.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Rafsun Jany",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdrafsunjany@arch.ruet.ac.bd"
+    },
+    {
+      "name": "Tamanna Sultana Swarna",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "tamannasultanaswarna@arch.ruet.ac.bd"
+    },
+    {
+      "name": "Farjana Jesmin",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "farjanajesmin@arch.ruet.ac.bd"
+    },
+    {
+      "name": "Sheikh Hameem",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "sheikhhameem@arch.ruet.ac.bd"
+    },
+    {
+      "name": "Nazia Afrin Trina",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "naziaafrintrina@arch.ruet.ac.bd"
+    },
+    {
+      "name": "MD.EZAJUL ISLAM",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "mdezajulislam@arch.ruet.ac.bd"
+    },
+    {
+      "name": "Prianka Das",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "priankadas@arch.ruet.ac.bd"
+    },
+    {
+      "name": "Nabilah Nargis",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "nabilahnargis@arch.ruet.ac.bd"
+    },
+    {
+      "name": "Mohammad Rakibul Islam Anik",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "mohammadrakibulislamanik@arch.ruet.ac.bd"
+    },
+    {
+      "name": "Ashiqur Rahman Turjo",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "ashiqurrahmanturjo@arch.ruet.ac.bd"
+    },
+    {
+      "name": "Armin Rahman Mouly",
+      "designation": "Retired Faculty",
+      "courses": [],
+      "email": "arminrahmanmouly@arch.ruet.ac.bd"
+    },
+    {
+      "name": "Lamia Tasnim Ankon",
+      "designation": "Retired Faculty",
+      "courses": [],
+      "email": "lamiatasnimankon@arch.ruet.ac.bd"
+    }
+  ],
+  "URP": [
+    {
+      "name": "Dr. Md. Abdul Wakil",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "drmdabdulwakil@urp.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. MST ILME FARIDATUL",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmstilmefaridatul@urp.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Mostafizur Rahman",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdmostafizurrahman@urp.ruet.ac.bd"
+    },
+    {
+      "name": "Nazia Hossain",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "naziahossain@urp.ruet.ac.bd"
+    },
+    {
+      "name": "Anutosh Das",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "anutoshdas@urp.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Sakib Zubayer",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdsakibzubayer@urp.ruet.ac.bd"
+    },
+    {
+      "name": "Faria Afrin Zinia",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "fariaafrinzinia@urp.ruet.ac.bd"
+    },
+    {
+      "name": "Dulal Sarker",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "dulalsarker@urp.ruet.ac.bd"
+    },
+    {
+      "name": "Muhaiminul Islam",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "muhaiminulislam@urp.ruet.ac.bd"
+    },
+    {
+      "name": "Sumita Roy",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "sumitaroy@urp.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Shakil Ar Salan",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdshakilarsalan@urp.ruet.ac.bd"
+    },
+    {
+      "name": "Muhammad Waresul Hassan Nipun",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "muhammadwaresulhassannipun@urp.ruet.ac.bd"
+    },
+    {
+      "name": "Jahid Hasan",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "jahidhasan@urp.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Arshadul Islam",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "mdarshadulislam@urp.ruet.ac.bd"
+    },
+    {
+      "name": "Yeasin Ahmead",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "yeasinahmead@urp.ruet.ac.bd"
+    },
+    {
+      "name": "HOSSAIN MOHIUDDIN",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "hossainmohiuddin@urp.ruet.ac.bd"
+    },
+    {
+      "name": "MD. NAIMUR RAHMAN",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "mdnaimurrahman@urp.ruet.ac.bd"
+    }
+  ],
+  "MSE": [
+    {
+      "name": "Dr. Md. Aminul Islam",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "drmdaminulislam@mse.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Anisul Islam",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdanisulislam@mse.ruet.ac.bd"
+    },
+    {
+      "name": "Maliha Rahman",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "maliharahman@mse.ruet.ac.bd"
+    },
+    {
+      "name": "Ayeman Mazdi Nahin",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "ayemanmazdinahin@mse.ruet.ac.bd"
+    },
+    {
+      "name": "Asrafuzzaman",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "asrafuzzaman@mse.ruet.ac.bd"
+    },
+    {
+      "name": "S. M. Nasim Rokon",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "smnasimrokon@mse.ruet.ac.bd"
+    },
+    {
+      "name": "Umme Salma Mst. Mahmuda",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "ummesalmamstmahmuda@mse.ruet.ac.bd"
+    },
+    {
+      "name": "Moumita Tasnim Meem",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "moumitatasnimmeem@mse.ruet.ac.bd"
+    },
+    {
+      "name": "Pabitro Prosad Mondal",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "pabitroprosadmondal@mse.ruet.ac.bd"
+    },
+    {
+      "name": "Ratul Islam Antor",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "ratulislamantor@mse.ruet.ac.bd"
+    },
+    {
+      "name": "Md Rafsan Jani Rudro",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "mdrafsanjanirudro@mse.ruet.ac.bd"
+    },
+    {
+      "name": "Abdullah-Al-Mazed Khan",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "abdullah-al-mazedkhan@mse.ruet.ac.bd"
+    }
+  ],
+  "CME": [
+    {
+      "name": "Prof. Dr. Md. Bodiul Islam",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "profdrmdbodiulislam@cme.ruet.ac.bd"
+    },
+    {
+      "name": "Professor Dr. Md. Shamimur Rahman",
+      "designation": "Professor",
+      "courses": [],
+      "email": "professordrmdshamimurrahman@cme.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Abdullah Al Mahmood",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdabdullahalmahmood@cme.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Rahat Al Hassan",
+      "designation": "Associate Professor",
+      "courses": [],
+      "email": "drmdrahatalhassan@cme.ruet.ac.bd"
+    },
+    {
+      "name": "Tasmia Zaman",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "tasmiazaman@cme.ruet.ac.bd"
+    },
+    {
+      "name": "Mst. Sharmin Mostari",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mstsharminmostari@cme.ruet.ac.bd"
+    },
+    {
+      "name": "Aungkan sen",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "aungkansen@cme.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Mintu Ali",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdmintuali@cme.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Abdul Kaiyum",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdabdulkaiyum@cme.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Humayan Kabir",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdhumayankabir@cme.ruet.ac.bd"
+    },
+    {
+      "name": "Shamima Akhter Urmi",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "shamimaakhterurmi@cme.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Khairul Islam",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdkhairulislam@cme.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Jahidul Haque",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdjahidulhaque@cme.ruet.ac.bd"
+    },
+    {
+      "name": "Mst. Esmotara Begum",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mstesmotarabegum@cme.ruet.ac.bd"
+    },
+    {
+      "name": "Hasnat Jahan Sumona",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "hasnatjahansumona@cme.ruet.ac.bd"
+    },
+    {
+      "name": "Shah Sadia Rahman Joya",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "shahsadiarahmanjoya@cme.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Sidratul Montaha Hossain",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "mdsidratulmontahahossain@cme.ruet.ac.bd"
+    },
+    {
+      "name": "Redwanul Haque",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "redwanulhaque@cme.ruet.ac.bd"
+    }
+  ],
+  "ME": [
+    {
+      "name": "Dr. Mohammad Shahed Hasan Khan Tushar",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "drmohammadshahedhasankhantushar@me.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Mohammad Rofiqul Islam",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmohammadrofiqulislam@me.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Nirendra Nath Mustafi",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drnirendranathmustafi@me.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Emdadul Hoque",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdemdadulhoque@me.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Rokunuzzaman",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdrokunuzzaman@me.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Nurul Islam",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdnurulislam@me.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Mhia Md. Zaglul Shahadat",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmhiamdzaglulshahadat@me.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md Rabiul Islam Sarker",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdrabiulislamsarker@me.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Shahajada Mahmudul Hasan",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drshahajadamahmudulhasan@me.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Mohammad U. H. Joardder",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmohammaduhjoardder@me.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Barun Kumar Das",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drbarunkumardas@me.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Shazib Uddin",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdshazibuddin@me.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Abdul Kader",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdabdulkader@me.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Wahedul Islam",
+      "designation": "Professor",
+      "courses": [],
+      "email": "mdwahedulislam@me.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Syed Mamun R Rasid",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drsyedmamunrrasid@me.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Abdur Rahim",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdabdurrahim@me.ruet.ac.bd"
+    },
+    {
+      "name": "Tasnuva Tabashhum Choudhury",
+      "designation": "Associate Professor",
+      "courses": [],
+      "email": "tasnuvatabashhumchoudhury@me.ruet.ac.bd"
+    },
+    {
+      "name": "Asma-Ul-Husna",
+      "designation": "Associate Professor",
+      "courses": [],
+      "email": "asma-ul-husna@me.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Monjur Mourshed",
+      "designation": "Associate Professor",
+      "courses": [],
+      "email": "drmonjurmourshed@me.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Mahadi Hasan Masud",
+      "designation": "Associate Professor",
+      "courses": [],
+      "email": "drmahadihasanmasud@me.ruet.ac.bd"
+    },
+    {
+      "name": "Raihan Karal",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "raihankaral@me.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Riaz Pervez",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdriazpervez@me.ruet.ac.bd"
+    },
+    {
+      "name": "Md Saiful Islam",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdsaifulislam@me.ruet.ac.bd"
+    },
+    {
+      "name": "Jannatul Ferdous",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "jannatulferdous@me.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Sumaiya Sadika Tuly",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "drsumaiyasadikatuly@me.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Golam Kibria",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdgolamkibria@me.ruet.ac.bd"
+    },
+    {
+      "name": "Pronob Das",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "pronobdas@me.ruet.ac.bd"
+    },
+    {
+      "name": "Abdul mojid parvej",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "abdulmojidparvej@me.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Sanowar Hossain",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdsanowarhossain@me.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Nahid Hossan",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdnahidhossan@me.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Bakhtierkhalzi",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdbakhtierkhalzi@me.ruet.ac.bd"
+    },
+    {
+      "name": "Miftahul Mobin Chowdhury Shabdik",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "miftahulmobinchowdhuryshabdik@me.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Mostafa Kamal",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdmostafakamal@me.ruet.ac.bd"
+    },
+    {
+      "name": "Mim Mashrur Ahmed",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mimmashrurahmed@me.ruet.ac.bd"
+    },
+    {
+      "name": "Durjoy Kumar Paul",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "durjoykumarpaul@me.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Hasibul Hasan Himel",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdhasibulhasanhimel@me.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Rasel Ahmed",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "mdraselahmed@me.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Mahabur Rahaman",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "mdmahaburrahaman@me.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Tanjeeb Hossen Akash",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "mdtanjeebhossenakash@me.ruet.ac.bd"
+    },
+    {
+      "name": "FAZLUR RASHID",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "fazlurrashid@me.ruet.ac.bd"
+    },
+    {
+      "name": "Oishwarjya Ferdous",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "oishwarjyaferdous@me.ruet.ac.bd"
+    },
+    {
+      "name": "Easmin Sultana",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "easminsultana@me.ruet.ac.bd"
+    },
+    {
+      "name": "SHAH MOHAMMED TAKRIM",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "shahmohammedtakrim@me.ruet.ac.bd"
+    },
+    {
+      "name": "Asma Akhter",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "asmaakhter@me.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Shamim Akhter",
+      "designation": "Retired Faculty",
+      "courses": [],
+      "email": "drmdshamimakhter@me.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Mohd. Rafiqul Alam Beg",
+      "designation": "Retired Faculty",
+      "courses": [],
+      "email": "drmohdrafiqulalambeg@me.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Amit Roy",
+      "designation": "Retired Faculty",
+      "courses": [],
+      "email": "dramitroy@me.ruet.ac.bd"
+    },
+    {
+      "name": "S M NAJMUL HOQUE",
+      "designation": "Retired Faculty",
+      "courses": [],
+      "email": "smnajmulhoque@me.ruet.ac.bd"
+    },
+    {
+      "name": "Mahmudul Hasan",
+      "designation": "Retired Faculty",
+      "courses": [],
+      "email": "mahmudulhasan@me.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Sazan Rahman",
+      "designation": "Retired Faculty",
+      "courses": [],
+      "email": "mdsazanrahman@me.ruet.ac.bd"
+    },
+    {
+      "name": "Mst.Sharifa Khatun",
+      "designation": "Retired Faculty",
+      "courses": [],
+      "email": "mstsharifakhatun@me.ruet.ac.bd"
+    }
+  ],
+  "MATH": [
+    {
+      "name": "Dr. Md. Helal Uddin Molla",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "drmdhelaluddinmolla@math.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Shamsul Alam",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdshamsulalam@math.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Bellal Hossain",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdbellalhossain@math.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Mohammad Kamrul Hasan",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmohammadkamrulhasan@math.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md Saifur Rahman",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdsaifurrahman@math.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Alal Hosen",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdalalhosen@math.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Ismot Ara Yeasmin",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drismotarayeasmin@math.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Abdur Razzak",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdabdurrazzak@math.ruet.ac.bd"
+    },
+    {
+      "name": "Md Suzan Ahamed",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdsuzanahamed@math.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Nazmul Sharif",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdnazmulsharif@math.ruet.ac.bd"
+    },
+    {
+      "name": "Mst. Rupale Khatun",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mstrupalekhatun@math.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Zahangir Alam",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdzahangiralam@math.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Dalim Haque",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mddalimhaque@math.ruet.ac.bd"
+    },
+    {
+      "name": "Tamanna Tasnim Prova",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "tamannatasnimprova@math.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Abdul Alim",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdabdulalim@math.ruet.ac.bd"
+    },
+    {
+      "name": "MOMINUL ISLAM",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "mominulislam@math.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Feruj Alam",
+      "designation": "Retired Faculty",
+      "courses": [],
+      "email": "drmdferujalam@math.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Majedur Rahman",
+      "designation": "Retired Faculty",
+      "courses": [],
+      "email": "drmdmajedurrahman@math.ruet.ac.bd"
+    }
+  ],
+  "HUM": [
+    {
+      "name": "Dr. Saila Ahmed",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "drsailaahmed@hum.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Abu Bokar Siddique",
+      "designation": "Professor",
+      "courses": [],
+      "email": "mdabubokarsiddique@hum.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Kaniz Fatema",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drkanizfatema@hum.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Golam Mostakim",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdgolammostakim@hum.ruet.ac.bd"
+    },
+    {
+      "name": "Mohammad Harun Or Rashid",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mohammadharunorrashid@hum.ruet.ac.bd"
+    },
+    {
+      "name": "Mohammad Didar Hossain",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mohammaddidarhossain@hum.ruet.ac.bd"
+    },
+    {
+      "name": "Tahmina Khatun",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "tahminakhatun@hum.ruet.ac.bd"
+    },
+    {
+      "name": "Md Sayeed Anwar",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdsayeedanwar@hum.ruet.ac.bd"
+    },
+    {
+      "name": "Abdulla-All-Mijan",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "abdulla-all-mijan@hum.ruet.ac.bd"
+    },
+    {
+      "name": "Monira Parvin Kona",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "moniraparvinkona@hum.ruet.ac.bd"
+    },
+    {
+      "name": "Kashfia Reza Tonni",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "kashfiarezatonni@hum.ruet.ac.bd"
+    },
+    {
+      "name": "Ahsan Habib",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "ahsanhabib@hum.ruet.ac.bd"
+    },
+    {
+      "name": "Mst. Mitu Pervin",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mstmitupervin@hum.ruet.ac.bd"
+    },
+    {
+      "name": "Shoaib Islam",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "shoaibislam@hum.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Rabiul Islam",
+      "designation": "Retired Faculty",
+      "courses": [],
+      "email": "drmdrabiulislam@hum.ruet.ac.bd"
+    }
+  ],
+  "PHY": [
+    {
+      "name": "Dr. Md. Nuruzzaman",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "drmdnuruzzaman@phy.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Sazzad Hossain",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdsazzadhossain@phy.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Abdul Kader Zilani",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdabdulkaderzilani@phy.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Johirul Islam",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdjohirulislam@phy.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Abdul Hadi Shah",
+      "designation": "Associate Professor",
+      "courses": [],
+      "email": "mdabdulhadishah@phy.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Faruk Hossain",
+      "designation": "Associate Professor",
+      "courses": [],
+      "email": "drmdfarukhossain@phy.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Ariful Islam",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdarifulislam@phy.ruet.ac.bd"
+    },
+    {
+      "name": "Al Momin Md. Tanveer Karim",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "almominmdtanveerkarim@phy.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Jubair",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdjubair@phy.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Sarwar Pervez",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdsarwarpervez@phy.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Rahat Ali",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdrahatali@phy.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Abdullah-Al-Mamun",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdabdullah-al-mamun@phy.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Sajidul Islam",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "mdsajidulislam@phy.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Raihan Islam",
+      "designation": "Retired Faculty",
+      "courses": [],
+      "email": "mdraihanislam@phy.ruet.ac.bd"
+    }
+  ],
+  "IPE": [
+    {
+      "name": "Dr. Md. Asadujjaman",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "drmdasadujjaman@ipe.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Mosharraf Hossain",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdmosharrafhossain@ipe.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Mohibul Islam",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdmohibulislam@ipe.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Shahed Mahmud",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drshahedmahmud@ipe.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Sanowar Hossain",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdsanowarhossain@ipe.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Ariful Islam",
+      "designation": "Associate Professor",
+      "courses": [],
+      "email": "mdarifulislam@ipe.ruet.ac.bd"
+    },
+    {
+      "name": "Khairun Nahar",
+      "designation": "Associate Professor",
+      "courses": [],
+      "email": "khairunnahar@ipe.ruet.ac.bd"
+    },
+    {
+      "name": "SONIA AKHTER",
+      "designation": "Associate Professor",
+      "courses": [],
+      "email": "soniaakhter@ipe.ruet.ac.bd"
+    },
+    {
+      "name": "Md Mashum Billal",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdmashumbillal@ipe.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Rakibul Islam",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdrakibulislam@ipe.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Rasel Sarkar",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdraselsarkar@ipe.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Zahidul Islam",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdzahidulislam@ipe.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Sazol Ahmmed",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdsazolahmmed@ipe.ruet.ac.bd"
+    },
+    {
+      "name": "Nusrath Zahan",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "nusrathzahan@ipe.ruet.ac.bd"
+    },
+    {
+      "name": "Toukir Ahmed",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "toukirahmed@ipe.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Ariful Haque",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdarifulhaque@ipe.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Limonur Rahman Lingkon",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "mdlimonurrahmanlingkon@ipe.ruet.ac.bd"
+    },
+    {
+      "name": "Jannatul Ferdous Mim",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "jannatulferdousmim@ipe.ruet.ac.bd"
+    }
+  ],
+  "CHEM": [
+    {
+      "name": "Dr. Md. Mayeedul Islam",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "drmdmayeedulislam@chem.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Ashraful Alam",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdashrafulalam@chem.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Abbas Ali",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdabbasali@chem.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Al-Amin-Al-Azadul Islam",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdal-amin-al-azadulislam@chem.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Tarun Kumar Pal",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drtarunkumarpal@chem.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Md. Anwar Hossain",
+      "designation": "Professor",
+      "courses": [],
+      "email": "drmdanwarhossain@chem.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Mst. Nahid Farha",
+      "designation": "Associate Professor",
+      "courses": [],
+      "email": "drmstnahidfarha@chem.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Jewel Hossen",
+      "designation": "Associate Professor",
+      "courses": [],
+      "email": "drjewelhossen@chem.ruet.ac.bd"
+    },
+    {
+      "name": "Siddhartha Sankar Saha",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "siddharthasankarsaha@chem.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Shamsul Alam",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdshamsulalam@chem.ruet.ac.bd"
+    },
+    {
+      "name": "Aktarun Nahar",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "aktarunnahar@chem.ruet.ac.bd"
+    },
+    {
+      "name": "Sultana Razia",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "sultanarazia@chem.ruet.ac.bd"
+    },
+    {
+      "name": "MD. AHAD ALI",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "mdahadali@chem.ruet.ac.bd"
+    },
+    {
+      "name": "Omeo Kumar Ghosh",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "omeokumarghosh@chem.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Ahad Ali",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "mdahadali@chem.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Abdullah Al Mamun",
+      "designation": "Retired Faculty",
+      "courses": [],
+      "email": "mdabdullahalmamun@chem.ruet.ac.bd"
+    }
+  ],
+  "MTE": [
+    {
+      "name": "Md. Firoj Ali",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "mdfirojali@mte.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Sajal Kumar Das",
+      "designation": "Associate Professor",
+      "courses": [],
+      "email": "drsajalkumardas@mte.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Zinat Tasneem",
+      "designation": "Associate Professor",
+      "courses": [],
+      "email": "drzinattasneem@mte.ruet.ac.bd"
+    },
+    {
+      "name": "Md Manirul Islam",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdmanirulislam@mte.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Robiul Islam",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdrobiulislam@mte.ruet.ac.bd"
+    },
+    {
+      "name": "Dr. Dip Kumar Saha",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "drdipkumarsaha@mte.ruet.ac.bd"
+    },
+    {
+      "name": "Sumaya Ishrat Moyeen",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "sumayaishratmoyeen@mte.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Hafiz Ahamed",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdhafizahamed@mte.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Faisal Rahman Badal",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdfaisalrahmanbadal@mte.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Mehedi Hasan",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "mdmehedihasan@mte.ruet.ac.bd"
+    },
+    {
+      "name": "Sarafat Hussain Abhi",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "sarafathussainabhi@mte.ruet.ac.bd"
+    },
+    {
+      "name": "Subrata Kumar Sarker",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "subratakumarsarker@mte.ruet.ac.bd"
+    },
+    {
+      "name": "Prangon Das",
+      "designation": "Assistant Professor",
+      "courses": [],
+      "email": "prangondas@mte.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Sakib Hassan Chowdhury",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "mdsakibhassanchowdhury@mte.ruet.ac.bd"
+    },
+    {
+      "name": "Safwat Mukarrama Choudhury",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "safwatmukarramachoudhury@mte.ruet.ac.bd"
+    },
+    {
+      "name": "Md Zunaid Hossen",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "mdzunaidhossen@mte.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Meraj Ahmed",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "mdmerajahmed@mte.ruet.ac.bd"
+    }
+  ]
+}

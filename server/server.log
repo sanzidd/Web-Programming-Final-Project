@@ -1,0 +1,9 @@
+
+> server@1.0.0 dev
+> node server.js
+
+◇ injected env (0) from .env // tip: ⌁ auth for agents [www.vestauth.com]
+🚀 RUET Feedback Server running on port 5001
+📦 MongoDB Connected: localhost
+(node:8489) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"hash":1} for model "FeedbackLog". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(Use `node --trace-warnings ...` to show where the warning was created)

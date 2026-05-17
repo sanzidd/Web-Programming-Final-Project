@@ -1,0 +1,123 @@
+.footer {
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-subtle);
+  padding: var(--sp-16) 0 var(--sp-8);
+  margin-top: auto;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: var(--sp-12);
+  margin-bottom: var(--sp-12);
+}
+
+.footer-brand {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.footer-logo-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.footer-logo {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gradient-gold);
+  border-radius: var(--radius-md);
+  color: var(--ruet-navy);
+}
+
+.footer-title {
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  color: var(--ruet-gold);
+}
+
+.footer-subtitle {
+  font-size: var(--fs-xs);
+  color: var(--text-tertiary);
+}
+
+.footer-desc {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  line-height: 1.7;
+  max-width: 360px;
+}
+
+.footer-heading {
+  font-family: var(--font-display);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--sp-4);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.footer-links-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.footer-link {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  transition: color var(--transition-fast);
+}
+
+.footer-link:hover {
+  color: var(--ruet-gold);
+}
+
+.footer-contact-item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+}
+
+.footer-bottom {
+  padding-top: var(--sp-8);
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--fs-xs);
+  color: var(--text-tertiary);
+}
+
+.footer-heart {
+  color: #EF4444;
+  display: inline;
+  vertical-align: middle;
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+.footer-tech {
+  color: var(--text-tertiary);
+}
+
+@media (max-width: 768px) {
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: var(--sp-8);
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    gap: var(--sp-2);
+    text-align: center;
+  }
+}
