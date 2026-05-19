@@ -6,25 +6,50 @@
   position: relative;
   overflow: hidden;
   padding-top: 80px;
+  background: #0B0F19; /* Immersive dark background */
+}
+
+.hero-video-container {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.hero-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.22;
+  filter: saturate(1.8) hue-rotate(330deg); /* Warm crimson hue adjustment */
+}
+
+.hero-video-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(11, 15, 25, 0.4) 0%, rgba(11, 15, 25, 0.95) 100%);
 }
 
 .hero-bg-effects {
   position: absolute;
   inset: 0;
   pointer-events: none;
+  z-index: 2;
 }
 
 .hero-orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(100px);
-  opacity: 0.4;
+  filter: blur(120px);
+  opacity: 0.55;
 }
 
 .hero-orb-1 {
   width: 500px;
   height: 500px;
-  background: rgba(37, 99, 235, 0.05);
+  background: rgba(225, 29, 72, 0.18); /* Crimson glow */
   top: -100px;
   right: -100px;
   animation: float 8s ease-in-out infinite;
@@ -33,7 +58,7 @@
 .hero-orb-2 {
   width: 400px;
   height: 400px;
-  background: rgba(5, 150, 105, 0.05);
+  background: rgba(234, 179, 8, 0.12); /* Gold glow */
   bottom: -50px;
   left: -50px;
   animation: float 10s ease-in-out infinite reverse;
@@ -42,7 +67,7 @@
 .hero-orb-3 {
   width: 300px;
   height: 300px;
-  background: rgba(245, 158, 11, 0.05);
+  background: rgba(124, 58, 237, 0.1); /* Violet glow */
   top: 50%;
   left: 50%;
   animation: float 12s ease-in-out infinite;
@@ -52,8 +77,8 @@
   position: absolute;
   inset: 0;
   background-image: 
-    linear-gradient(rgba(148, 163, 184, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(148, 163, 184, 0.03) 1px, transparent 1px);
+    linear-gradient(rgba(244, 63, 94, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(244, 63, 94, 0.04) 1px, transparent 1px);
   background-size: 60px 60px;
 }
 
@@ -63,7 +88,7 @@
   gap: var(--sp-12);
   align-items: center;
   position: relative;
-  z-index: 2;
+  z-index: 3;
 }
 
 .hero-text {
@@ -77,12 +102,12 @@
   align-items: center;
   gap: var(--sp-2);
   padding: var(--sp-2) var(--sp-4);
-  background: var(--primary-light);
-  border: 1px solid var(--border-default);
+  background: rgba(225, 29, 72, 0.12);
+  border: 1px solid rgba(225, 29, 72, 0.25);
   border-radius: var(--radius-full);
   font-size: var(--fs-xs);
   font-weight: 600;
-  color: var(--primary-color);
+  color: #FDA4AF;
   width: fit-content;
 }
 
@@ -91,11 +116,12 @@
   font-weight: 800;
   line-height: 1.15;
   letter-spacing: -0.02em;
+  color: #FFFFFF;
 }
 
 .hero-subtitle {
   font-size: var(--fs-md);
-  color: var(--text-secondary);
+  color: #E2E8F0;
   line-height: 1.7;
   max-width: 540px;
 }
@@ -217,13 +243,31 @@
   border: 1px solid var(--border-default);
   border-radius: var(--radius-xl);
   text-align: center;
+  position: relative;
+  overflow: hidden;
   transition: all var(--transition-base);
 }
 
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: var(--grad-primary);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
 .stat-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--border-hover);
-  box-shadow: var(--shadow-lg);
+  transform: translateY(-6px);
+  border-color: rgba(225, 29, 72, 0.2);
+  box-shadow: 0 20px 40px -15px rgba(225, 29, 72, 0.1);
+}
+
+.stat-card:hover::before {
+  opacity: 1;
 }
 
 .stat-icon-wrap {
@@ -415,8 +459,8 @@
 }
 
 .cta-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-default);
+  background: var(--grad-dark);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: var(--radius-2xl);
   padding: var(--sp-16) var(--sp-12);
   text-align: center;
@@ -426,7 +470,7 @@
   gap: var(--sp-6);
   position: relative;
   overflow: hidden;
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 20px 50px -10px rgba(11, 15, 25, 0.5);
 }
 
 .cta-card::before {
@@ -435,18 +479,19 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 3px;
-  background: var(--primary-color);
+  height: 4px;
+  background: var(--grad-primary);
 }
 
 .cta-title {
   font-size: var(--fs-3xl);
   font-weight: 800;
+  color: #FFFFFF;
 }
 
 .cta-subtitle {
   font-size: var(--fs-md);
-  color: var(--text-secondary);
+  color: #94A3B8;
   max-width: 500px;
 }
 

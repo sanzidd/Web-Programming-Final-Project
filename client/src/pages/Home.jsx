@@ -67,6 +67,13 @@ export default function Home() {
     <div className="home-page">
       {/* Hero Section */}
       <section className="hero">
+        <div className="hero-video-container">
+          <video className="hero-video" autoPlay loop muted playsInline>
+            <source src="https://assets.mixkit.co/videos/preview/mixkit-network-connection-lines-background-loop-44431-large.mp4" type="video/mp4" />
+          </video>
+          <div className="hero-video-overlay" />
+        </div>
+
         <div className="hero-bg-effects">
           <div className="hero-orb hero-orb-1" />
           <div className="hero-orb hero-orb-2" />
@@ -101,7 +108,7 @@ export default function Home() {
                 Give Feedback
                 <ChevronRight size={18} />
               </Link>
-              <Link to="/login" className="btn btn-secondary btn-lg" id="hero-admin">
+              <Link to="/login" className="btn btn-glass btn-lg" id="hero-admin">
                 <BarChart3 size={18} />
                 Admin Panel
               </Link>

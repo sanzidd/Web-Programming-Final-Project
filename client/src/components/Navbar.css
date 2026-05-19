@@ -6,16 +6,18 @@
   z-index: var(--z-sticky);
   padding: var(--sp-4) 0;
   transition: all var(--transition-base);
-  background: transparent;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(225, 29, 72, 0.06);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.02);
 }
 
 .navbar-scrolled {
   background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: 1px solid rgba(225, 29, 72, 0.15);
   padding: var(--sp-3) 0;
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.08);
 }
 
 .navbar-inner {

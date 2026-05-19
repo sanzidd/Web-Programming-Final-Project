@@ -7,13 +7,22 @@
 
 /* ── CSS Custom Properties (Design Tokens) ── */
 :root {
-  /* Brand Colors - Academic & Professional */
-  --primary-color: #2563EB;
-  --primary-hover: #1D4ED8;
-  --primary-light: #EFF6FF;
+  /* Brand Colors - RUET Academic & Professional Palette */
+  --primary-color: #E11D48; /* Premium Rose/Crimson */
+  --primary-color-rgb: 225, 29, 72;
+  --primary-hover: #BE123C;
+  --primary-light: #FFF1F2;
   
-  --secondary-color: #0F172A;
-  --accent-color: #F59E0B;
+  --secondary-color: #0F172A; /* Slate 900 */
+  --accent-color: #EAB308; /* Premium Academic Gold */
+  
+  /* Vibrant Gradient Tokens */
+  --grad-primary: linear-gradient(135deg, #E11D48 0%, #EAB308 100%);
+  --grad-primary-hover: linear-gradient(135deg, #BE123C 0%, #CA8A04 100%);
+  --grad-emerald: linear-gradient(135deg, #059669 0%, #10B981 100%);
+  --grad-blue: linear-gradient(135deg, #2563EB 0%, #38BDF8 100%);
+  --grad-purple: linear-gradient(135deg, #7C3AED 0%, #C084FC 100%);
+  --grad-dark: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
 
   /* Neutral Palette - Clean Light Theme */
   --bg-primary: #F8FAFC;
@@ -21,7 +30,7 @@
   --bg-card: #FFFFFF;
   --bg-card-hover: #FFFFFF;
   --bg-input: #FFFFFF;
-  --bg-hover: #F1F5F9;
+  --bg-hover: #FFF1F2; /* Soft primary highlight on hover */
 
   /* Text Colors */
   --text-primary: #0F172A;
@@ -34,7 +43,7 @@
   --text-warning: #D97706;
 
   /* Border */
-  --border-subtle: #F1F5F9;
+  --border-subtle: #FFF1F2;
   --border-default: #E2E8F0;
   --border-hover: #CBD5E1;
   --border-active: #94A3B8;
@@ -176,7 +185,17 @@ input, textarea, select {
 }
 
 .text-gradient {
-  color: var(--primary-color); /* Removed AI gradient for cleaner look */
+  background: var(--grad-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-emerald {
+  background: var(--grad-emerald);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 /* ── Cards ── */
@@ -207,15 +226,16 @@ input, textarea, select {
 }
 
 .btn-primary {
-  background: var(--primary-color);
+  background: var(--grad-primary);
   color: #FFFFFF;
-  border: 1px solid var(--primary-color);
-  box-shadow: var(--shadow-sm);
+  border: none;
+  box-shadow: 0 4px 12px rgba(225, 29, 72, 0.25);
 }
 
 .btn-primary:hover {
-  background: var(--primary-hover);
-  border-color: var(--primary-hover);
+  background: var(--grad-primary-hover);
+  box-shadow: 0 6px 16px rgba(225, 29, 72, 0.4);
+  transform: translateY(-1px);
 }
 
 .btn-primary:active {
@@ -232,6 +252,21 @@ input, textarea, select {
 .btn-secondary:hover {
   background: var(--bg-hover);
   border-color: var(--border-hover);
+}
+
+.btn-glass {
+  background: rgba(255, 255, 255, 0.08);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-glass:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
 }
 
 .btn-outline {
