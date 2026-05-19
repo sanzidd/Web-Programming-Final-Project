@@ -10,7 +10,7 @@ export default function Footer() {
           <div className="footer-brand">
             <div className="footer-logo-wrap">
               <div className="footer-logo">
-                <GraduationCap size={24} />
+                <img src="/ruet-logo.png" alt="RUET Logo" style={{ height: '36px', width: 'auto' }} />
               </div>
               <div>
                 <h3 className="footer-title">RUET Feedback</h3>

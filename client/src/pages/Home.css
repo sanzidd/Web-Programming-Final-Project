@@ -9,7 +9,7 @@
   background: #0B0F19; /* Immersive dark background */
 }
 
-.hero-video-container {
+.hero-canvas-container {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -18,18 +18,19 @@
   z-index: 1;
 }
 
-.hero-video {
+.hero-canvas {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.22;
-  filter: saturate(1.8) hue-rotate(330deg); /* Warm crimson hue adjustment */
+  opacity: 0.85; /* Canvas particles are subtle, let them shine through nicely */
+  display: block;
 }
 
-.hero-video-overlay {
+.hero-canvas-overlay {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at center, rgba(11, 15, 25, 0.4) 0%, rgba(11, 15, 25, 0.95) 100%);
+  background: radial-gradient(circle at center, rgba(11, 15, 25, 0.2) 0%, rgba(11, 15, 25, 0.95) 100%);
+  pointer-events: none;
 }
 
 .hero-bg-effects {
@@ -211,20 +212,10 @@
   color: var(--text-tertiary);
 }
 
-/* ── Stats Section ── */
 .stats-section {
-  padding: var(--sp-12) 0;
+  padding: var(--sp-16) 0;
   position: relative;
-}
-
-.stats-section::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 10%;
-  right: 10%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--border-default), transparent);
+  background: linear-gradient(180deg, #0B0F19 0%, var(--bg-primary) 100%);
 }
 
 .stats-grid {
@@ -318,6 +309,25 @@
   line-height: 1.7;
 }
 
+/* ── Section Backgrounds & Patterns ── */
+.section {
+  padding: var(--sp-20) 0;
+  position: relative;
+}
+
+.how-it-works {
+  background: radial-gradient(circle at 10% 20%, rgba(225, 29, 72, 0.02) 0%, transparent 50%),
+              radial-gradient(circle at 90% 80%, rgba(234, 179, 8, 0.02) 0%, transparent 50%),
+              #FFFFFF;
+  border-bottom: 1px solid var(--border-default);
+}
+
+.trust-section {
+  background: radial-gradient(circle at 90% 10%, rgba(225, 29, 72, 0.02) 0%, transparent 50%),
+              radial-gradient(circle at 10% 90%, rgba(234, 179, 8, 0.02) 0%, transparent 50%),
+              var(--bg-primary);
+}
+
 /* ── Steps Grid ── */
 .steps-grid {
   display: grid;
@@ -331,12 +341,26 @@
   flex-direction: column;
   gap: var(--sp-4);
   position: relative;
+  background: #FFFFFF;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  transition: all var(--transition-base);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
+}
+
+.step-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(225, 29, 72, 0.2);
+  box-shadow: 0 20px 40px -15px rgba(225, 29, 72, 0.08);
 }
 
 .step-number {
   font-family: var(--font-display);
   font-size: var(--fs-5xl);
   font-weight: 900;
+  background: var(--grad-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   opacity: 0.15;
   position: absolute;
   top: var(--sp-4);
@@ -351,7 +375,8 @@
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-xl);
-  background: var(--bg-secondary);
+  background: var(--primary-light);
+  color: var(--primary-color);
 }
 
 .step-title {

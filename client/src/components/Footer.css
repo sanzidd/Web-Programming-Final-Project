@@ -25,14 +25,11 @@
 }
 
 .footer-logo {
-  width: 40px;
+  width: auto;
   height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--gradient-gold);
-  border-radius: var(--radius-md);
-  color: var(--ruet-navy);
 }
 
 .footer-title {

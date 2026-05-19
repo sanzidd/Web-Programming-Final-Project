@@ -63,15 +63,126 @@ export default function Home() {
     fetchStats();
   }, []);
 
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    
+    let animationFrameId;
+    let width = canvas.width = canvas.parentElement.offsetWidth;
+    let height = canvas.height = canvas.parentElement.offsetHeight;
+    
+    const handleResize = () => {
+      if (!canvas) return;
+      width = canvas.width = canvas.parentElement.offsetWidth;
+      height = canvas.height = canvas.parentElement.offsetHeight;
+    };
+    window.addEventListener('resize', handleResize);
+    
+    const particleCount = Math.min(100, Math.floor((width * height) / 12000));
+    const particles = [];
+    
+    for (let i = 0; i < particleCount; i++) {
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * 0.7,
+        vy: (Math.random() - 0.5) * 0.7,
+        radius: Math.random() * 2 + 1,
+        color: Math.random() > 0.5 ? 'rgba(225, 29, 72, 0.45)' : 'rgba(234, 179, 8, 0.4)'
+      });
+    }
+    
+    // Track mouse coordinates for interactive mouse line attraction
+    let mouse = { x: null, y: null };
+    const handleMouseMove = (e) => {
+      const rect = canvas.getBoundingClientRect();
+      mouse.x = e.clientX - rect.left;
+      mouse.y = e.clientY - rect.top;
+    };
+    const handleMouseLeave = () => {
+      mouse.x = null;
+      mouse.y = null;
+    };
+    
+    canvas.parentElement.addEventListener('mousemove', handleMouseMove);
+    canvas.parentElement.addEventListener('mouseleave', handleMouseLeave);
+    
+    const draw = () => {
+      ctx.clearRect(0, 0, width, height);
+      
+      // Update and draw particles
+      particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        
+        if (p.x < 0 || p.x > width) p.vx *= -1;
+        if (p.y < 0 || p.y > height) p.vy *= -1;
+        
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.fill();
+      });
+      
+      // Draw lines
+      for (let i = 0; i < particles.length; i++) {
+        const p1 = particles[i];
+        
+        // Connect to mouse if close
+        if (mouse.x !== null && mouse.y !== null) {
+          const distToMouse = Math.hypot(p1.x - mouse.x, p1.y - mouse.y);
+          if (distToMouse < 120) {
+            const alpha = (1 - distToMouse / 120) * 0.25;
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(mouse.x, mouse.y);
+            ctx.strokeStyle = `rgba(234, 179, 8, ${alpha})`;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          }
+        }
+        
+        for (let j = i + 1; j < particles.length; j++) {
+          const p2 = particles[j];
+          const dist = Math.hypot(p1.x - p2.x, p1.y - p2.y);
+          
+          if (dist < 110) {
+            const alpha = (1 - dist / 110) * 0.18;
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = `rgba(225, 29, 72, ${alpha})`;
+            ctx.lineWidth = 0.8;
+            ctx.stroke();
+          }
+        }
+      }
+      
+      animationFrameId = requestAnimationFrame(draw);
+    };
+    
+    draw();
+    
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('resize', handleResize);
+      if (canvas && canvas.parentElement) {
+        canvas.parentElement.removeEventListener('mousemove', handleMouseMove);
+        canvas.parentElement.removeEventListener('mouseleave', handleMouseLeave);
+      }
+    };
+  }, []);
+
   return (
     <div className="home-page">
       {/* Hero Section */}
       <section className="hero">
-        <div className="hero-video-container">
-          <video className="hero-video" autoPlay loop muted playsInline>
-            <source src="https://assets.mixkit.co/videos/preview/mixkit-network-connection-lines-background-loop-44431-large.mp4" type="video/mp4" />
-          </video>
-          <div className="hero-video-overlay" />
+        <div className="hero-canvas-container">
+          <canvas ref={canvasRef} className="hero-canvas" />
+          <div className="hero-canvas-overlay" />
         </div>
 
         <div className="hero-bg-effects">
