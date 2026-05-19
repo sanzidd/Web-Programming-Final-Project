@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   MessageSquare, Star, Users, Building2, TrendingUp, TrendingDown,
@@ -54,6 +54,7 @@ function CustomTooltip({ active, payload, label }) {
 }
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const toast = useToast();
   const [overview, setOverview] = useState(null);
   const [deptAnalytics, setDeptAnalytics] = useState([]);
@@ -132,6 +133,7 @@ export default function Dashboard() {
     .sort((a, b) => b.avgRating - a.avgRating)
     .slice(0, 10)
     .map(d => ({
+      id: d.department._id,
       name: d.department.code,
       rating: d.avgRating,
       feedbacks: d.feedbackCount,
@@ -244,10 +246,23 @@ export default function Dashboard() {
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.08)" />
                 <XAxis type="number" domain={[0, 5]} tick={{ fill: '#94A3B8', fontSize: 12 }} />
                 <YAxis type="category" dataKey="name" tick={{ fill: '#94A3B8', fontSize: 12 }} width={50} />
-                <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey="rating" name="Avg Rating" fill="#D4A843" radius={[0, 6, 6, 0]} barSize={18} />
+                <Tooltip content={<CustomTooltip />} cursor={{fill: 'rgba(255,255,255,0.05)'}} />
+                <Bar 
+                  dataKey="rating" 
+                  name="Avg Rating" 
+                  fill="#D4A843" 
+                  radius={[0, 6, 6, 0]} 
+                  barSize={18} 
+                  onClick={(data) => {
+                    if (data && data.payload && data.payload.id) {
+                      navigate(`/department/${data.payload.id}`);
+                    }
+                  }}
+                  style={{ cursor: 'pointer' }}
+                />
               </BarChart>
             </ResponsiveContainer>
+            <p className="text-secondary" style={{ fontSize: '0.8rem', marginTop: '8px', textAlign: 'center' }}>Click a bar to view department details</p>
           </motion.div>
         </div>
 

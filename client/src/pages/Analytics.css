@@ -11,3 +11,16 @@
   align-items: center;
   gap: var(--sp-3);
 }
+
+.clickable-row {
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.clickable-row:hover {
+  background-color: rgba(var(--primary-color-rgb), 0.05) !important;
+}
+
+.clickable-row:active {
+  transform: scale(0.99);
+}

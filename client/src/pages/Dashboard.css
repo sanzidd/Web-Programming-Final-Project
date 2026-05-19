@@ -63,8 +63,8 @@
 }
 
 .trend-up {
-  color: var(--ruet-emerald);
-  background: var(--ruet-emerald-dim);
+  color: var(--text-success);
+  background: rgba(5, 150, 105, 0.1);
 }
 
 .trend-down {
@@ -183,7 +183,7 @@
 .sentiment-bar-track {
   flex: 1;
   height: 8px;
-  background: var(--bg-glass-light);
+  background: var(--border-default);
   border-radius: var(--radius-full);
   overflow: hidden;
 }
@@ -220,7 +220,7 @@
 }
 
 .teacher-list-item:hover {
-  background: var(--bg-glass-light);
+  background: var(--bg-hover);
 }
 
 .teacher-rank {
@@ -236,8 +236,8 @@
 }
 
 .rank-top {
-  background: var(--ruet-emerald-dim);
-  color: var(--ruet-emerald);
+  background: rgba(5, 150, 105, 0.1);
+  color: var(--text-success);
 }
 
 .rank-bottom {
@@ -313,7 +313,7 @@
 }
 
 .feedback-table tr:hover td {
-  background: var(--bg-glass-light);
+  background: var(--bg-hover);
 }
 
 .td-date {

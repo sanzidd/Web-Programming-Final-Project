@@ -137,7 +137,7 @@ export default function Home() {
                 </div>
               </div>
               <div className="hero-central-graphic">
-                <GraduationCap size={64} />
+                <img src="/ruet-logo.png" alt="RUET Logo" style={{ width: '120px', height: '120px', objectFit: 'contain' }} />
               </div>
             </div>
           </motion.div>

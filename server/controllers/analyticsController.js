@@ -13,7 +13,7 @@ exports.getOverview = async (req, res) => {
     ]);
 
     const avgRating = totalFeedbacks > 0
-      ? (feedbacks.reduce((sum, f) => sum + f.rating, 0) / totalFeedbacks).toFixed(2)
+      ? (feedbacks.reduce((sum, f) => sum + (f.courseRating?.overall || 0), 0) / totalFeedbacks).toFixed(2)
       : 0;
 
     // Sentiment distribution
@@ -22,7 +22,9 @@ exports.getOverview = async (req, res) => {
 
     // Rating distribution
     const ratingDist = [0, 0, 0, 0, 0];
-    feedbacks.forEach(f => { ratingDist[f.rating - 1]++; });
+    feedbacks.forEach(f => { 
+      if (f.courseRating?.overall) ratingDist[f.courseRating.overall - 1]++; 
+    });
 
     // Recent 10 feedbacks
     const recentFeedbacks = await Feedback.find()
@@ -60,7 +62,7 @@ exports.getDepartmentAnalytics = async (req, res) => {
       const teacherCount = await Teacher.countDocuments({ department: dept._id });
       const count = feedbacks.length;
       const avgRating = count > 0
-        ? (feedbacks.reduce((sum, f) => sum + f.rating, 0) / count).toFixed(2)
+        ? (feedbacks.reduce((sum, f) => sum + (f.courseRating?.overall || 0), 0) / count).toFixed(2)
         : 0;
 
       analytics.push({
@@ -88,7 +90,7 @@ exports.getTrends = async (req, res) => {
       if (!monthlyData[key]) {
         monthlyData[key] = { month: key, totalRating: 0, count: 0 };
       }
-      monthlyData[key].totalRating += f.rating;
+      monthlyData[key].totalRating += (f.courseRating?.overall || 0);
       monthlyData[key].count++;
     });
 
@@ -121,7 +123,7 @@ exports.getTeacherAnalytics = async (req, res) => {
       if (!monthlyData[key]) {
         monthlyData[key] = { month: key, totalRating: 0, count: 0 };
       }
-      monthlyData[key].totalRating += f.rating;
+      monthlyData[key].totalRating += (f.courseRating?.overall || 0);
       monthlyData[key].count++;
     });
 
@@ -131,12 +133,13 @@ exports.getTeacherAnalytics = async (req, res) => {
       feedbackCount: m.count,
     }));
 
-    // Criteria breakdown
+    // Criteria breakdown (updated based on new Teacher schema)
     const criteriaRadar = [
       { criteria: 'Overall', value: teacher.avgRating },
-      { criteria: 'Teaching', value: teacher.avgTeaching },
-      { criteria: 'Communication', value: teacher.avgCommunication },
-      { criteria: 'Helpfulness', value: teacher.avgHelpfulness },
+      { criteria: 'Structure', value: teacher.avgStructure },
+      { criteria: 'Delivery', value: teacher.avgDelivery },
+      { criteria: 'Environment', value: teacher.avgEnvironment },
+      { criteria: 'Skill', value: teacher.avgSkill },
     ];
 
     // Sentiment breakdown
@@ -145,7 +148,9 @@ exports.getTeacherAnalytics = async (req, res) => {
 
     // Rating distribution
     const ratingDist = [0, 0, 0, 0, 0];
-    feedbacks.forEach(f => { ratingDist[f.rating - 1]++; });
+    feedbacks.forEach(f => { 
+      if (f.courseRating?.overall) ratingDist[f.courseRating.overall - 1]++; 
+    });
 
     res.json({
       teacher,
@@ -157,6 +162,38 @@ exports.getTeacherAnalytics = async (req, res) => {
         rating: i + 1,
         count,
       })),
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Single Department analytics
+exports.getSingleDepartmentAnalytics = async (req, res) => {
+  try {
+    const department = await Department.findById(req.params.id);
+    if (!department) return res.status(404).json({ message: 'Department not found' });
+
+    const feedbacks = await Feedback.find({ department: req.params.id }).sort({ createdAt: -1 });
+    const teacherCount = await Teacher.countDocuments({ department: req.params.id });
+    
+    const ratedFeedbacks = feedbacks.filter(f => f.courseRating && typeof f.courseRating.overall === 'number');
+    const count = ratedFeedbacks.length || 1;
+    const avgRating = ratedFeedbacks.length > 0 
+      ? (ratedFeedbacks.reduce((sum, f) => sum + f.courseRating.overall, 0) / count).toFixed(2)
+      : 0;
+
+    // Sentiment breakdown
+    const sentimentCounts = { positive: 0, neutral: 0, negative: 0 };
+    feedbacks.forEach(f => { if(f.sentiment) sentimentCounts[f.sentiment]++; });
+
+    res.json({
+      department,
+      feedbackCount: feedbacks.length,
+      teacherCount,
+      avgRating: parseFloat(avgRating),
+      sentimentCounts,
+      feedbacks
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

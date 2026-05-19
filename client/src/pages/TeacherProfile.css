@@ -2,13 +2,21 @@
   padding: calc(80px + var(--sp-8)) 0 var(--sp-16);
 }
 
+.profile-header-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--sp-6);
+  flex-wrap: wrap;
+  gap: var(--sp-4);
+}
+
 .back-link {
   display: inline-flex;
   align-items: center;
   gap: var(--sp-2);
   font-size: var(--fs-sm);
   color: var(--text-secondary);
-  margin-bottom: var(--sp-6);
   transition: color var(--transition-fast);
 }
 

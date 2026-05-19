@@ -30,7 +30,7 @@ export default function Navbar() {
       <div className="navbar-inner container">
         <Link to="/" className="navbar-brand">
           <div className="navbar-logo">
-            <GraduationCap size={28} />
+            <img src="/ruet-logo.png" alt="RUET Logo" style={{ height: '32px', width: 'auto' }} />
           </div>
           <div className="navbar-brand-text">
             <span className="navbar-brand-name">RUET</span>

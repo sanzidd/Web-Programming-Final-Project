@@ -11,6 +11,7 @@ import StudentRegister from './pages/StudentRegister';
 import Dashboard from './pages/Dashboard';
 import Analytics from './pages/Analytics';
 import TeacherProfile from './pages/TeacherProfile';
+import DepartmentProfile from './pages/DepartmentProfile';
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
@@ -35,6 +36,9 @@ function App() {
               } />
               <Route path="/teacher/:id" element={
                 <ProtectedRoute><TeacherProfile /></ProtectedRoute>
+              } />
+              <Route path="/department/:id" element={
+                <ProtectedRoute><DepartmentProfile /></ProtectedRoute>
               } />
             </Routes>
           </main>

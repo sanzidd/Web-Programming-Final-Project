@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { BarChart3, TrendingUp, Building2, Filter } from 'lucide-react';
 import { 
@@ -25,6 +26,7 @@ function CustomTooltip({ active, payload, label }) {
 }
 
 export default function Analytics() {
+  const navigate = useNavigate();
   const toast = useToast();
   const [trends, setTrends] = useState([]);
   const [deptData, setDeptData] = useState([]);
@@ -70,12 +72,14 @@ export default function Analytics() {
 
   const radarData = [
     { criteria: 'Overall', ...Object.fromEntries(topForRadar.map(t => [t.name.split(' ').pop(), t.avgRating])) },
-    { criteria: 'Teaching', ...Object.fromEntries(topForRadar.map(t => [t.name.split(' ').pop(), t.avgTeaching])) },
-    { criteria: 'Communication', ...Object.fromEntries(topForRadar.map(t => [t.name.split(' ').pop(), t.avgCommunication])) },
-    { criteria: 'Helpfulness', ...Object.fromEntries(topForRadar.map(t => [t.name.split(' ').pop(), t.avgHelpfulness])) },
+    { criteria: 'Structure', ...Object.fromEntries(topForRadar.map(t => [t.name.split(' ').pop(), t.avgStructure])) },
+    { criteria: 'Delivery', ...Object.fromEntries(topForRadar.map(t => [t.name.split(' ').pop(), t.avgDelivery])) },
+    { criteria: 'Duration', ...Object.fromEntries(topForRadar.map(t => [t.name.split(' ').pop(), t.avgDuration])) },
+    { criteria: 'Environment', ...Object.fromEntries(topForRadar.map(t => [t.name.split(' ').pop(), t.avgEnvironment])) },
+    { criteria: 'Skill', ...Object.fromEntries(topForRadar.map(t => [t.name.split(' ').pop(), t.avgSkill])) },
   ];
 
-  const radarColors = ['#D4A843', '#10B981', '#818CF8', '#F43F5E', '#F59E0B'];
+  const radarColors = ['#2563EB', '#059669', '#F59E0B', '#DC2626', '#8B5CF6'];
 
   if (loading) {
     return (
@@ -99,7 +103,7 @@ export default function Analytics() {
         <div className="dashboard-header">
           <div>
             <h1 className="font-display dashboard-title">
-              <BarChart3 size={28} style={{ color: 'var(--ruet-gold)' }} />
+              <BarChart3 size={28} style={{ color: 'var(--primary-color)' }} />
               Analytics
             </h1>
             <p className="dashboard-subtitle">Deep dive into feedback trends and performance</p>
@@ -113,15 +117,15 @@ export default function Analytics() {
           className="chart-card glass-card full-width-chart"
         >
           <h3 className="chart-title">
-            <TrendingUp size={18} style={{ color: 'var(--ruet-emerald)' }} />
+            <TrendingUp size={18} style={{ color: 'var(--text-success)' }} />
             Rating Trends Over Time
           </h3>
           <ResponsiveContainer width="100%" height={320}>
             <AreaChart data={trends}>
               <defs>
-                <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#D4A843" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#D4A843" stopOpacity={0} />
+                <linearGradient id="primaryGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="var(--primary-color)" stopOpacity={0.2} />
+                  <stop offset="95%" stopColor="var(--primary-color)" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.08)" />
@@ -132,11 +136,11 @@ export default function Analytics() {
                 type="monotone"
                 dataKey="avgRating"
                 name="Avg Rating"
-                stroke="#D4A843"
+                stroke="var(--primary-color)"
                 strokeWidth={2.5}
-                fill="url(#goldGrad)"
-                dot={{ fill: '#D4A843', r: 4, strokeWidth: 0 }}
-                activeDot={{ r: 6, stroke: '#D4A843', strokeWidth: 2, fill: '#0A1628' }}
+                fill="url(#primaryGrad)"
+                dot={{ fill: 'var(--primary-color)', r: 4, strokeWidth: 0 }}
+                activeDot={{ r: 6, stroke: 'var(--primary-color)', strokeWidth: 2, fill: '#FFFFFF' }}
               />
             </AreaChart>
           </ResponsiveContainer>
@@ -157,7 +161,7 @@ export default function Analytics() {
               <XAxis dataKey="month" tick={{ fill: '#94A3B8', fontSize: 12 }} />
               <YAxis tick={{ fill: '#94A3B8', fontSize: 12 }} />
               <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="feedbackCount" name="Feedbacks" fill="#818CF8" radius={[6, 6, 0, 0]} barSize={30} />
+              <Bar dataKey="feedbackCount" name="Feedbacks" fill="var(--primary-color)" radius={[6, 6, 0, 0]} barSize={30} />
             </BarChart>
           </ResponsiveContainer>
         </motion.div>
@@ -171,7 +175,7 @@ export default function Analytics() {
             className="chart-card glass-card"
           >
             <h3 className="chart-title">
-              <Building2 size={18} style={{ color: '#818CF8' }} />
+              <Building2 size={18} style={{ color: 'var(--primary-color)' }} />
               Department Comparison
             </h3>
             <ResponsiveContainer width="100%" height={350}>
@@ -180,7 +184,7 @@ export default function Analytics() {
                 <XAxis dataKey="name" tick={{ fill: '#94A3B8', fontSize: 11 }} angle={-45} textAnchor="end" height={60} />
                 <YAxis domain={[0, 5]} tick={{ fill: '#94A3B8', fontSize: 12 }} />
                 <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey="avgRating" name="Avg Rating" fill="#D4A843" radius={[6, 6, 0, 0]} barSize={24} />
+                <Bar dataKey="avgRating" name="Avg Rating" fill="var(--accent-color)" radius={[6, 6, 0, 0]} barSize={24} />
               </BarChart>
             </ResponsiveContainer>
           </motion.div>
@@ -192,7 +196,7 @@ export default function Analytics() {
             className="chart-card glass-card"
           >
             <h3 className="chart-title">
-              <Filter size={18} style={{ color: 'var(--ruet-gold)' }} />
+              <Filter size={18} style={{ color: 'var(--accent-color)' }} />
               Top Teachers — Criteria Radar
             </h3>
             <ResponsiveContainer width="100%" height={350}>
@@ -241,14 +245,18 @@ export default function Analytics() {
               </thead>
               <tbody>
                 {deptData.map(d => (
-                  <tr key={d.department._id}>
+                  <tr 
+                    key={d.department._id} 
+                    onClick={() => navigate(`/department/${d.department._id}`)}
+                    className="clickable-row"
+                  >
                     <td className="td-teacher">{d.department.name}</td>
                     <td><span className="badge badge-blue">{d.department.code}</span></td>
                     <td>{d.teacherCount}</td>
                     <td>{d.feedbackCount}</td>
                     <td>
                       <div className="td-rating">
-                        <span style={{ color: d.avgRating >= 3.5 ? 'var(--ruet-emerald)' : d.avgRating >= 2.5 ? 'var(--ruet-gold)' : 'var(--text-danger)' }}>
+                        <span style={{ color: d.avgRating >= 3.5 ? 'var(--text-success)' : d.avgRating >= 2.5 ? 'var(--accent-color)' : 'var(--text-danger)' }}>
                           ★ {d.avgRating > 0 ? d.avgRating.toFixed(1) : '—'}
                         </span>
                       </div>
