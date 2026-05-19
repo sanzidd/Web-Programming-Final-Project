@@ -25,8 +25,10 @@ export default function Navbar() {
 
   const isActive = (path) => location.pathname === path;
 
+  const isHome = location.pathname === '/';
+
   return (
-    <nav className={`navbar ${scrolled ? 'navbar-scrolled' : ''}`}>
+    <nav className={`navbar ${scrolled ? 'navbar-scrolled' : 'navbar-transparent'} ${isHome ? 'navbar-home' : 'navbar-other'}`}>
       <div className="navbar-inner container">
         <Link to="/" className="navbar-brand">
           <div className="navbar-logo">

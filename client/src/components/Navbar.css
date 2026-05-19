@@ -6,6 +6,48 @@
   z-index: var(--z-sticky);
   padding: var(--sp-4) 0;
   transition: all var(--transition-base);
+}
+
+/* --- HOME PAGE TRANSPARENT STATE (AT TOP) --- */
+.navbar-home.navbar-transparent {
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.navbar-home.navbar-transparent .navbar-brand-sub {
+  color: #94A3B8; /* Light Slate on dark bg */
+}
+
+.navbar-home.navbar-transparent .navbar-link {
+  color: #E2E8F0;
+}
+
+.navbar-home.navbar-transparent .navbar-link:hover {
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.navbar-home.navbar-transparent .navbar-link.active {
+  color: #FFFFFF;
+  background: rgba(225, 29, 72, 0.2);
+}
+
+.navbar-home.navbar-transparent .navbar-logo {
+  background: rgba(255, 255, 255, 0.08);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.navbar-home.navbar-transparent .navbar-toggle {
+  color: #FFFFFF;
+}
+
+/* --- SCROLLED STATE OR OTHER PAGES (FROSTED WHITE) --- */
+.navbar-scrolled,
+.navbar-other {
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -108,6 +150,17 @@
   padding: var(--sp-2);
 }
 
+.navbar-home.navbar-transparent .btn-outline {
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #FFFFFF;
+}
+
+.navbar-home.navbar-transparent .btn-outline:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.55);
+  color: #FFFFFF;
+}
+
 @media (max-width: 768px) {
   .navbar-toggle {
     display: flex;
@@ -147,5 +200,20 @@
     margin-left: 0;
     width: 100%;
     margin-top: var(--sp-2);
+  }
+
+  .navbar-home.navbar-transparent .navbar-menu {
+    background: rgba(15, 23, 42, 0.98);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .navbar-home.navbar-transparent .navbar-link {
+    color: #E2E8F0;
+  }
+
+  .navbar-home.navbar-transparent .navbar-link:hover,
+  .navbar-home.navbar-transparent .navbar-link.active {
+    background: rgba(255, 255, 255, 0.08);
+    color: #FFFFFF;
   }
 }
