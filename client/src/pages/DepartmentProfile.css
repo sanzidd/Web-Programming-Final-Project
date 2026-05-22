@@ -1,7 +1,11 @@
+/* ══════════════════════════════════════
+   Department Profile — Premium Style
+   ══════════════════════════════════════ */
+
 .department-profile-page {
-  padding-top: var(--sp-20);
-  padding-bottom: var(--sp-12);
+  padding: calc(80px + var(--sp-8)) 0 var(--sp-16);
   min-height: 100vh;
+  background: var(--bg-primary);
 }
 
 .dept-header {
@@ -13,15 +17,17 @@
   align-items: center;
   gap: var(--sp-4);
   margin-bottom: var(--sp-2);
+  flex-wrap: wrap;
 }
 
 .dept-code-badge {
   background: var(--primary-color);
   color: white;
-  padding: 4px 12px;
+  padding: 4px 14px;
   border-radius: var(--radius-full);
-  font-weight: 600;
-  font-size: 1.1rem;
+  font-weight: 700;
+  font-size: var(--fs-base);
+  letter-spacing: 0.02em;
 }
 
 .teachers-grid {
@@ -38,13 +44,17 @@
   gap: var(--sp-4);
   position: relative;
   overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--transition-base);
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
 }
 
 .teacher-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.15);
-  border-color: rgba(var(--primary-color-rgb), 0.3);
+  box-shadow: var(--shadow-lg);
+  border-color: rgba(185, 28, 58, 0.15);
 }
 
 .teacher-card-header {
@@ -53,43 +63,44 @@
   align-items: flex-start;
 }
 
-.teacher-avatar {
+.teacher-card .teacher-avatar {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+  background: var(--grad-primary);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.25rem;
+  font-size: var(--fs-lg);
   font-weight: 600;
-  box-shadow: 0 4px 12px rgba(var(--primary-color-rgb), 0.3);
+  box-shadow: 0 4px 12px rgba(185, 28, 58, 0.2);
 }
 
 .teacher-rating-badge {
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 10px;
+  padding: 4px 12px;
   border-radius: var(--radius-full);
   font-weight: 600;
-  font-size: 0.875rem;
+  font-size: var(--fs-sm);
 }
 
-.rating-high { background: rgba(16, 185, 129, 0.1); color: var(--ruet-emerald); }
-.rating-med { background: rgba(245, 158, 11, 0.1); color: var(--ruet-gold); }
-.rating-low { background: rgba(239, 68, 68, 0.1); color: var(--text-danger); }
+.rating-high { background: rgba(15, 123, 95, 0.08); color: var(--ruet-emerald); }
+.rating-med { background: rgba(200, 146, 42, 0.1); color: var(--accent-color); }
+.rating-low { background: rgba(185, 28, 58, 0.08); color: var(--primary-color); }
 
 .teacher-info h3 {
-  font-size: 1.25rem;
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  font-weight: 700;
   color: var(--text-primary);
   margin: 0 0 4px 0;
 }
 
 .teacher-info p {
-  font-size: 0.875rem;
+  font-size: var(--fs-sm);
   color: var(--text-secondary);
   margin: 0;
 }
@@ -98,8 +109,9 @@
   display: flex;
   gap: var(--sp-4);
   padding: var(--sp-3) 0;
-  border-top: 1px solid var(--border-light);
-  border-bottom: 1px solid var(--border-light);
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+  flex-wrap: wrap;
 }
 
 .stat-item {
@@ -111,10 +123,11 @@
 .stat-val {
   font-weight: 600;
   color: var(--text-primary);
+  font-size: var(--fs-sm);
 }
 
 .stat-lbl {
-  font-size: 0.75rem;
+  font-size: var(--fs-xs);
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -127,15 +140,49 @@
   align-items: center;
   gap: 8px;
   padding: var(--sp-3);
-  background: rgba(var(--primary-color-rgb), 0.05);
+  background: var(--primary-soft);
   color: var(--primary-color);
-  border-radius: var(--radius-md);
-  font-weight: 500;
+  border-radius: var(--radius-lg);
+  font-weight: 600;
+  font-size: var(--fs-sm);
   text-decoration: none;
-  transition: all 0.2s ease;
+  transition: all var(--transition-fast);
 }
 
 .view-profile-btn:hover {
   background: var(--primary-color);
   color: white;
+  box-shadow: 0 4px 16px rgba(185, 28, 58, 0.2);
+}
+
+/* ══════════════════════════════════════
+   Responsive
+   ══════════════════════════════════════ */
+@media (max-width: 768px) {
+  .department-profile-page {
+    padding: calc(80px + var(--sp-6)) 0 var(--sp-10);
+  }
+
+  .dept-title-wrap {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-2);
+  }
+
+  .teachers-grid {
+    grid-template-columns: 1fr;
+    gap: var(--sp-4);
+    margin-top: var(--sp-6);
+  }
+}
+
+@media (max-width: 480px) {
+  .teacher-card {
+    padding: var(--sp-4);
+    gap: var(--sp-3);
+  }
+
+  .teacher-stats-row {
+    gap: var(--sp-3);
+  }
 }

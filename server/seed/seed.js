@@ -135,12 +135,23 @@ async function seed() {
         await Feedback.create({
           teacher: teacher._id,
           department: teacher.department,
-          courseName: teacher.courses[Math.floor(Math.random() * teacher.courses.length)],
-          rating,
-          teachingQuality: teaching,
-          communication: comm,
-          helpfulness: help,
-          comment,
+          courseName: (teacher.courses && teacher.courses.length > 0) 
+            ? teacher.courses[Math.floor(Math.random() * teacher.courses.length)] 
+            : 'General Course',
+          
+          courseContent: { q1: teaching, q2: teaching, q3: teaching, comment: '' },
+          studentContribution: { q5: comm, q6: comm, comment: '' },
+          learningEnvironment: { q8: help, q9: help, q10: help, q11: help, comment: '' },
+          learningResources: { q13: teaching, q14: teaching, q15: teaching, comment: '' },
+          courseTeacher: { 
+            q17: comm, q18: teaching, q19: teaching, 
+            q20: comm, q21: comm, q22: help, comment: '' 
+          },
+          courseRating: { 
+            structure: teaching, delivery: teaching, duration: comm, 
+            environment: help, skill: teaching, overall: rating, comment: '' 
+          },
+          overallFeedback: comment || 'Good course',
           sentiment: sentimentType,
           createdAt,
         });
@@ -152,10 +163,10 @@ async function seed() {
       const count = feedbacks.length;
       if (count > 0) {
         await Teacher.findByIdAndUpdate(teacher._id, {
-          avgRating: Math.round((feedbacks.reduce((s, f) => s + f.rating, 0) / count) * 100) / 100,
-          avgTeaching: Math.round((feedbacks.reduce((s, f) => s + f.teachingQuality, 0) / count) * 100) / 100,
-          avgCommunication: Math.round((feedbacks.reduce((s, f) => s + f.communication, 0) / count) * 100) / 100,
-          avgHelpfulness: Math.round((feedbacks.reduce((s, f) => s + f.helpfulness, 0) / count) * 100) / 100,
+          avgRating: Math.round((feedbacks.reduce((s, f) => s + f.courseRating.overall, 0) / count) * 100) / 100,
+          avgTeaching: Math.round((feedbacks.reduce((s, f) => s + f.courseTeacher.q19, 0) / count) * 100) / 100,
+          avgCommunication: Math.round((feedbacks.reduce((s, f) => s + f.courseTeacher.q21, 0) / count) * 100) / 100,
+          avgHelpfulness: Math.round((feedbacks.reduce((s, f) => s + f.courseTeacher.q17, 0) / count) * 100) / 100,
           totalFeedbacks: count,
         });
       }

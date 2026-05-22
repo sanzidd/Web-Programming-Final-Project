@@ -1,3 +1,7 @@
+/* ══════════════════════════════════════
+   Login Page — Premium University Style
+   ══════════════════════════════════════ */
+
 .login-page {
   min-height: 100vh;
   display: flex;
@@ -5,6 +9,7 @@
   justify-content: center;
   position: relative;
   padding: var(--sp-6);
+  background: var(--bg-primary);
 }
 
 .login-bg-effects {
@@ -16,13 +21,13 @@
 .login-orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(120px);
+  filter: blur(140px);
 }
 
 .login-orb-1 {
   width: 400px;
   height: 400px;
-  background: rgba(212, 168, 67, 0.1);
+  background: rgba(185, 28, 58, 0.06);
   top: 20%;
   right: 20%;
 }
@@ -30,7 +35,7 @@
 .login-orb-2 {
   width: 300px;
   height: 300px;
-  background: rgba(16, 185, 129, 0.07);
+  background: rgba(200, 146, 42, 0.05);
   bottom: 20%;
   left: 20%;
 }
@@ -45,6 +50,10 @@
   gap: var(--sp-4);
   position: relative;
   z-index: 2;
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-lg);
 }
 
 .login-icon-wrap {
@@ -53,15 +62,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--gradient-gold);
+  background: var(--primary-soft);
   border-radius: var(--radius-xl);
-  color: var(--ruet-navy);
+  color: var(--primary-color);
   margin-bottom: var(--sp-2);
 }
 
 .login-title {
+  font-family: var(--font-display);
   font-size: var(--fs-2xl);
-  font-weight: 800;
+  font-weight: 700;
+  color: var(--text-primary);
 }
 
 .login-subtitle {
@@ -115,7 +126,8 @@
 .login-hint {
   margin-top: var(--sp-4);
   padding: var(--sp-3) var(--sp-4);
-  background: var(--bg-glass-light);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   font-size: var(--fs-xs);
   color: var(--text-tertiary);
@@ -123,9 +135,37 @@
 }
 
 .login-hint code {
-  background: var(--bg-tertiary);
+  background: var(--bg-primary);
   padding: 2px 6px;
   border-radius: var(--radius-sm);
-  color: var(--ruet-gold);
+  color: var(--accent-color);
   font-size: var(--fs-xs);
+  font-weight: 600;
+}
+
+/* ── Register Two-Column Layout ── */
+.register-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-4);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .login-page {
+    padding: var(--sp-4);
+  }
+
+  .login-card {
+    padding: var(--sp-6);
+    border-radius: var(--radius-xl);
+  }
+
+  .login-title {
+    font-size: var(--fs-xl);
+  }
+
+  .register-two-col {
+    grid-template-columns: 1fr;
+  }
 }

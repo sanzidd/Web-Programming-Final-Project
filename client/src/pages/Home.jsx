@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { 
   MessageSquarePlus, Shield, BarChart3, Users, Star, 
   Building2, ChevronRight, Sparkles, Lock, Eye, TrendingUp,
-  GraduationCap, Award, Zap
+  Award, Zap
 } from 'lucide-react';
 import api from '../services/api';
 import './Home.css';
@@ -55,7 +55,7 @@ export default function Home() {
           teachers: teachers.data.length,
           feedbacks: teachers.data.reduce((sum, t) => sum + t.totalFeedbacks, 0),
         });
-      } catch (err) {
+      } catch {
         // Fallback stats
         setStats({ departments: 18, teachers: 45, feedbacks: 200 });
       }
@@ -63,128 +63,11 @@ export default function Home() {
     fetchStats();
   }, []);
 
-  const canvasRef = useRef(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    
-    let animationFrameId;
-    let width = canvas.width = canvas.parentElement.offsetWidth;
-    let height = canvas.height = canvas.parentElement.offsetHeight;
-    
-    const handleResize = () => {
-      if (!canvas) return;
-      width = canvas.width = canvas.parentElement.offsetWidth;
-      height = canvas.height = canvas.parentElement.offsetHeight;
-    };
-    window.addEventListener('resize', handleResize);
-    
-    const particleCount = Math.min(100, Math.floor((width * height) / 12000));
-    const particles = [];
-    
-    for (let i = 0; i < particleCount; i++) {
-      particles.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.7,
-        vy: (Math.random() - 0.5) * 0.7,
-        radius: Math.random() * 2 + 1,
-        color: Math.random() > 0.5 ? 'rgba(225, 29, 72, 0.45)' : 'rgba(234, 179, 8, 0.4)'
-      });
-    }
-    
-    // Track mouse coordinates for interactive mouse line attraction
-    let mouse = { x: null, y: null };
-    const handleMouseMove = (e) => {
-      const rect = canvas.getBoundingClientRect();
-      mouse.x = e.clientX - rect.left;
-      mouse.y = e.clientY - rect.top;
-    };
-    const handleMouseLeave = () => {
-      mouse.x = null;
-      mouse.y = null;
-    };
-    
-    canvas.parentElement.addEventListener('mousemove', handleMouseMove);
-    canvas.parentElement.addEventListener('mouseleave', handleMouseLeave);
-    
-    const draw = () => {
-      ctx.clearRect(0, 0, width, height);
-      
-      // Update and draw particles
-      particles.forEach(p => {
-        p.x += p.vx;
-        p.y += p.vy;
-        
-        if (p.x < 0 || p.x > width) p.vx *= -1;
-        if (p.y < 0 || p.y > height) p.vy *= -1;
-        
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = p.color;
-        ctx.fill();
-      });
-      
-      // Draw lines
-      for (let i = 0; i < particles.length; i++) {
-        const p1 = particles[i];
-        
-        // Connect to mouse if close
-        if (mouse.x !== null && mouse.y !== null) {
-          const distToMouse = Math.hypot(p1.x - mouse.x, p1.y - mouse.y);
-          if (distToMouse < 120) {
-            const alpha = (1 - distToMouse / 120) * 0.25;
-            ctx.beginPath();
-            ctx.moveTo(p1.x, p1.y);
-            ctx.lineTo(mouse.x, mouse.y);
-            ctx.strokeStyle = `rgba(234, 179, 8, ${alpha})`;
-            ctx.lineWidth = 1;
-            ctx.stroke();
-          }
-        }
-        
-        for (let j = i + 1; j < particles.length; j++) {
-          const p2 = particles[j];
-          const dist = Math.hypot(p1.x - p2.x, p1.y - p2.y);
-          
-          if (dist < 110) {
-            const alpha = (1 - dist / 110) * 0.18;
-            ctx.beginPath();
-            ctx.moveTo(p1.x, p1.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `rgba(225, 29, 72, ${alpha})`;
-            ctx.lineWidth = 0.8;
-            ctx.stroke();
-          }
-        }
-      }
-      
-      animationFrameId = requestAnimationFrame(draw);
-    };
-    
-    draw();
-    
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-      window.removeEventListener('resize', handleResize);
-      if (canvas && canvas.parentElement) {
-        canvas.parentElement.removeEventListener('mousemove', handleMouseMove);
-        canvas.parentElement.removeEventListener('mouseleave', handleMouseLeave);
-      }
-    };
-  }, []);
 
   return (
     <div className="home-page">
       {/* Hero Section */}
       <section className="hero">
-        <div className="hero-canvas-container">
-          <canvas ref={canvasRef} className="hero-canvas" />
-          <div className="hero-canvas-overlay" />
-        </div>
-
         <div className="hero-bg-effects">
           <div className="hero-orb hero-orb-1" />
           <div className="hero-orb hero-orb-2" />
@@ -396,19 +279,39 @@ export default function Home() {
                 no personal data collection. Your identity is never associated with 
                 your feedback.
               </p>
-              <div className="trust-features">
+              <motion.div 
+                className="trust-features"
+                variants={{
+                  hidden: { opacity: 0 },
+                  show: {
+                    opacity: 1,
+                    transition: { staggerChildren: 0.15 }
+                  }
+                }}
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true, margin: "-50px" }}
+              >
                 {[
                   { icon: <Shield size={18} />, text: 'No login required to submit feedback' },
                   { icon: <Lock size={18} />, text: 'Zero personal data collection' },
                   { icon: <Eye size={18} />, text: 'No IP tracking or browser fingerprinting' },
                   { icon: <Award size={18} />, text: 'End-to-end anonymous submissions' },
                 ].map((item, i) => (
-                  <div key={i} className="trust-feature">
+                  <motion.div 
+                    key={i} 
+                    className="trust-feature"
+                    variants={{
+                      hidden: { opacity: 0, x: -20 },
+                      show: { opacity: 1, x: 0, transition: { type: "spring", stiffness: 100 } }
+                    }}
+                    whileHover={{ x: 8, scale: 1.01 }}
+                  >
                     <div className="trust-feature-icon">{item.icon}</div>
                     <span>{item.text}</span>
-                  </div>
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
               <Link to="/feedback" className="btn btn-primary btn-lg" style={{ marginTop: '1.5rem' }}>
                 <MessageSquarePlus size={18} />
                 Start Giving Feedback
@@ -416,12 +319,18 @@ export default function Home() {
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, scale: 0.8, rotate: -5 }}
+              whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
+              transition={{ type: "spring", stiffness: 60, delay: 0.2 }}
               viewport={{ once: true }}
               className="trust-visual"
             >
-              <div className="trust-shield-graphic">
+              <motion.div 
+                className="trust-shield-graphic"
+                animate={{ y: [0, -10, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                whileHover={{ scale: 1.05 }}
+              >
                 <div className="shield-outer">
                   <div className="shield-inner">
                     <Shield size={48} />
@@ -430,7 +339,7 @@ export default function Home() {
                 <div className="shield-ring ring-1" />
                 <div className="shield-ring ring-2" />
                 <div className="shield-ring ring-3" />
-              </div>
+              </motion.div>
             </motion.div>
           </div>
         </div>

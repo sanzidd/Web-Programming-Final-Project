@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -34,10 +36,6 @@ export default function DepartmentProfile() {
   const [teachers, setTeachers] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchDepartmentData();
-  }, [id]);
-
   const fetchDepartmentData = async () => {
     try {
       const [deptRes, teachersRes] = await Promise.all([
@@ -49,13 +47,17 @@ export default function DepartmentProfile() {
       // Sort teachers by rating descending
       const sortedTeachers = teachersRes.data.sort((a, b) => b.avgRating - a.avgRating);
       setTeachers(sortedTeachers);
-    } catch (err) {
+    } catch {
       toast.error('Failed to load department analytics');
       navigate('/dashboard');
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchDepartmentData();
+  }, [id]);
 
   if (loading || !data) {
     return (

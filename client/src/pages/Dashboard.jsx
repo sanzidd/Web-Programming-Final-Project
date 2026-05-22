@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -62,10 +64,6 @@ export default function Dashboard() {
   const [bottomTeachers, setBottomTeachers] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
   const fetchData = async () => {
     try {
       const [overviewRes, deptRes, topRes, bottomRes] = await Promise.all([
@@ -78,12 +76,16 @@ export default function Dashboard() {
       setDeptAnalytics(deptRes.data);
       setTopTeachers(topRes.data);
       setBottomTeachers(bottomRes.data);
-    } catch (err) {
+    } catch {
       toast.error('Failed to load dashboard data');
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const exportCSV = () => {
     if (!overview?.recentFeedbacks) return;

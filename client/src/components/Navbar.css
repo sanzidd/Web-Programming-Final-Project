@@ -1,3 +1,7 @@
+/* ══════════════════════════════════════
+   Navbar — Premium University Style
+   ══════════════════════════════════════ */
+
 .navbar {
   position: fixed;
   top: 0;
@@ -8,7 +12,7 @@
   transition: all var(--transition-base);
 }
 
-/* --- HOME PAGE TRANSPARENT STATE (AT TOP) --- */
+/* ── HOME PAGE: Transparent at top ── */
 .navbar-home.navbar-transparent {
   background: transparent;
   border-bottom: 1px solid transparent;
@@ -17,51 +21,64 @@
   -webkit-backdrop-filter: none;
 }
 
+.navbar-home.navbar-transparent .navbar-brand-name {
+  color: #FFFFFF;
+}
+
 .navbar-home.navbar-transparent .navbar-brand-sub {
-  color: #94A3B8; /* Light Slate on dark bg */
+  color: #8B92A8;
 }
 
 .navbar-home.navbar-transparent .navbar-link {
-  color: #E2E8F0;
+  color: #C8CDDE;
 }
 
 .navbar-home.navbar-transparent .navbar-link:hover {
   color: #FFFFFF;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .navbar-home.navbar-transparent .navbar-link.active {
   color: #FFFFFF;
-  background: rgba(225, 29, 72, 0.2);
+  background: rgba(185, 28, 58, 0.18);
 }
 
 .navbar-home.navbar-transparent .navbar-logo {
-  background: rgba(255, 255, 255, 0.08);
-  color: #FFFFFF;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .navbar-home.navbar-transparent .navbar-toggle {
   color: #FFFFFF;
 }
 
-/* --- SCROLLED STATE OR OTHER PAGES (FROSTED WHITE) --- */
+.navbar-home.navbar-transparent .btn-outline {
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #E2E8F0;
+}
+
+.navbar-home.navbar-transparent .btn-outline:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #FFFFFF;
+}
+
+/* ── SCROLLED / OTHER PAGES: Solid dark ── */
 .navbar-scrolled,
 .navbar-other {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(225, 29, 72, 0.06);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.02);
+  background: #0A0D1F;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
 }
 
 .navbar-scrolled {
-  background: rgba(255, 255, 255, 0.95);
-  border-bottom: 1px solid rgba(225, 29, 72, 0.15);
+  background: #080A18;
+  border-bottom: 1px solid rgba(200, 146, 42, 0.2);
   padding: var(--sp-3) 0;
-  box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 8px 30px -10px rgba(0, 0, 0, 0.4);
 }
 
+/* ── Inner Layout ── */
 .navbar-inner {
   display: flex;
   align-items: center;
@@ -76,15 +93,19 @@
 }
 
 .navbar-logo {
-  width: 44px;
-  height: 44px;
+  width: 42px;
+  height: 42px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--primary-light);
+  background: var(--primary-soft);
   border-radius: var(--radius-lg);
-  color: var(--primary-color);
   flex-shrink: 0;
+  overflow: hidden;
+}
+
+.navbar-logo img {
+  border-radius: var(--radius-md);
 }
 
 .navbar-brand-text {
@@ -96,28 +117,30 @@
 .navbar-brand-name {
   font-family: var(--font-display);
   font-size: var(--fs-lg);
-  font-weight: 800;
-  color: var(--primary-color);
-  letter-spacing: -0.5px;
+  font-weight: 700;
+  color: #FFFFFF;
+  letter-spacing: -0.02em;
 }
 
 .navbar-brand-sub {
   font-size: var(--fs-xs);
-  color: var(--text-secondary);
+  color: var(--text-tertiary);
   font-weight: 400;
+  letter-spacing: 0.01em;
 }
 
+/* ── Navigation Links ── */
 .navbar-menu {
   display: flex;
   align-items: center;
-  gap: var(--sp-2);
+  gap: var(--sp-1);
 }
 
 .navbar-link {
   display: flex;
   align-items: center;
   gap: var(--sp-2);
-  padding: var(--sp-2) var(--sp-4);
+  padding: 7px 14px;
   font-size: var(--fs-sm);
   font-weight: 500;
   color: var(--text-secondary);
@@ -128,12 +151,13 @@
 
 .navbar-link:hover {
   color: var(--text-primary);
-  background: var(--bg-hover);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .navbar-link.active {
-  color: var(--primary-color);
-  background: var(--primary-light);
+  color: var(--ruet-gold);
+  background: rgba(200, 146, 42, 0.15);
+  font-weight: 600;
 }
 
 .navbar-login {
@@ -150,18 +174,14 @@
   padding: var(--sp-2);
 }
 
-.navbar-home.navbar-transparent .btn-outline {
-  border-color: rgba(255, 255, 255, 0.25);
-  color: #FFFFFF;
-}
-
-.navbar-home.navbar-transparent .btn-outline:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.55);
-  color: #FFFFFF;
-}
-
+/* ══════════════════════════════════════
+   Responsive — Mobile Navigation
+   ══════════════════════════════════════ */
 @media (max-width: 768px) {
+  .navbar {
+    padding: var(--sp-3) 0;
+  }
+
   .navbar-toggle {
     display: flex;
     align-items: center;
@@ -170,18 +190,20 @@
 
   .navbar-menu {
     position: fixed;
-    top: 70px;
+    top: 66px;
     left: 0;
     right: 0;
     flex-direction: column;
     background: rgba(255, 255, 255, 0.98);
     backdrop-filter: blur(24px);
-    padding: var(--sp-6);
-    gap: var(--sp-2);
+    -webkit-backdrop-filter: blur(24px);
+    padding: var(--sp-5) var(--sp-4);
+    gap: var(--sp-1);
     transform: translateY(-120%);
     opacity: 0;
     transition: all var(--transition-base);
-    border-bottom: 1px solid var(--border-subtle);
+    border-bottom: 1px solid var(--border-default);
+    box-shadow: 0 12px 32px rgba(26, 29, 46, 0.08);
   }
 
   .navbar-menu-open {
@@ -193,6 +215,7 @@
     width: 100%;
     padding: var(--sp-3) var(--sp-4);
     border-radius: var(--radius-md);
+    font-size: var(--fs-base);
   }
 
   .navbar-login,
@@ -202,18 +225,43 @@
     margin-top: var(--sp-2);
   }
 
+  /* login buttons stack */
+  .navbar-menu > div[style] {
+    flex-direction: column !important;
+    width: 100%;
+    gap: var(--sp-2) !important;
+  }
+
+  .navbar-menu > div[style] .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Dark mobile menu on home transparent */
   .navbar-home.navbar-transparent .navbar-menu {
-    background: rgba(15, 23, 42, 0.98);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(15, 17, 32, 0.98);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
   }
 
   .navbar-home.navbar-transparent .navbar-link {
-    color: #E2E8F0;
+    color: #C8CDDE;
   }
 
   .navbar-home.navbar-transparent .navbar-link:hover,
   .navbar-home.navbar-transparent .navbar-link.active {
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.06);
     color: #FFFFFF;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar-brand-text {
+    display: none;
+  }
+
+  .navbar-logo {
+    width: 38px;
+    height: 38px;
   }
 }

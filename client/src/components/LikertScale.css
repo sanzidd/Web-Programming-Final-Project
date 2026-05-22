@@ -1,29 +1,34 @@
+/* ══════════════════════════════════════
+   Likert Scale — University Style
+   ══════════════════════════════════════ */
+
 .likert-container {
-  background: var(--bg-card, #ffffff);
-  border: 1px solid var(--border-default, #e5e7eb);
-  border-radius: var(--radius-md, 8px);
-  padding: 1rem;
-  margin-bottom: 1rem;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  transition: border-color 0.2s, box-shadow 0.2s;
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-5);
+  margin-bottom: var(--sp-4);
+  box-shadow: var(--shadow-sm);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .likert-container:hover {
-  border-color: var(--primary-color, #3b82f6);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border-color: rgba(185, 28, 58, 0.15);
+  box-shadow: var(--shadow-md);
 }
 
 .likert-question {
-  font-weight: 500;
-  color: var(--text-primary, #1f2937);
-  margin-bottom: 1rem;
-  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--sp-4);
+  font-size: var(--fs-base);
+  line-height: 1.4;
 }
 
 .likert-options {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 0.5rem;
+  gap: var(--sp-2);
 }
 
 .likert-option {
@@ -32,13 +37,13 @@
   align-items: center;
   text-align: center;
   cursor: pointer;
-  padding: 0.5rem;
-  border-radius: var(--radius-sm, 6px);
-  transition: background-color 0.2s;
+  padding: var(--sp-3) var(--sp-2);
+  border-radius: var(--radius-md);
+  transition: background-color var(--transition-fast);
 }
 
 .likert-option:hover {
-  background-color: var(--bg-hover, #f3f4f6);
+  background-color: var(--bg-hover);
 }
 
 .likert-option input[type="radio"] {
@@ -49,18 +54,18 @@
 }
 
 .likert-radio-custom {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
-  border: 2px solid var(--border-default, #d1d5db);
-  margin-bottom: 0.5rem;
+  border: 2px solid var(--border-default);
+  margin-bottom: var(--sp-2);
   position: relative;
-  transition: all 0.2s;
+  transition: all var(--transition-fast);
 }
 
 .likert-option input[type="radio"]:checked ~ .likert-radio-custom {
-  border-color: var(--primary-color, #3b82f6);
-  background-color: var(--primary-color, #3b82f6);
+  border-color: var(--primary-color);
+  background-color: var(--primary-color);
 }
 
 .likert-option input[type="radio"]:checked ~ .likert-radio-custom::after {
@@ -76,43 +81,48 @@
 }
 
 .likert-label {
-  font-size: 0.85rem;
-  color: var(--text-muted, #6b7280);
-  line-height: 1.2;
+  font-size: var(--fs-xs);
+  color: var(--text-tertiary);
+  line-height: 1.3;
 }
 
 .likert-option.selected .likert-label {
-  color: var(--primary-color, #3b82f6);
-  font-weight: 500;
+  color: var(--primary-color);
+  font-weight: 600;
 }
 
-/* Mobile responsiveness */
+/* ══════════════════════════════════════
+   Mobile — Stack vertically for clarity
+   ══════════════════════════════════════ */
 @media (max-width: 640px) {
   .likert-options {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: var(--sp-2);
   }
 
   .likert-option {
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
-    padding: 0.75rem;
-    border: 1px solid var(--border-default, #e5e7eb);
+    padding: var(--sp-3) var(--sp-4);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    text-align: left;
   }
   
   .likert-option.selected {
-    background-color: var(--bg-hover, #eff6ff);
-    border-color: var(--primary-color, #3b82f6);
+    background-color: var(--primary-light);
+    border-color: var(--primary-color);
   }
 
   .likert-radio-custom {
     margin-bottom: 0;
-    margin-right: 1rem;
+    margin-right: var(--sp-3);
+    flex-shrink: 0;
   }
 
   .likert-label {
-    font-size: 0.95rem;
+    font-size: var(--fs-sm);
   }
 }

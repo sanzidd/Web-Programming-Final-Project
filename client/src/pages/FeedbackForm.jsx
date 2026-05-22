@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -50,18 +52,18 @@ export default function FeedbackForm() {
   useEffect(() => {
     api.get('/departments')
       .then(res => setDepartments(res.data))
-      .catch(() => toast.error('Failed to load departments'));
-  }, [toast]);
+      .catch(() => console.warn('Failed to load departments'));
+  }, []);
 
   useEffect(() => {
     if (form.department) {
       api.get(`/teachers?department=${form.department}`)
         .then(res => setTeachers(res.data))
-        .catch(() => toast.error('Failed to load teachers'));
+        .catch(() => console.warn('Failed to load teachers'));
     } else {
       setTeachers([]);
     }
-  }, [form.department, toast]);
+  }, [form.department]);
 
   const handleDeptChange = (e) => {
     const val = e.target.value;

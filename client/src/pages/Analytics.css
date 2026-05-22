@@ -1,12 +1,17 @@
+/* ══════════════════════════════════════
+   Analytics Page — Premium Style
+   ══════════════════════════════════════ */
+
 .analytics-page {
   padding: calc(80px + var(--sp-8)) 0 var(--sp-16);
+  background: var(--bg-primary);
 }
 
 .full-width-chart {
   width: 100%;
 }
 
-.dashboard-title {
+.analytics-page .dashboard-title {
   display: flex;
   align-items: center;
   gap: var(--sp-3);
@@ -14,13 +19,20 @@
 
 .clickable-row {
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  transition: background-color var(--transition-fast), transform var(--transition-fast);
 }
 
 .clickable-row:hover {
-  background-color: rgba(var(--primary-color-rgb), 0.05) !important;
+  background-color: var(--bg-hover) !important;
 }
 
 .clickable-row:active {
-  transform: scale(0.99);
+  transform: scale(0.995);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .analytics-page {
+    padding: calc(80px + var(--sp-6)) 0 var(--sp-10);
+  }
 }

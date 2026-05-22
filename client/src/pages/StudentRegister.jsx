@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Lock, User, LogIn, Eye, EyeOff, GraduationCap, Mail, Hash, BookOpen } from 'lucide-react';
+import { Lock, User, Eye, EyeOff, GraduationCap, Mail, Hash, BookOpen } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import api from '../services/api';
@@ -32,11 +32,12 @@ export default function StudentRegister() {
         const res = await api.get('/departments');
         setDepartments(res.data);
       } catch (err) {
-        toast.error('Failed to load departments');
+        // Silently fail — departments will be empty but page won't crash
+        console.warn('Failed to load departments:', err.message);
       }
     };
     fetchDepartments();
-  }, [toast]);
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -115,7 +116,7 @@ export default function StudentRegister() {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+          <div className="register-two-col">
             <div className="form-group">
               <label className="form-label">Roll Number</label>
               <div className="input-with-icon">
@@ -198,6 +199,14 @@ export default function StudentRegister() {
                 onChange={handleChange}
                 required
               />
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={() => setShowPassword(!showPassword)}
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
             </div>
           </div>
 

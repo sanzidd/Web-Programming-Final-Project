@@ -1,5 +1,10 @@
+/* ══════════════════════════════════════
+   Teacher Profile — Premium Style
+   ══════════════════════════════════════ */
+
 .teacher-profile-page {
   padding: calc(80px + var(--sp-8)) 0 var(--sp-16);
+  background: var(--bg-primary);
 }
 
 .profile-header-actions {
@@ -18,10 +23,11 @@
   font-size: var(--fs-sm);
   color: var(--text-secondary);
   transition: color var(--transition-fast);
+  font-weight: 500;
 }
 
 .back-link:hover {
-  color: var(--ruet-gold);
+  color: var(--primary-color);
 }
 
 .teacher-header-card {
@@ -30,6 +36,10 @@
   gap: var(--sp-6);
   padding: var(--sp-8);
   flex-wrap: wrap;
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
 }
 
 .teacher-avatar-lg {
@@ -38,9 +48,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--gradient-gold);
+  background: var(--primary-soft);
   border-radius: var(--radius-xl);
-  color: var(--ruet-navy);
+  color: var(--primary-color);
   flex-shrink: 0;
 }
 
@@ -52,8 +62,10 @@
 }
 
 .teacher-name {
+  font-family: var(--font-display);
   font-size: var(--fs-2xl);
-  font-weight: 800;
+  font-weight: 700;
+  color: var(--text-primary);
 }
 
 .teacher-designation {
@@ -96,8 +108,10 @@
   display: flex;
   align-items: center;
   gap: var(--sp-2);
+  font-family: var(--font-display);
   font-size: var(--fs-4xl);
-  font-weight: 800;
+  font-weight: 700;
+  color: var(--accent-color);
 }
 
 .teacher-stat-label {
@@ -111,7 +125,7 @@
   color: var(--text-secondary);
 }
 
-/* Criteria List */
+/* ── Criteria List ── */
 .criteria-list {
   display: flex;
   flex-direction: column;
@@ -128,25 +142,28 @@
   font-size: var(--fs-lg);
   width: 28px;
   text-align: center;
+  flex-shrink: 0;
 }
 
 .criteria-label {
   font-size: var(--fs-sm);
   color: var(--text-secondary);
   min-width: 110px;
+  flex-shrink: 0;
 }
 
 .criteria-bar-track {
   flex: 1;
   height: 10px;
-  background: var(--bg-glass-light);
+  background: var(--bg-secondary);
   border-radius: var(--radius-full);
   overflow: hidden;
+  min-width: 60px;
 }
 
 .criteria-bar-fill {
   height: 100%;
-  background: var(--gradient-gold);
+  background: var(--grad-primary);
   border-radius: var(--radius-full);
   transition: width 1s ease-out;
 }
@@ -154,12 +171,12 @@
 .criteria-value {
   font-size: var(--fs-sm);
   font-weight: 700;
-  color: var(--ruet-gold);
+  color: var(--accent-color);
   min-width: 32px;
   text-align: right;
 }
 
-/* Feedback Comments */
+/* ── Feedback Comments ── */
 .feedback-comments-list {
   display: flex;
   flex-direction: column;
@@ -170,7 +187,7 @@
 
 .feedback-comment-card {
   padding: var(--sp-4);
-  background: var(--bg-glass-light);
+  background: var(--bg-secondary);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
 }
@@ -202,15 +219,28 @@
   font-style: italic;
 }
 
+/* ══════════════════════════════════════
+   Responsive
+   ══════════════════════════════════════ */
 @media (max-width: 768px) {
+  .teacher-profile-page {
+    padding: calc(80px + var(--sp-6)) 0 var(--sp-10);
+  }
+
   .teacher-header-card {
     flex-direction: column;
     text-align: center;
     align-items: center;
+    padding: var(--sp-6);
+    gap: var(--sp-4);
   }
 
   .teacher-header-info {
     align-items: center;
+  }
+
+  .teacher-name {
+    font-size: var(--fs-xl);
   }
 
   .teacher-meta {
@@ -219,5 +249,44 @@
 
   .teacher-courses-list {
     justify-content: center;
+  }
+
+  .criteria-row {
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+  }
+
+  .criteria-label {
+    min-width: 80px;
+    font-size: var(--fs-xs);
+  }
+}
+
+@media (max-width: 480px) {
+  .teacher-header-card {
+    padding: var(--sp-5);
+  }
+
+  .teacher-avatar-lg {
+    width: 64px;
+    height: 64px;
+  }
+
+  .teacher-stat-big {
+    font-size: var(--fs-3xl);
+  }
+
+  .feedback-comment-card {
+    padding: var(--sp-3);
+  }
+
+  .feedback-comment-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-1);
+  }
+
+  .feedback-date {
+    margin-left: 0;
   }
 }
