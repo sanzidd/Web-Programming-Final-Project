@@ -21,8 +21,10 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ message: 'Password must be at least 6 characters' });
     }
 
+    const trimmedRoll = String(roll).trim();
+
     // Check if roll already exists
-    const existingRoll = await Student.findOne({ roll });
+    const existingRoll = await Student.findOne({ roll: trimmedRoll });
     if (existingRoll) {
       return res.status(400).json({ message: 'This roll number is already registered' });
     }
@@ -35,7 +37,7 @@ router.post('/register', async (req, res) => {
 
     // Create student
     const student = new Student({
-      roll,
+      roll: trimmedRoll,
       name,
       email: email.toLowerCase(),
       password,
@@ -78,8 +80,10 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Roll number and password are required' });
     }
 
+    const trimmedRoll = String(roll).trim();
+
     // Find student by roll
-    const student = await Student.findOne({ roll });
+    const student = await Student.findOne({ roll: trimmedRoll });
     if (!student) {
       return res.status(401).json({ message: 'Invalid roll number or password' });
     }
