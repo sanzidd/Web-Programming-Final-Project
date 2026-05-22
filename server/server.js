@@ -27,6 +27,23 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'RUET Feedback API is running' });
 });
 
+// Temporary patch route for production database
+app.get('/api/patch-teacher', async (req, res) => {
+  try {
+    const Teacher = require('./models/Teacher');
+    const teacher = await Teacher.findOne({ name: /Kamal Hosain/i });
+    if (teacher) {
+      teacher.designation = 'Professor';
+      await teacher.save();
+      res.json({ message: 'Teacher designation updated to Professor!' });
+    } else {
+      res.json({ message: 'Teacher not found' });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);

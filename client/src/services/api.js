@@ -23,7 +23,9 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('ruet_token');
       localStorage.removeItem('ruet_admin');
-      if (window.location.pathname !== '/login') {
+      localStorage.removeItem('ruet_student');
+      const path = window.location.pathname;
+      if (path !== '/login' && path !== '/student/login' && path !== '/student/register') {
         window.location.href = '/login';
       }
     }
