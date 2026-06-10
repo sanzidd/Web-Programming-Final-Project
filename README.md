@@ -161,8 +161,6 @@ This project was developed as a group final project for the **Web Programming** 
 | Member | Role |
 |---|---|
 | [Sanzid](https://github.com/sanzidd) | Full-Stack Developer |
-| Team Member 2 | Frontend Developer |
-| Team Member 3 | Backend Developer |
  
 > Update team member names and roles as appropriate.
  
