@@ -138,7 +138,7 @@ export default function Home() {
                 </div>
               </div>
               <div className="hero-central-graphic">
-                <img src="/ruet-logo.png" alt="RUET Logo" style={{ width: '120px', height: '120px', objectFit: 'contain' }} />
+                <img src="/ruet-logo.png" alt="RUET Logo" style={{ width: '120px', height: '120px', objectFit: 'cover', borderRadius: '50%' }} />
               </div>
             </div>
           </motion.div>
