@@ -14,11 +14,9 @@ export default function TeacherRegister() {
   const { showToast } = useToast();
   const navigate = useNavigate();
 
-  const [step, setStep] = useState(1); // 1 = register form, 2 = verify code
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [departments, setDepartments] = useState([]);
-  const [verifyEmail, setVerifyEmail] = useState('');
 
   const [form, setForm] = useState({
     name: '',
@@ -28,8 +26,6 @@ export default function TeacherRegister() {
     departmentId: '',
     designation: '',
   });
-  const [code, setCode] = useState('');
-  const [fallbackCode, setFallbackCode] = useState('');
 
   useEffect(() => {
     if (isAuthenticated && isTeacher) {
@@ -45,7 +41,6 @@ export default function TeacherRegister() {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  // Step 1: Submit registration
   const handleRegister = async (e) => {
     e.preventDefault();
     if (form.password !== form.confirmPassword) {
@@ -59,46 +54,18 @@ export default function TeacherRegister() {
 
     setLoading(true);
     try {
-      const res = await api.post('/teacher-auth/register', {
+      await api.post('/teacher-auth/register', {
         name: form.name,
         email: form.email,
         password: form.password,
         departmentId: form.departmentId || undefined,
         designation: form.designation,
       });
-      setVerifyEmail(res.data.email);
       
-      // If email service failed, the server returns the code directly
-      if (res.data.verificationCode) {
-        setFallbackCode(res.data.verificationCode);
-        setCode(res.data.verificationCode);
-        showToast('Code generated! Enter it below to verify.', 'success');
-      } else {
-        showToast('Verification code sent to your email!', 'success');
-      }
-      setStep(2);
+      showToast('Registration successful! You can now log in.', 'success');
+      navigate('/teacher/login');
     } catch (err) {
       showToast(err.response?.data?.message || 'Registration failed', 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Step 2: Verify code
-  const handleVerify = async (e) => {
-    e.preventDefault();
-    if (code.length !== 6) {
-      showToast('Please enter the 6-digit code', 'error');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      await teacherVerify(verifyEmail, code);
-      showToast('Email verified! Welcome to your dashboard.', 'success');
-      navigate('/teacher/dashboard');
-    } catch (err) {
-      showToast(err.response?.data?.message || 'Verification failed', 'error');
     } finally {
       setLoading(false);
     }
@@ -107,31 +74,16 @@ export default function TeacherRegister() {
   return (
     <div className="teacher-register-page">
       <div className="teacher-register-container">
-        {/* Progress indicator */}
-        <div className="register-steps">
-          <div className={`register-step ${step >= 1 ? 'active' : ''}`}>
-            <div className="step-circle">1</div>
-            <span>Register</span>
-          </div>
-          <div className="step-connector" />
-          <div className={`register-step ${step >= 2 ? 'active' : ''}`}>
-            <div className="step-circle">2</div>
-            <span>Verify Email</span>
-          </div>
-        </div>
-
         <div className="register-card glass-card">
-          {step === 1 ? (
-            <>
-              <div className="register-header">
-                <div className="register-icon-wrap">
-                  <GraduationCap size={28} />
-                </div>
-                <h2 className="register-title font-display">Teacher Registration</h2>
-                <p className="register-subtitle">
-                  Create your teacher account to access your personal feedback dashboard.
-                </p>
-              </div>
+          <div className="register-header">
+            <div className="register-icon-wrap">
+              <GraduationCap size={28} />
+            </div>
+            <h2 className="register-title font-display">Teacher Registration</h2>
+            <p className="register-subtitle">
+              Create your teacher account to access your personal feedback dashboard.
+            </p>
+          </div>
 
               <form onSubmit={handleRegister} className="register-form">
                 <div className="form-group">
@@ -233,64 +185,9 @@ export default function TeacherRegister() {
 
                 <button type="submit" className="btn btn-primary btn-lg register-submit" disabled={loading}>
                   {loading ? <Loader2 size={18} className="spin" /> : <ArrowRight size={18} />}
-                  {loading ? 'Sending Code...' : 'Register & Get Code'}
+                  {loading ? 'Registering...' : 'Register'}
                 </button>
               </form>
-            </>
-          ) : (
-            <>
-              <div className="register-header">
-                <div className="register-icon-wrap verify-icon">
-                  <ShieldCheck size={28} />
-                </div>
-                <h2 className="register-title font-display">Verify Your Email</h2>
-                <p className="register-subtitle">
-                  {fallbackCode 
-                    ? <>Your verification code is shown below. Enter it to complete registration.</>
-                    : <>We sent a 6-digit verification code to <strong>{verifyEmail}</strong>. Please check your inbox (and spam folder).</>
-                  }
-                </p>
-              </div>
-
-              {fallbackCode && (
-                <div className="fallback-code-banner">
-                  <div className="fallback-code-label">Your Verification Code</div>
-                  <div className="fallback-code-value">{fallbackCode}</div>
-                  <div className="fallback-code-hint">This code is auto-filled below. Click "Verify & Continue".</div>
-                </div>
-              )}
-
-              <form onSubmit={handleVerify} className="register-form">
-                <div className="form-group">
-                  <label htmlFor="tr-code"><KeyRound size={14} /> Verification Code</label>
-                  <input
-                    id="tr-code"
-                    type="text"
-                    value={code}
-                    onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                    placeholder="Enter 6-digit code"
-                    maxLength={6}
-                    className="code-input"
-                    autoFocus
-                    required
-                  />
-                </div>
-
-                <button type="submit" className="btn btn-primary btn-lg register-submit" disabled={loading}>
-                  {loading ? <Loader2 size={18} className="spin" /> : <ShieldCheck size={18} />}
-                  {loading ? 'Verifying...' : 'Verify & Continue'}
-                </button>
-
-                <button 
-                  type="button" 
-                  className="btn btn-ghost resend-btn"
-                  onClick={() => setStep(1)}
-                >
-                  Didn't receive? Go back & resend
-                </button>
-              </form>
-            </>
-          )}
 
           <div className="register-footer">
             <p>Already have an account? <Link to="/teacher/login">Login here</Link></p>

@@ -21,6 +21,7 @@
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.6.2",
-    "nodemailer": "^8.0.11"
+    "nodemailer": "^8.0.11",
+    "xlsx-populate": "^1.21.0"
   }
 }
