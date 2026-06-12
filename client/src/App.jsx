@@ -12,6 +12,10 @@ import Dashboard from './pages/Dashboard';
 import Analytics from './pages/Analytics';
 import TeacherProfile from './pages/TeacherProfile';
 import DepartmentProfile from './pages/DepartmentProfile';
+import TeacherRegister from './pages/TeacherRegister';
+import TeacherLogin from './pages/TeacherLogin';
+import TeacherDashboard from './pages/TeacherDashboard';
+import TeacherCourseFeedback from './pages/TeacherCourseFeedback';
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
@@ -28,6 +32,14 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/student/login" element={<StudentLogin />} />
               <Route path="/student/register" element={<StudentRegister />} />
+              <Route path="/teacher/register" element={<TeacherRegister />} />
+              <Route path="/teacher/login" element={<TeacherLogin />} />
+              <Route path="/teacher/dashboard" element={
+                <ProtectedRoute><TeacherDashboard /></ProtectedRoute>
+              } />
+              <Route path="/teacher/course/:courseName" element={
+                <ProtectedRoute><TeacherCourseFeedback /></ProtectedRoute>
+              } />
               <Route path="/dashboard" element={
                 <ProtectedRoute><Dashboard /></ProtectedRoute>
               } />

@@ -1,0 +1,362 @@
+/* ══════════════════════════════════════════
+   Teacher Dashboard — Premium Dark Theme
+   ══════════════════════════════════════════ */
+
+.teacher-dashboard {
+  padding: 100px 0 60px;
+  min-height: 100vh;
+  background: var(--bg-primary);
+}
+
+/* ── Loading ── */
+.td-loading {
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: var(--text-secondary);
+}
+
+.td-loading .spin {
+  color: var(--primary-color);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ── Header ── */
+.td-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 40px;
+  gap: 24px;
+}
+
+.td-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.td-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: rgba(185, 28, 58, 0.1);
+  border: 1px solid rgba(185, 28, 58, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #F9A8B8;
+}
+
+.td-name {
+  font-family: var(--font-display);
+  font-size: var(--fs-2xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.td-meta {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+}
+
+/* ── Stats Grid ── */
+.td-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-6);
+  margin-bottom: 40px;
+}
+
+.td-stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  padding: var(--sp-6);
+  text-align: center;
+  transition: all var(--transition-base);
+  position: relative;
+  overflow: hidden;
+}
+
+.td-stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--grad-primary);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
+.td-stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: rgba(185, 28, 58, 0.15);
+}
+
+.td-stat-card:hover::before {
+  opacity: 1;
+}
+
+.td-stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+}
+
+.td-stat-value {
+  font-family: var(--font-display);
+  font-size: var(--fs-3xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.td-stat-label {
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ── Section ── */
+.td-section {
+  margin-bottom: 40px;
+}
+
+.td-section-title {
+  font-family: var(--font-display);
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ── Rating Breakdown ── */
+.td-rating-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.td-rating-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+}
+
+.td-rating-label {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.td-rating-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.td-rating-bar {
+  flex: 1;
+  height: 8px;
+  background: var(--bg-elevated);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.td-rating-fill {
+  height: 100%;
+  background: var(--grad-primary);
+  border-radius: 4px;
+  transition: width 0.6s ease;
+}
+
+.td-rating-num {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--text-primary);
+  min-width: 36px;
+  text-align: right;
+}
+
+/* ── Sentiment Bar ── */
+.sentiment-bar-wrap {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+}
+
+.sentiment-bar {
+  display: flex;
+  height: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 12px;
+  background: var(--bg-elevated);
+}
+
+.sentiment-seg {
+  transition: width 0.6s ease;
+}
+
+.sentiment-seg.positive { background: #34D399; }
+.sentiment-seg.neutral { background: #60A5FA; }
+.sentiment-seg.negative { background: #F87171; }
+
+.sentiment-labels {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+}
+
+.sentiment-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+}
+
+.sentiment-label.positive { color: #34D399; }
+.sentiment-label.neutral { color: #60A5FA; }
+.sentiment-label.negative { color: #F87171; }
+
+/* ── Course Cards ── */
+.td-courses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: var(--sp-6);
+}
+
+.td-course-card {
+  padding: 24px;
+  text-decoration: none;
+  transition: all var(--transition-base);
+  cursor: pointer;
+  border: 1px solid var(--border-default);
+}
+
+.td-course-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: rgba(185, 28, 58, 0.2);
+}
+
+.td-course-card:hover .td-course-arrow {
+  transform: translateX(4px);
+}
+
+.td-course-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.td-course-name {
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.td-course-arrow {
+  color: var(--text-muted);
+  transition: transform 0.2s ease;
+}
+
+.td-course-stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.td-course-stat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+}
+
+/* Star display */
+.star-display {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.star-value {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--ruet-gold);
+  margin-left: 6px;
+}
+
+/* ── Empty state ── */
+.td-empty {
+  background: var(--bg-card);
+  border: 1px dashed var(--border-default);
+  border-radius: var(--radius-xl);
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+}
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .td-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .teacher-dashboard {
+    padding-top: 80px;
+  }
+
+  .td-rating-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .td-courses-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .td-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .td-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

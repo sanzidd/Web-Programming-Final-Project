@@ -1,0 +1,324 @@
+/* ══════════════════════════════════════════
+   Teacher Register — Premium Dark Theme
+   ══════════════════════════════════════════ */
+
+.teacher-register-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 100px 24px 60px;
+  background: var(--bg-primary);
+  position: relative;
+}
+
+.teacher-register-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(ellipse at 20% 30%, rgba(185, 28, 58, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 70%, rgba(200, 146, 42, 0.06) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.teacher-register-container {
+  width: 100%;
+  max-width: 520px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Steps indicator ── */
+.register-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.register-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.register-step.active {
+  color: var(--text-primary);
+}
+
+.step-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  background: var(--bg-elevated);
+  border: 2px solid var(--border-default);
+  color: var(--text-muted);
+  transition: all 0.3s ease;
+}
+
+.register-step.active .step-circle {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: #fff;
+  box-shadow: 0 0 20px rgba(185, 28, 58, 0.3);
+}
+
+.step-connector {
+  width: 60px;
+  height: 2px;
+  background: var(--border-default);
+  border-radius: 1px;
+}
+
+/* ── Card ── */
+.register-card {
+  padding: 40px 36px;
+}
+
+.register-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.register-icon-wrap {
+  width: 56px;
+  height: 56px;
+  background: rgba(185, 28, 58, 0.1);
+  border: 1px solid rgba(185, 28, 58, 0.2);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  color: #F9A8B8;
+}
+
+.register-icon-wrap.verify-icon {
+  background: rgba(15, 123, 95, 0.1);
+  border-color: rgba(15, 123, 95, 0.2);
+  color: #34D399;
+}
+
+.register-title {
+  font-family: var(--font-display);
+  font-size: var(--fs-2xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.register-subtitle {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.register-subtitle strong {
+  color: var(--ruet-gold);
+}
+
+/* ── Form ── */
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.form-group label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  color: var(--text-primary);
+  font-size: var(--fs-sm);
+  transition: all var(--transition-base);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(185, 28, 58, 0.1);
+  outline: none;
+}
+
+.form-group input::placeholder {
+  color: var(--text-muted);
+}
+
+.input-with-icon {
+  position: relative;
+}
+
+.input-with-icon input {
+  padding-right: 44px;
+}
+
+.input-icon-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+}
+
+.input-icon-btn:hover {
+  color: var(--text-primary);
+}
+
+/* Code input */
+.code-input {
+  text-align: center;
+  font-size: 28px !important;
+  font-weight: 700;
+  letter-spacing: 12px;
+  font-family: 'Courier New', monospace;
+  padding: 16px !important;
+}
+
+/* Submit button */
+.register-submit {
+  margin-top: 8px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.resend-btn {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.resend-btn:hover {
+  color: var(--text-primary);
+}
+
+/* Spin animation */
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Footer */
+.register-footer {
+  text-align: center;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.register-footer p {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+}
+
+.register-footer a {
+  color: var(--primary-color);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.register-footer a:hover {
+  text-decoration: underline;
+}
+
+/* ── Fallback Code Banner (shown when email fails) ── */
+.fallback-code-banner {
+  background: rgba(200, 146, 42, 0.08);
+  border: 2px solid rgba(200, 146, 42, 0.3);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.fallback-code-label {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--ruet-gold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 10px;
+}
+
+.fallback-code-value {
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: 10px;
+  color: #fff;
+  font-family: 'Courier New', monospace;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: 12px 20px;
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+.fallback-code-hint {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* ── Responsive ── */
+@media (max-width: 580px) {
+  .register-card {
+    padding: 28px 20px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .code-input {
+    font-size: 22px !important;
+    letter-spacing: 8px;
+  }
+}

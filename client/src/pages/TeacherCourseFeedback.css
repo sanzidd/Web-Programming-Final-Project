@@ -1,0 +1,396 @@
+/* ══════════════════════════════════════════
+   Teacher Course Feedback — Premium Dark Theme
+   ══════════════════════════════════════════ */
+
+.teacher-course-feedback {
+  padding: 100px 0 60px;
+  min-height: 100vh;
+  background: var(--bg-primary);
+}
+
+/* Loading */
+.tcf-loading {
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: var(--text-secondary);
+}
+
+.tcf-loading .spin {
+  color: var(--primary-color);
+  animation: spin 1s linear infinite;
+}
+
+/* ── Top nav ── */
+.tcf-top {
+  margin-bottom: 24px;
+}
+
+.tcf-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.tcf-back:hover {
+  color: var(--primary-color);
+}
+
+/* ── Header ── */
+.tcf-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.tcf-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.tcf-course-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: rgba(200, 146, 42, 0.1);
+  border: 1px solid rgba(200, 146, 42, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ruet-gold);
+}
+
+.tcf-title {
+  font-family: var(--font-display);
+  font-size: var(--fs-2xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.tcf-subtitle {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+}
+
+.tcf-export-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+/* ── Summary Stats ── */
+.tcf-stats {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.tcf-stat-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: 16px 12px;
+  text-align: center;
+}
+
+.tcf-stat-val {
+  font-family: var(--font-display);
+  font-size: var(--fs-2xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.tcf-stat-bar {
+  height: 6px;
+  background: var(--bg-elevated);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.tcf-stat-fill {
+  height: 100%;
+  background: var(--grad-primary);
+  border-radius: 3px;
+  transition: width 0.6s ease;
+}
+
+.tcf-stat-lbl {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ── Sentiment Row ── */
+.tcf-sentiment-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 36px;
+}
+
+.tcf-sent-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+
+.tcf-sent-item.positive { color: #34D399; }
+.tcf-sent-item.neutral { color: #60A5FA; }
+.tcf-sent-item.negative { color: #F87171; }
+
+/* ── Section ── */
+.tcf-section {
+  margin-bottom: 40px;
+}
+
+.tcf-section-title {
+  font-family: var(--font-display);
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ── Feedback Cards ── */
+.tcf-feedback-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.tcf-fb-card {
+  padding: 24px;
+  border: 1px solid var(--border-default);
+}
+
+.tcf-fb-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.tcf-fb-student {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.rating-badge {
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+}
+
+.rating-badge.high {
+  background: rgba(15, 123, 95, 0.1);
+  color: var(--ruet-emerald);
+}
+
+.rating-badge.mid {
+  background: rgba(200, 146, 42, 0.1);
+  color: var(--ruet-gold);
+}
+
+.rating-badge.low {
+  background: rgba(244, 63, 94, 0.1);
+  color: #F43F5E;
+}
+
+/* ── Feedback Sections ── */
+.tcf-fb-sections {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.tcf-fb-section {
+  background: var(--bg-elevated);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+}
+
+.tcf-fb-section h4 {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.tcf-fb-answers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+}
+
+.tcf-fb-answers span {
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: var(--bg-card);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.tcf-fb-ratings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+}
+
+.tcf-fb-ratings span {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.tcf-fb-ratings strong {
+  color: var(--ruet-gold);
+}
+
+.tcf-fb-comment {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-style: italic;
+  line-height: 1.5;
+}
+
+/* Overall feedback */
+.tcf-fb-overall {
+  background: rgba(185, 28, 58, 0.04);
+  border: 1px solid rgba(185, 28, 58, 0.1);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.tcf-fb-overall h4 {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.tcf-fb-text {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  line-height: 1.6;
+  font-style: italic;
+}
+
+/* Footer */
+.tcf-fb-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.sentiment-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  text-transform: capitalize;
+}
+
+.sentiment-tag.positive {
+  background: rgba(52, 211, 153, 0.1);
+  color: #34D399;
+}
+
+.sentiment-tag.neutral {
+  background: rgba(96, 165, 250, 0.1);
+  color: #60A5FA;
+}
+
+.sentiment-tag.negative {
+  background: rgba(248, 113, 113, 0.1);
+  color: #F87171;
+}
+
+.tcf-fb-date {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+/* ── Empty ── */
+.tcf-empty {
+  background: var(--bg-card);
+  border: 1px dashed var(--border-default);
+  border-radius: var(--radius-xl);
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .teacher-course-feedback {
+    padding-top: 80px;
+  }
+
+  .tcf-stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .tcf-fb-sections {
+    grid-template-columns: 1fr;
+  }
+
+  .tcf-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .tcf-sentiment-row {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .tcf-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

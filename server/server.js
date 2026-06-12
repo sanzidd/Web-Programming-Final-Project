@@ -21,6 +21,7 @@ app.use('/api/feedback', require('./routes/feedbackRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
 app.use('/api/analytics', require('./routes/analyticsRoutes'));
 app.use('/api/students', require('./routes/studentRoutes'));
+app.use('/api/teacher-auth', require('./routes/teacherAuthRoutes'));
 
 // Health check
 app.get('/api/health', (req, res) => {

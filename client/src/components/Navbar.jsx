@@ -8,7 +8,7 @@ import {
 import './Navbar.css';
 
 export default function Navbar() {
-  const { isAuthenticated, isAdmin, logout } = useAuth();
+  const { isAuthenticated, isAdmin, isTeacher, logout } = useAuth();
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -88,6 +88,16 @@ export default function Navbar() {
                   </Link>
                 </>
               )}
+              {isTeacher && (
+                <Link 
+                  to="/teacher/dashboard" 
+                  className={`navbar-link ${isActive('/teacher/dashboard') ? 'active' : ''}`}
+                  id="nav-teacher-dashboard"
+                >
+                  <GraduationCap size={16} />
+                  My Dashboard
+                </Link>
+              )}
               <button onClick={logout} className="btn btn-sm btn-outline navbar-logout" id="nav-logout">
                 <LogOut size={14} />
                 Logout
@@ -98,6 +108,12 @@ export default function Navbar() {
               <Link to="/student/login" className="btn btn-sm btn-primary navbar-login" id="nav-student-login">
                 <LogIn size={14} />
                 Student Login
+              </Link>
+              <Link to="/teacher/login" className="btn btn-sm btn-outline navbar-login" id="nav-teacher-login"
+                style={{ borderColor: 'var(--ruet-gold)', color: 'var(--ruet-gold)' }}
+              >
+                <GraduationCap size={14} />
+                Teacher
               </Link>
               <Link to="/login" className="btn btn-sm btn-outline navbar-login" id="nav-login">
                 <LogIn size={14} />

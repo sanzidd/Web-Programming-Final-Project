@@ -24,8 +24,15 @@ api.interceptors.response.use(
       localStorage.removeItem('ruet_token');
       localStorage.removeItem('ruet_admin');
       localStorage.removeItem('ruet_student');
+      localStorage.removeItem('ruet_teacher');
       const path = window.location.pathname;
-      if (path !== '/login' && path !== '/student/login' && path !== '/student/register') {
+      if (
+        path !== '/login' && 
+        path !== '/student/login' && 
+        path !== '/student/register' &&
+        path !== '/teacher/login' &&
+        path !== '/teacher/register'
+      ) {
         window.location.href = '/login';
       }
     }
