@@ -19,6 +19,7 @@ export function ToastProvider({ children }) {
   const success = useCallback((msg) => addToast(msg, 'success'), [addToast]);
   const error = useCallback((msg) => addToast(msg, 'error'), [addToast]);
   const info = useCallback((msg) => addToast(msg, 'info'), [addToast]);
+  const showToast = useCallback((msg, type) => addToast(msg, type), [addToast]);
 
   const icons = {
     success: <CheckCircle size={18} style={{ color: 'var(--ruet-emerald)' }} />,
@@ -27,7 +28,7 @@ export function ToastProvider({ children }) {
   };
 
   return (
-    <ToastContext.Provider value={{ success, error, info }}>
+    <ToastContext.Provider value={{ success, error, info, showToast }}>
       {children}
       <div className="toast-container">
         {toasts.map(toast => (
