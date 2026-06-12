@@ -51,15 +51,17 @@ exports.submitFeedback = async (req, res) => {
       return res.status(400).json({ message: 'All feedback sections are required. Missing: ' + missing.join(', ') });
     }
 
-    // Duplicate prevention: hash studentId + teacherId
+    // Duplicate prevention: hash studentId + teacherId + courseName
     // This hash cannot be reversed to identify who gave what feedback
     if (req.studentId) {
-      const hashInput = `${req.studentId}-${teacher}`;
+      const normalizedCourse = (courseName || 'default-course').trim().toLowerCase();
+      const hashInput = `${req.studentId}-${teacher}-${normalizedCourse}`;
       const hash = crypto.createHash('sha256').update(hashInput).digest('hex');
+      
       const existing = await FeedbackLog.findOne({ hash });
       if (existing) {
-        console.warn(`[409] Duplicate submission prevented for student: ${req.studentId}, teacher: ${teacher}`);
-        return res.status(409).json({ message: 'You have already submitted feedback for this teacher' });
+        console.warn(`[409] Duplicate submission prevented for student: ${req.studentId}, teacher: ${teacher}, course: ${normalizedCourse}`);
+        return res.status(409).json({ message: 'You have already submitted feedback for this teacher in this course' });
       }
       // Store the hash (not the raw studentId)
       await FeedbackLog.create({ hash });
