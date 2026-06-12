@@ -12,7 +12,33 @@ app.use(cors());
 app.use(express.json());
 
 // Connect to MongoDB
-connectDB();
+connectDB().then(() => {
+  // Silent auto-migration to link existing teacher users to profiles
+  const TeacherUser = require('./models/TeacherUser');
+  const Teacher = require('./models/Teacher');
+  
+  TeacherUser.find({ teacher: { $exists: false } })
+    .then(async (users) => {
+      for (const user of users) {
+        try {
+          const teacher = await Teacher.findOne({ email: user.email.toLowerCase() }) 
+            || await Teacher.findOne({ name: user.name });
+          if (teacher) {
+            user.teacher = teacher._id;
+            if (!teacher.email) {
+              teacher.email = user.email;
+              await teacher.save();
+            }
+            await user.save();
+            console.log(`[Auto-Migration] Linked teacher user ${user.email} to profile ${teacher.name}`);
+          }
+        } catch (err) {
+          console.error('[Auto-Migration] Error linking teacher user:', err);
+        }
+      }
+    })
+    .catch(err => console.error('[Auto-Migration] Error running teacher user migration:', err));
+});
 
 // Routes
 app.use('/api/departments', require('./routes/departmentRoutes'));

@@ -83,7 +83,7 @@ router.post('/register', async (req, res) => {
       });
     }
 
-    user.teacherProfile = teacher._id;
+    user.teacher = teacher._id;
     await user.save();
 
     res.status(201).json({ 
