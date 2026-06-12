@@ -75,11 +75,20 @@ router.post('/register', async (req, res) => {
     }
 
     if (!teacher) {
+      let deptId = user.department;
+      if (!deptId) {
+        const defaultDept = await Department.findOne({});
+        deptId = defaultDept?._id;
+      }
+      if (!deptId) {
+        return res.status(400).json({ message: 'No department available. Please provide a departmentId.' });
+      }
+
       teacher = await Teacher.create({
         name: user.name,
         email: user.email,
-        department: user.department,
-        designation: user.designation
+        department: deptId,
+        designation: user.designation || 'Lecturer'
       });
     }
 
