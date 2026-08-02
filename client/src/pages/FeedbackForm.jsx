@@ -1,10 +1,9 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Building2, User, Star as StarIcon, MessageSquare, CheckCircle2, 
-  Shield, ChevronRight, ChevronLeft, Send, Sparkles, BookOpen, Book, Users, Presentation, Lightbulb
+  Shield, ChevronRight, ChevronLeft, Send, Sparkles, BookOpen, Book, Users, Presentation, Lightbulb, Frown
 } from 'lucide-react';
 import api from '../services/api';
 import { useToast } from '../context/ToastContext';
@@ -28,6 +27,9 @@ export default function FeedbackForm() {
   const [step, setStep] = useState(0);
   const [departments, setDepartments] = useState([]);
   const [teachers, setTeachers] = useState([]);
+  const [myAssignments, setMyAssignments] = useState([]);
+
+  const [sessionStatus, setSessionStatus] = useState(null);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   
@@ -53,16 +55,23 @@ export default function FeedbackForm() {
     api.get('/departments')
       .then(res => setDepartments(res.data))
       .catch(() => console.warn('Failed to load departments'));
+    api.get('/feedback/session-status')
+      .then(res => setSessionStatus(res.data))
+      .catch(() => console.warn('Failed to load session status'));
   }, []);
 
+
   useEffect(() => {
-    if (form.department) {
-      api.get(`/teachers?department=${form.department}`)
-        .then(res => setTeachers(res.data))
-        .catch(() => console.warn('Failed to load teachers'));
-    } else {
-      setTeachers([]);
+    if (isStudent) {
+      api.get('/feedback/my-assignments')
+        .then(res => setMyAssignments(res.data || []))
+        .catch(() => console.warn('Failed to load assigned courses'));
     }
+  }, [isStudent]);
+
+  useEffect(() => {
+    // Teachers are now derived directly from myAssignments based on the selected department.
+    // No need to fetch teachers from the backend.
   }, [form.department]);
 
   const handleDeptChange = (e) => {
@@ -75,7 +84,13 @@ export default function FeedbackForm() {
   const handleTeacherChange = (e) => {
     const val = e.target.value;
     setForm(f => ({ ...f, teacher: val, courseName: '' }));
-    const t = teachers.find(t => t._id === val);
+    
+    // Find the selected teacher from myAssignments
+    const assignment = myAssignments.find(a => {
+      const teacherId = typeof a.teacher === 'object' ? a.teacher?._id : a.teacher;
+      return teacherId === val;
+    });
+    const t = assignment?.teacher;
     setSelectedTeacherName(t ? t.name : '');
   };
 
@@ -98,7 +113,7 @@ export default function FeedbackForm() {
   };
 
   const canNext = () => {
-    if (step === 0) return form.department && form.teacher && form.courseName.trim() !== '';
+    if (step === 0) return form.courseName.trim() !== '';
     if (step === 1) return form.courseContent.q1 && form.courseContent.q2 && form.courseContent.q3 && 
                            form.studentContribution.q5 && form.studentContribution.q6;
     if (step === 2) return form.learningEnvironment.q8 && form.learningEnvironment.q9 && form.learningEnvironment.q10 && form.learningEnvironment.q11 &&
@@ -152,7 +167,37 @@ export default function FeedbackForm() {
     scrollToTop();
   };
 
-  const selectedTeacher = teachers.find(t => t._id === form.teacher);
+  const selectedTeacher = myAssignments.find(a => a.teacher?._id === form.teacher || a.teacher === form.teacher)?.teacher;
+
+  if (sessionStatus && sessionStatus.isOpen === false) {
+    return (
+      <div className="feedback-page page-transition" ref={formRef}>
+        <div className="container container-sm">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="success-card glass-card"
+            style={{ borderColor: 'var(--text-danger)', textAlign: 'center', padding: '50px 30px' }}
+          >
+            <div className="success-icon-wrap" style={{ background: 'rgba(239, 68, 68, 0.15)', color: 'var(--text-danger)', margin: '0 auto 20px' }}>
+              <Frown size={64} />
+            </div>
+            <h2 className="font-display" style={{ fontSize: '1.8rem', color: '#fff', marginBottom: '12px' }}>
+              Evaluation Period Closed
+            </h2>
+            <p className="success-text" style={{ fontSize: '1.05rem', lineHeight: '1.6', color: 'var(--text-secondary)' }}>
+              {sessionStatus.closedMessage || 'The teacher feedback session is currently closed. Please check back later during the designated evaluation period.'}
+            </p>
+            <div style={{ marginTop: '30px' }}>
+              <Link to="/" className="btn btn-outline" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                Return Home
+              </Link>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
 
   if (submitted) {
     return (
@@ -236,93 +281,81 @@ export default function FeedbackForm() {
             <div className="feedback-form-card glass-card">
               <AnimatePresence mode="wait">
                 {step === 0 && (
-                  <motion.div
-                    key="step0"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    className="form-step"
-                  >
-                    <h2 className="form-step-title">
-                      <Building2 size={22} className="form-step-icon" />
-                      Select Department & Teacher
-                    </h2>
-
-                    <div className="form-group">
-                      <label className="form-label">Department *</label>
-                      <select
-                        className="form-select"
-                        value={form.department}
-                        onChange={handleDeptChange}
-                        id="select-department"
-                      >
-                        <option value="">Choose a department...</option>
-                        {departments.map(d => (
-                          <option key={d._id} value={d._id}>{d.name} ({d.code})</option>
+                <motion.div
+                  key="step0"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="form-step"
+                >
+                  <h2 className="form-step-title">
+                    <Building2 size={22} className="form-step-icon" />
+                    Select Department & Teacher
+                  </h2>
+                  {/* Department Select */}
+                  <div className="form-group mt-4">
+                    <label className="form-label" htmlFor="dept-select">Department</label>
+                    <select
+                      id="dept-select"
+                      className="form-select"
+                      value={form.department}
+                      onChange={handleDeptChange}
+                      required
+                    >
+                      <option value="">Select Department</option>
+                      {departments.map(d => (
+                        <option key={d._id} value={d._id}>{d.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  {/* Teacher Select */}
+                  <div className="form-group mt-4">
+                    <label className="form-label" htmlFor="teacher-select">Teacher</label>
+                    <select
+                      id="teacher-select"
+                      className="form-select"
+                      value={form.teacher}
+                      onChange={handleTeacherChange}
+                      disabled={!form.department}
+                      required
+                    >
+                      <option value="">Select Teacher</option>
+                      {/* Extract unique teachers from myAssignments for the selected department */}
+                      {Array.from(new Map(
+                        myAssignments
+                          .filter(a => a.department?._id === form.department)
+                          .map(a => [typeof a.teacher === 'object' ? a.teacher._id : a.teacher, a.teacher])
+                      ).values()).map(t => (
+                        <option key={t._id || t} value={t._id || t}>{t.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  {/* Course Select */}
+                  <div className="form-group mt-4">
+                    <label className="form-label" htmlFor="course-select">Course</label>
+                    <select
+                      id="course-select"
+                      className="form-select"
+                      value={form.courseName}
+                      onChange={e => setForm(f => ({ ...f, courseName: e.target.value }))}
+                      disabled={!form.teacher}
+                      required
+                    >
+                      <option value="">Select Course</option>
+                      {myAssignments
+                        .filter(a => {
+                          const teacherId = typeof a.teacher === 'object' ? a.teacher?._id : a.teacher;
+                          return teacherId === form.teacher && a.department?._id === form.department;
+                        })
+                        .map(a => (
+                          <option key={a._id} value={a.courseName}>{a.courseName}</option>
                         ))}
-                      </select>
-                    </div>
+                    </select>
+                  </div>
+                </motion.div>
+              )}
 
-                    {form.department && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        className="form-group"
-                      >
-                        <label className="form-label">Teacher *</label>
-                        <select
-                          className="form-select"
-                          value={form.teacher}
-                          onChange={handleTeacherChange}
-                          id="select-teacher"
-                        >
-                          <option value="">Choose a teacher...</option>
-                          {teachers.map(t => (
-                            <option key={t._id} value={t._id}>
-                              {t.name} — {t.designation}
-                            </option>
-                          ))}
-                        </select>
-                      </motion.div>
-                    )}
 
-                    {selectedTeacher && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                      >
-                        <div className="selected-teacher-card">
-                          <div className="teacher-avatar">
-                            <User size={28} />
-                          </div>
-                          <div className="teacher-info-brief">
-                            <h4>{selectedTeacher.name}</h4>
-                            <span>{selectedTeacher.designation}</span>
-                            <div className="teacher-courses">
-                              {selectedTeacher.courses?.map((c, i) => (
-                                <span key={i} className="badge badge-blue">
-                                  <BookOpen size={10} /> {c}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="form-group" style={{ marginTop: 'var(--sp-4)' }}>
-                          <label className="form-label">Course Name *</label>
-                          <input
-                            type="text"
-                            className="form-input"
-                            placeholder="Enter the course name (e.g. CSE 4101)"
-                            value={form.courseName}
-                            onChange={e => setForm(f => ({ ...f, courseName: e.target.value }))}
-                            id="input-course"
-                          />
-                        </div>
-                      </motion.div>
-                    )}
-                  </motion.div>
-                )}
 
                 {step === 1 && (
                   <motion.div

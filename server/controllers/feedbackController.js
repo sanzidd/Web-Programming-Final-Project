@@ -2,6 +2,9 @@ const crypto = require('crypto');
 const Feedback = require('../models/Feedback');
 const Teacher = require('../models/Teacher');
 const FeedbackLog = require('../models/FeedbackLog');
+const CourseAssignment = require('../models/CourseAssignment');
+const Student = require('../models/Student');
+const ReviewSession = require('../models/ReviewSession');
 
 // Simple sentiment analysis based on keywords
 function analyzeSentiment(text) {
@@ -25,14 +28,74 @@ function analyzeSentiment(text) {
   return 'neutral';
 }
 
+// Get current review session status (public/student accessible)
+exports.getSessionStatus = async (req, res) => {
+  try {
+    const session = await ReviewSession.getCurrentSession();
+    res.json({
+      isOpen: session.isOpen,
+      sessionName: session.sessionName,
+      startDate: session.startDate,
+      endDate: session.endDate,
+      message: session.message,
+      closedMessage: session.closedMessage
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get assignments eligible for current student
+exports.getMyAssignments = async (req, res) => {
+  try {
+    if (!req.studentId) {
+      return res.status(401).json({ message: 'Student authentication required' });
+    }
+    const student = await Student.findById(req.studentId);
+    if (!student) {
+      return res.status(404).json({ message: 'Student profile not found' });
+    }
+
+    const filter = { isActive: true };
+    const derivedSeries = student.roll ? student.roll.substring(0, 2) : '';
+    
+    if (derivedSeries) {
+      filter.$or = [
+        { series: derivedSeries },
+        { series: 'all' },
+        { series: '*' },
+        { series: '' }
+      ];
+    }
+
+    const assignments = await CourseAssignment.find(filter)
+      .populate('department', 'name code')
+      .populate('teacher', 'name designation email courses')
+      .sort({ courseCode: 1, courseName: 1 });
+
+    res.json(assignments);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // Submit feedback (student auth required, but feedback itself is anonymous)
 exports.submitFeedback = async (req, res) => {
   try {
+    const currentSession = await ReviewSession.getCurrentSession();
+    if (!currentSession.isOpen) {
+      return res.status(403).json({ 
+        message: currentSession.closedMessage || 'The teacher feedback session is currently closed. Please check back later during the designated evaluation period.',
+        isClosed: true 
+      });
+    }
+
     const { 
       teacher, department, courseName, 
       courseContent, studentContribution, learningEnvironment, learningResources, courseTeacher,
       courseRating, overallFeedback
     } = req.body;
+
 
     // Validate main nested objects
     const missing = [];
@@ -51,7 +114,30 @@ exports.submitFeedback = async (req, res) => {
       return res.status(400).json({ message: 'All feedback sections are required. Missing: ' + missing.join(', ') });
     }
 
+    // Eligibility check: Ensure assignment exists for this course/teacher, department, and series
+    if (req.studentId) {
+      const student = await Student.findById(req.studentId);
+      if (student) {
+        const derivedSeries = student.roll ? student.roll.substring(0, 2) : '';
+        const isEligible = await CourseAssignment.findOne({
+          isActive: true,
+          teacher,
+          department, // use the department submitted in the form
+          $or: [
+            { series: derivedSeries },
+            { series: 'all' },
+            { series: '*' },
+            { series: '' }
+          ]
+        });
+        if (!isEligible) {
+          return res.status(403).json({ message: 'You are not eligible to review this course/teacher because it is not assigned to your enrolled series/department.' });
+        }
+      }
+    }
+
     // Duplicate prevention: hash studentId + teacherId + courseName
+
     // This hash cannot be reversed to identify who gave what feedback
     if (req.studentId) {
       const normalizedCourse = (courseName || 'default-course').trim().toLowerCase();

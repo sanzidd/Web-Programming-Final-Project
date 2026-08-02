@@ -5,7 +5,7 @@ import { useToast } from '../context/ToastContext';
 import api from '../services/api';
 import {
   BarChart3, Star, Users, BookOpen, TrendingUp, MessageSquare,
-  ThumbsUp, Minus, ThumbsDown, ChevronRight, Loader2, GraduationCap
+  ThumbsUp, Minus, ThumbsDown, ChevronRight, Loader2, GraduationCap, Lock
 } from 'lucide-react';
 import './TeacherDashboard.css';
 
@@ -48,12 +48,19 @@ function SentimentBar({ counts }) {
 }
 
 export default function TeacherDashboard() {
-  const { teacherUser, isTeacher } = useAuth();
+  const { teacherUser, isTeacher, updateTeacherUser } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
 
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Mandatory password change modal state
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [changingPass, setChangingPass] = useState(false);
 
   useEffect(() => {
     if (!isTeacher) {
@@ -63,6 +70,12 @@ export default function TeacherDashboard() {
     fetchDashboard();
   }, [isTeacher]);
 
+  useEffect(() => {
+    if (teacherUser && teacherUser.forcePasswordChange) {
+      setShowPasswordModal(true);
+    }
+  }, [teacherUser]);
+
   const fetchDashboard = async () => {
     try {
       const res = await api.get('/teacher-auth/dashboard');
@@ -71,6 +84,34 @@ export default function TeacherDashboard() {
       showToast('Failed to load dashboard', 'error');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handlePasswordChange = async (e) => {
+    e.preventDefault();
+    if (newPassword !== confirmPassword) {
+      showToast('New passwords do not match', 'error');
+      return;
+    }
+    if (newPassword.length < 6) {
+      showToast('Password must be at least 6 characters', 'error');
+      return;
+    }
+    setChangingPass(true);
+    try {
+      const res = await api.post('/teacher-auth/change-password', { currentPassword, newPassword });
+      showToast(res.data.message || 'Password updated successfully!', 'success');
+      if (updateTeacherUser && res.data.teacherUser) {
+        updateTeacherUser(res.data.teacherUser);
+      }
+      setShowPasswordModal(false);
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Failed to change password', 'error');
+    } finally {
+      setChangingPass(false);
     }
   };
 
@@ -99,6 +140,8 @@ export default function TeacherDashboard() {
         {/* Header */}
         <div className="td-header">
           <div className="td-header-left">
+          {/* Change Password Button */}
+          <button className="btn btn-primary" onClick={() => setShowPasswordModal(true)} style={{ marginLeft: 'auto' }}>Change Password</button>
             <div className="td-avatar">
               <GraduationCap size={28} />
             </div>
@@ -185,6 +228,56 @@ export default function TeacherDashboard() {
           <SentimentBar counts={summary.sentimentCounts} />
         </div>
 
+        {/* Assigned Courses Section */}
+        <div className="td-section">
+          <h2 className="td-section-title font-display">
+            <BookOpen size={20} /> Assigned Courses
+          </h2>
+          {(!data.assignedCourses || data.assignedCourses.length === 0) ? (
+            <div className="td-empty">
+              <p>No active course assignments found for this semester.</p>
+            </div>
+          ) : (
+            <div className="td-courses-grid">
+              {data.assignedCourses.map((assign, idx) => {
+                const fbCourse = courses.find(c => c.courseName.toLowerCase() === assign.courseName?.toLowerCase() || (assign.courseCode && c.courseName.toLowerCase().includes(assign.courseCode.toLowerCase())));
+                return (
+                  <div key={idx} className="td-course-card glass-card" style={{ cursor: 'default' }}>
+                    <div className="td-course-header">
+                      <div>
+                        <span style={{ fontSize: '0.75rem', padding: '3px 8px', borderRadius: '12px', background: 'rgba(255, 255, 255, 0.08)', color: 'var(--ruet-gold)', fontWeight: 600, display: 'inline-block', marginBottom: '6px' }}>
+                          {assign.courseCode || 'Course'}
+                        </span>
+                        <h3 className="td-course-name">{assign.courseName}</h3>
+                      </div>
+                      {fbCourse && (
+                        <Link to={`/teacher/course/${encodeURIComponent(fbCourse.courseName)}`} className="btn btn-outline btn-sm" style={{ padding: '6px 12px', fontSize: '0.8rem' }}>
+                          View Feedback <ChevronRight size={14} />
+                        </Link>
+                      )}
+                    </div>
+                    <div style={{ display: 'flex', gap: '15px', marginTop: '12px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                      <div><strong>Series:</strong> {assign.series || 'N/A'}</div>
+                      <div><strong>Semester:</strong> {assign.semester || 'N/A'}</div>
+                      <div><strong>Dept:</strong> {assign.department?.code || assign.department?.name || 'N/A'}</div>
+                    </div>
+                    {fbCourse ? (
+                      <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid rgba(255, 255, 255, 0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--ruet-emerald)' }}>● Feedback Available ({fbCourse.totalFeedbacks})</span>
+                        <StarDisplay rating={fbCourse.avgOverall} />
+                      </div>
+                    ) : (
+                      <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid rgba(255, 255, 255, 0.06)', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                        ○ Awaiting student evaluations
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
         {/* Course Cards */}
         <div className="td-section">
           <h2 className="td-section-title font-display">
@@ -220,6 +313,66 @@ export default function TeacherDashboard() {
           )}
         </div>
       </div>
+
+      {showPasswordModal && (
+        <div className="modal-overlay" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0, 0, 0, 0.85)', zIndex: 1000, backdropFilter: 'blur(8px)' }}>
+          <div className="modal-content glass-card" style={{ width: '100%', maxWidth: '450px', padding: '35px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.15)', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}>
+            <div style={{ textAlign: 'center', marginBottom: '22px' }}>
+              <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: 'var(--ruet-gold-dim)', color: 'var(--ruet-gold)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
+                <Lock size={26} />
+              </div>
+              <h3 className="font-display" style={{ fontSize: '1.4rem', color: '#fff', marginBottom: '8px' }}>Mandatory Password Reset</h3>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', lineHeight: '1.4' }}>
+                For security reasons, you must change your default password before accessing your dashboard.
+              </p>
+            </div>
+            <form onSubmit={handlePasswordChange}>
+              <div className="form-group" style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Current Password</label>
+                <input
+                  type="password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  placeholder="Enter default password (e.g., 12345678)"
+                  required
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(0,0,0,0.3)', color: '#fff' }}
+                />
+              </div>
+              <div className="form-group" style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>New Password</label>
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="At least 6 characters"
+                  required
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(0,0,0,0.3)', color: '#fff' }}
+                />
+              </div>
+              <div className="form-group" style={{ marginBottom: '24px' }}>
+                <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Confirm New Password</label>
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Re-enter new password"
+                  required
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(0,0,0,0.3)', color: '#fff' }}
+                />
+              </div>
+              <button
+                type="submit"
+                className="btn btn-primary btn-lg"
+                disabled={changingPass}
+                style={{ width: '100%', justifyContent: 'center' }}
+              >
+                {changingPass ? <Loader2 size={18} className="spin" /> : <Lock size={18} />}
+                {changingPass ? 'Updating Password...' : 'Update Password & Continue'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

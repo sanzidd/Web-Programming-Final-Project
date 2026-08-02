@@ -94,6 +94,11 @@ export function AuthProvider({ children }) {
     return teacherData;
   };
 
+  const updateTeacherUser = (newTeacherData) => {
+    localStorage.setItem('ruet_teacher', JSON.stringify(newTeacherData));
+    setTeacherUser(newTeacherData);
+  };
+
   const logout = () => {
     localStorage.removeItem('ruet_token');
     localStorage.removeItem('ruet_admin');
@@ -116,6 +121,7 @@ export function AuthProvider({ children }) {
       studentRegister, 
       teacherLogin,
       teacherVerify,
+      updateTeacherUser,
       logout, 
       isAuthenticated: !!admin || !!student || !!teacherUser,
       isAdmin: !!admin,

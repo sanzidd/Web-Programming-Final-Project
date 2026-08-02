@@ -105,10 +105,10 @@ export default function Login() {
             )}
           </button>
         </form>
-
-        <div className="login-hint">
-          <p>Default credentials: <code>admin</code> / <code>ruet2026</code></p>
+   <div className="login-hint">
+          <p>Default credentials: <code>admin</code></p>
         </div>
+
       </motion.div>
     </div>
   );

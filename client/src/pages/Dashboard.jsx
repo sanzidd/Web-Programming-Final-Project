@@ -5,11 +5,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   MessageSquare, Star, Users, Building2, TrendingUp, TrendingDown,
-  ArrowUpRight, Clock, Smile, Meh, Frown, ChevronRight, Download
+  ArrowUpRight, Clock, Smile, Meh, Frown, ChevronRight, Download, BookOpen, UserCheck, Key
 } from 'lucide-react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import api from '../services/api';
 import { useToast } from '../context/ToastContext';
+import AdminAssignments from '../components/AdminAssignments';
+import AdminTeachers from '../components/AdminTeachers';
 import './Dashboard.css';
 
 const COLORS = ['#EF4444', '#F59E0B', '#818CF8', '#10B981', '#D4A843'];
@@ -58,30 +60,69 @@ function CustomTooltip({ active, payload, label }) {
 export default function Dashboard() {
   const navigate = useNavigate();
   const toast = useToast();
+  const [activeTab, setActiveTab] = useState('overview');
   const [overview, setOverview] = useState(null);
   const [deptAnalytics, setDeptAnalytics] = useState([]);
   const [topTeachers, setTopTeachers] = useState([]);
   const [bottomTeachers, setBottomTeachers] = useState([]);
+  const [reviewSession, setReviewSession] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
+
+  const handlePasswordChange = async (e) => {
+    e.preventDefault();
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      return toast.error('New passwords do not match');
+    }
+    if (passwordForm.newPassword.length < 6) {
+      return toast.error('New password must be at least 6 characters');
+    }
+    try {
+      await api.post('/admin/change-password', {
+        currentPassword: passwordForm.currentPassword,
+        newPassword: passwordForm.newPassword
+      });
+      toast.success('Password changed successfully!');
+      setShowPasswordModal(false);
+      setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to change password');
+    }
+  };
 
   const fetchData = async () => {
     try {
-      const [overviewRes, deptRes, topRes, bottomRes] = await Promise.all([
+      const [overviewRes, deptRes, topRes, bottomRes, sessionRes] = await Promise.all([
         api.get('/analytics/overview'),
         api.get('/analytics/departments'),
         api.get('/teachers/top?limit=5'),
         api.get('/teachers/bottom?limit=5'),
+        api.get('/admin/session'),
       ]);
       setOverview(overviewRes.data);
       setDeptAnalytics(deptRes.data);
       setTopTeachers(topRes.data);
       setBottomTeachers(bottomRes.data);
+      setReviewSession(sessionRes.data);
     } catch {
       toast.error('Failed to load dashboard data');
     } finally {
       setLoading(false);
     }
   };
+
+  const toggleSession = async () => {
+    if (!reviewSession) return;
+    try {
+      const res = await api.post('/admin/session/toggle', { isOpen: !reviewSession.isOpen });
+      setReviewSession(res.data.session);
+      toast.success(res.data.message);
+    } catch {
+      toast.error('Failed to toggle review session');
+    }
+  };
+
 
   useEffect(() => {
     fetchData();
@@ -150,7 +191,27 @@ export default function Dashboard() {
             <h1 className="font-display dashboard-title">Dashboard</h1>
             <p className="dashboard-subtitle">Overview of teacher feedback analytics</p>
           </div>
-          <div className="dashboard-actions">
+          <div className="dashboard-actions" style={{ flexWrap: 'wrap', gap: '10px' }}>
+            {reviewSession && (
+              <button 
+                onClick={toggleSession} 
+                className={`btn btn-sm ${reviewSession.isOpen ? 'btn-secondary' : 'btn-primary'}`}
+                style={{
+                  background: reviewSession.isOpen ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+                  color: reviewSession.isOpen ? '#10B981' : '#EF4444',
+                  border: `1px solid ${reviewSession.isOpen ? '#10B981' : '#EF4444'}`,
+                  fontWeight: 600
+                }}
+                title="Click to toggle teacher review submission status"
+              >
+                <Clock size={14} />
+                Review Session: {reviewSession.isOpen ? 'OPEN' : 'CLOSED'}
+              </button>
+            )}
+            <button onClick={() => setShowPasswordModal(true)} className="btn btn-secondary btn-sm">
+              <Key size={14} />
+              Change Password
+            </button>
             <button onClick={exportCSV} className="btn btn-secondary btn-sm">
               <Download size={14} />
               Export CSV
@@ -162,255 +223,339 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* KPI Cards */}
-        <div className="kpi-grid">
-          <KPICard
-            icon={<MessageSquare size={22} />}
-            label="Total Feedbacks"
-            value={overview?.totalFeedbacks || 0}
-            color="#D4A843"
-            delay={0}
-          />
-          <KPICard
-            icon={<Star size={22} />}
-            label="Average Rating"
-            value={`${overview?.avgRating || 0} / 5`}
-            color="#10B981"
-            delay={0.1}
-          />
-          <KPICard
-            icon={<Users size={22} />}
-            label="Total Teachers"
-            value={overview?.totalTeachers || 0}
-            color="#818CF8"
-            delay={0.2}
-          />
-          <KPICard
-            icon={<Building2 size={22} />}
-            label="Departments"
-            value={overview?.totalDepartments || 0}
-            color="#F43F5E"
-            delay={0.3}
-          />
+        {/* Navigation Tabs */}
+        <div style={{ display: 'flex', gap: '10px', marginBottom: '25px', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '12px', flexWrap: 'wrap' }}>
+          <button
+            onClick={() => setActiveTab('overview')}
+            className={`btn ${activeTab === 'overview' ? 'btn-primary' : 'btn-outline'}`}
+            style={{ padding: '8px 18px' }}
+          >
+            Overview
+          </button>
+          <button
+            onClick={() => setActiveTab('assignments')}
+            className={`btn ${activeTab === 'assignments' ? 'btn-primary' : 'btn-outline'}`}
+            style={{ padding: '8px 18px', display: 'flex', alignItems: 'center', gap: '6px' }}
+          >
+            <BookOpen size={16} /> Course Assignments
+          </button>
+          <button
+            onClick={() => setActiveTab('teachers')}
+            className={`btn ${activeTab === 'teachers' ? 'btn-primary' : 'btn-outline'}`}
+            style={{ padding: '8px 18px', display: 'flex', alignItems: 'center', gap: '6px' }}
+          >
+            <UserCheck size={16} /> Manage Teachers
+          </button>
         </div>
 
-        {/* Charts Row */}
-        <div className="charts-row">
-          {/* Rating Distribution Pie */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="chart-card glass-card"
-          >
-            <h3 className="chart-title">Rating Distribution</h3>
-            <ResponsiveContainer width="100%" height={260}>
-              <PieChart>
-                <Pie
-                  data={overview?.ratingDistribution || []}
-                  dataKey="count"
-                  nameKey="label"
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={100}
-                  paddingAngle={3}
-                  animationBegin={0}
-                  animationDuration={800}
-                >
-                  {overview?.ratingDistribution?.map((_, i) => (
-                    <Cell key={i} fill={COLORS[i]} />
+        {activeTab === 'overview' && (
+          <>
+            {/* KPI Cards */}
+            <div className="kpi-grid">
+              <KPICard
+                icon={<MessageSquare size={22} />}
+                label="Total Feedbacks"
+                value={overview?.totalFeedbacks || 0}
+                color="#D4A843"
+                delay={0}
+              />
+              <KPICard
+                icon={<Star size={22} />}
+                label="Average Rating"
+                value={`${overview?.avgRating || 0} / 5`}
+                color="#10B981"
+                delay={0.1}
+              />
+              <KPICard
+                icon={<Users size={22} />}
+                label="Total Teachers"
+                value={overview?.totalTeachers || 0}
+                color="#818CF8"
+                delay={0.2}
+              />
+              <KPICard
+                icon={<Building2 size={22} />}
+                label="Departments"
+                value={overview?.totalDepartments || 0}
+                color="#F43F5E"
+                delay={0.3}
+              />
+            </div>
+
+            {/* Charts Row */}
+            <div className="charts-row">
+              {/* Rating Distribution Pie */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="chart-card glass-card"
+              >
+                <h3 className="chart-title">Rating Distribution</h3>
+                <ResponsiveContainer width="100%" height={260}>
+                  <PieChart>
+                    <Pie
+                      data={overview?.ratingDistribution || []}
+                      dataKey="count"
+                      nameKey="label"
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={100}
+                      paddingAngle={3}
+                      animationBegin={0}
+                      animationDuration={800}
+                    >
+                      {overview?.ratingDistribution?.map((_, i) => (
+                        <Cell key={i} fill={COLORS[i]} />
+                      ))}
+                    </Pie>
+                    <Tooltip content={<CustomTooltip />} />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="chart-legend">
+                  {overview?.ratingDistribution?.map((item, i) => (
+                    <div key={i} className="legend-item">
+                      <div className="legend-dot" style={{ background: COLORS[i] }} />
+                      <span>{item.label}: {item.count}</span>
+                    </div>
                   ))}
-                </Pie>
-                <Tooltip content={<CustomTooltip />} />
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="chart-legend">
-              {overview?.ratingDistribution?.map((item, i) => (
-                <div key={i} className="legend-item">
-                  <div className="legend-dot" style={{ background: COLORS[i] }} />
-                  <span>{item.label}: {item.count}</span>
                 </div>
-              ))}
+              </motion.div>
+
+              {/* Department Comparison Bar */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="chart-card glass-card"
+              >
+                <h3 className="chart-title">Department Ratings</h3>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={deptChartData} layout="vertical" margin={{ left: 10, right: 20 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.08)" />
+                    <XAxis type="number" domain={[0, 5]} tick={{ fill: '#94A3B8', fontSize: 12 }} />
+                    <YAxis type="category" dataKey="name" tick={{ fill: '#94A3B8', fontSize: 12 }} width={50} />
+                    <Tooltip content={<CustomTooltip />} cursor={{fill: 'rgba(255,255,255,0.05)'}} />
+                    <Bar 
+                      dataKey="rating" 
+                      name="Avg Rating" 
+                      fill="#D4A843" 
+                      radius={[0, 6, 6, 0]} 
+                      barSize={18} 
+                      onClick={(data) => {
+                        if (data && data.payload && data.payload.id) {
+                          navigate(`/department/${data.payload.id}`);
+                        }
+                      }}
+                      style={{ cursor: 'pointer' }}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+                <p className="text-secondary" style={{ fontSize: '0.8rem', marginTop: '8px', textAlign: 'center' }}>Click a bar to view department details</p>
+              </motion.div>
             </div>
-          </motion.div>
 
-          {/* Department Comparison Bar */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="chart-card glass-card"
-          >
-            <h3 className="chart-title">Department Ratings</h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={deptChartData} layout="vertical" margin={{ left: 10, right: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.08)" />
-                <XAxis type="number" domain={[0, 5]} tick={{ fill: '#94A3B8', fontSize: 12 }} />
-                <YAxis type="category" dataKey="name" tick={{ fill: '#94A3B8', fontSize: 12 }} width={50} />
-                <Tooltip content={<CustomTooltip />} cursor={{fill: 'rgba(255,255,255,0.05)'}} />
-                <Bar 
-                  dataKey="rating" 
-                  name="Avg Rating" 
-                  fill="#D4A843" 
-                  radius={[0, 6, 6, 0]} 
-                  barSize={18} 
-                  onClick={(data) => {
-                    if (data && data.payload && data.payload.id) {
-                      navigate(`/department/${data.payload.id}`);
-                    }
-                  }}
-                  style={{ cursor: 'pointer' }}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-            <p className="text-secondary" style={{ fontSize: '0.8rem', marginTop: '8px', textAlign: 'center' }}>Click a bar to view department details</p>
-          </motion.div>
-        </div>
-
-        {/* Sentiment + Top/Bottom Teachers */}
-        <div className="bottom-row">
-          {/* Sentiment */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="chart-card glass-card"
-          >
-            <h3 className="chart-title">Sentiment Analysis</h3>
-            <div className="sentiment-bars">
-              {Object.entries(overview?.sentimentCounts || {}).map(([key, val]) => {
-                const total = Object.values(overview?.sentimentCounts || {}).reduce((s, v) => s + v, 0) || 1;
-                const pct = Math.round((val / total) * 100);
-                const icons = { positive: <Smile size={18} />, neutral: <Meh size={18} />, negative: <Frown size={18} /> };
-                return (
-                  <div key={key} className="sentiment-row">
-                    <div className="sentiment-label">
-                      <span style={{ color: SENTIMENT_COLORS[key] }}>{icons[key]}</span>
-                      <span className="sentiment-name">{key}</span>
-                    </div>
-                    <div className="sentiment-bar-track">
-                      <div
-                        className="sentiment-bar-fill"
-                        style={{ width: `${pct}%`, background: SENTIMENT_COLORS[key] }}
-                      />
-                    </div>
-                    <span className="sentiment-pct">{pct}%</span>
-                  </div>
-                );
-              })}
-            </div>
-          </motion.div>
-
-          {/* Top Teachers */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.45 }}
-            className="chart-card glass-card"
-          >
-            <h3 className="chart-title">
-              <TrendingUp size={18} style={{ color: 'var(--ruet-emerald)' }} />
-              Top Rated Teachers
-            </h3>
-            <div className="teacher-list">
-              {topTeachers.map((t, i) => (
-                <Link to={`/teacher/${t._id}`} key={t._id} className="teacher-list-item">
-                  <div className="teacher-rank rank-top">{i + 1}</div>
-                  <div className="teacher-list-info">
-                    <span className="teacher-list-name">{t.name}</span>
-                    <span className="teacher-list-dept">{t.department?.code}</span>
-                  </div>
-                  <div className="teacher-list-rating">
-                    <Star size={14} style={{ color: 'var(--ruet-gold)' }} />
-                    <span>{t.avgRating.toFixed(1)}</span>
-                  </div>
-                  <ChevronRight size={14} className="teacher-list-arrow" />
-                </Link>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Bottom Teachers */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="chart-card glass-card"
-          >
-            <h3 className="chart-title">
-              <TrendingDown size={18} style={{ color: 'var(--text-danger)' }} />
-              Needs Improvement
-            </h3>
-            <div className="teacher-list">
-              {bottomTeachers.map((t, i) => (
-                <Link to={`/teacher/${t._id}`} key={t._id} className="teacher-list-item">
-                  <div className="teacher-rank rank-bottom">{i + 1}</div>
-                  <div className="teacher-list-info">
-                    <span className="teacher-list-name">{t.name}</span>
-                    <span className="teacher-list-dept">{t.department?.code}</span>
-                  </div>
-                  <div className="teacher-list-rating">
-                    <Star size={14} style={{ color: 'var(--text-danger)' }} />
-                    <span>{t.avgRating.toFixed(1)}</span>
-                  </div>
-                  <ChevronRight size={14} className="teacher-list-arrow" />
-                </Link>
-              ))}
-            </div>
-          </motion.div>
-        </div>
-
-        {/* Recent Feedbacks */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.55 }}
-          className="chart-card glass-card recent-feedbacks"
-        >
-          <h3 className="chart-title">
-            <Clock size={18} style={{ color: 'var(--ruet-gold)' }} />
-            Recent Feedbacks
-          </h3>
-          <div className="feedback-table-wrap">
-            <table className="feedback-table">
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Teacher</th>
-                  <th>Dept</th>
-                  <th>Rating</th>
-                  <th>Sentiment</th>
-                  <th>Comment</th>
-                </tr>
-              </thead>
-              <tbody>
-                {overview?.recentFeedbacks?.map((f) => (
-                  <tr key={f._id}>
-                    <td className="td-date">{new Date(f.createdAt).toLocaleDateString()}</td>
-                    <td className="td-teacher">{f.teacher?.name || '—'}</td>
-                    <td>
-                      <span className="badge badge-blue">{f.department?.code || '—'}</span>
-                    </td>
-                    <td>
-                      <div className="td-rating">
-                        <Star size={12} style={{ color: 'var(--ruet-gold)' }} />
-                        {f.rating}
+            {/* Sentiment + Top/Bottom Teachers */}
+            <div className="bottom-row">
+              {/* Sentiment */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="chart-card glass-card"
+              >
+                <h3 className="chart-title">Sentiment Analysis</h3>
+                <div className="sentiment-bars">
+                  {Object.entries(overview?.sentimentCounts || {}).map(([key, val]) => {
+                    const total = Object.values(overview?.sentimentCounts || {}).reduce((s, v) => s + v, 0) || 1;
+                    const pct = Math.round((val / total) * 100);
+                    const icons = { positive: <Smile size={18} />, neutral: <Meh size={18} />, negative: <Frown size={18} /> };
+                    return (
+                      <div key={key} className="sentiment-row">
+                        <div className="sentiment-label">
+                          <span style={{ color: SENTIMENT_COLORS[key] }}>{icons[key]}</span>
+                          <span className="sentiment-name">{key}</span>
+                        </div>
+                        <div className="sentiment-bar-track">
+                          <div
+                            className="sentiment-bar-fill"
+                            style={{ width: `${pct}%`, background: SENTIMENT_COLORS[key] }}
+                          />
+                        </div>
+                        <span className="sentiment-pct">{pct}%</span>
                       </div>
-                    </td>
-                    <td>
-                      <span className={`badge badge-${f.sentiment === 'positive' ? 'emerald' : f.sentiment === 'negative' ? 'danger' : 'blue'}`}>
-                        {f.sentiment}
-                      </span>
-                    </td>
-                    <td className="td-comment">{f.comment || '—'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </motion.div>
+                    );
+                  })}
+                </div>
+              </motion.div>
+
+              {/* Top Teachers */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.45 }}
+                className="chart-card glass-card"
+              >
+                <h3 className="chart-title">
+                  <TrendingUp size={18} style={{ color: 'var(--ruet-emerald)' }} />
+                  Top Rated Teachers
+                </h3>
+                <div className="teacher-list">
+                  {topTeachers.map((t, i) => (
+                    <Link to={`/teacher/${t._id}`} key={t._id} className="teacher-list-item">
+                      <div className="teacher-rank rank-top">{i + 1}</div>
+                      <div className="teacher-list-info">
+                        <span className="teacher-list-name">{t.name}</span>
+                        <span className="teacher-list-dept">{t.department?.code}</span>
+                      </div>
+                      <div className="teacher-list-rating">
+                        <Star size={14} style={{ color: 'var(--ruet-gold)' }} />
+                        <span>{t.avgRating.toFixed(1)}</span>
+                      </div>
+                      <ChevronRight size={14} className="teacher-list-arrow" />
+                    </Link>
+                  ))}
+                </div>
+              </motion.div>
+
+              {/* Bottom Teachers */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="chart-card glass-card"
+              >
+                <h3 className="chart-title">
+                  <TrendingDown size={18} style={{ color: 'var(--text-danger)' }} />
+                  Needs Improvement
+                </h3>
+                <div className="teacher-list">
+                  {bottomTeachers.map((t, i) => (
+                    <Link to={`/teacher/${t._id}`} key={t._id} className="teacher-list-item">
+                      <div className="teacher-rank rank-bottom">{i + 1}</div>
+                      <div className="teacher-list-info">
+                        <span className="teacher-list-name">{t.name}</span>
+                        <span className="teacher-list-dept">{t.department?.code}</span>
+                      </div>
+                      <div className="teacher-list-rating">
+                        <Star size={14} style={{ color: 'var(--text-danger)' }} />
+                        <span>{t.avgRating.toFixed(1)}</span>
+                      </div>
+                      <ChevronRight size={14} className="teacher-list-arrow" />
+                    </Link>
+                  ))}
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Recent Feedbacks */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.55 }}
+              className="chart-card glass-card recent-feedbacks"
+            >
+              <h3 className="chart-title">
+                <Clock size={18} style={{ color: 'var(--ruet-gold)' }} />
+                Recent Feedbacks
+              </h3>
+              <div className="feedback-table-wrap">
+                <table className="feedback-table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Teacher</th>
+                      <th>Dept</th>
+                      <th>Rating</th>
+                      <th>Sentiment</th>
+                      <th>Comment</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {overview?.recentFeedbacks?.map((f) => (
+                      <tr key={f._id}>
+                        <td className="td-date">{new Date(f.createdAt).toLocaleDateString()}</td>
+                        <td className="td-teacher">{f.teacher?.name || '—'}</td>
+                        <td>
+                          <span className="badge badge-blue">{f.department?.code || '—'}</span>
+                        </td>
+                        <td>
+                          <div className="td-rating">
+                            <Star size={12} style={{ color: 'var(--ruet-gold)' }} />
+                            {f.rating}
+                          </div>
+                        </td>
+                        <td>
+                          <span className={`badge badge-${f.sentiment === 'positive' ? 'emerald' : f.sentiment === 'negative' ? 'danger' : 'blue'}`}>
+                            {f.sentiment}
+                          </span>
+                        </td>
+                        <td className="td-comment">{f.comment || '—'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </motion.div>
+          </>
+        )}
+
+        {activeTab === 'assignments' && <AdminAssignments />}
+        {activeTab === 'teachers' && <AdminTeachers />}
       </div>
+
+      {showPasswordModal && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex',
+          alignItems: 'center', justifyContent: 'center', padding: '20px'
+        }}>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="glass-card"
+            style={{ width: '100%', maxWidth: '400px', padding: '30px', background: 'var(--bg-card)' }}
+          >
+            <h3 className="font-display" style={{ marginBottom: '20px', fontSize: '1.3rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Key size={20} style={{ color: 'var(--ruet-gold)' }} />
+              Change Password
+            </h3>
+            <form onSubmit={handlePasswordChange} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+              <div>
+                <label className="form-label">Current Password *</label>
+                <input 
+                  type="password" className="form-input" 
+                  value={passwordForm.currentPassword} onChange={e => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
+                  required
+                />
+              </div>
+              <div>
+                <label className="form-label">New Password *</label>
+                <input 
+                  type="password" className="form-input" 
+                  value={passwordForm.newPassword} onChange={e => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                  required
+                />
+              </div>
+              <div>
+                <label className="form-label">Confirm New Password *</label>
+                <input 
+                  type="password" className="form-input" 
+                  value={passwordForm.confirmPassword} onChange={e => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                  required
+                />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '15px' }}>
+                <button type="button" onClick={() => setShowPasswordModal(false)} className="btn btn-outline">Cancel</button>
+                <button type="submit" className="btn btn-primary">Change Password</button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }
+

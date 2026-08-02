@@ -10,6 +10,7 @@ const teacherUserSchema = new mongoose.Schema({
   // Links to existing Teacher profile document (for accessing feedbacks)
   teacher: { type: mongoose.Schema.Types.ObjectId, ref: 'Teacher' },
   isVerified: { type: Boolean, default: false },
+  forcePasswordChange: { type: Boolean, default: true },
   verificationCode: { type: String },
   verificationExpires: { type: Date },
 }, { timestamps: true });

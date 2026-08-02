@@ -6,6 +6,7 @@ const TeacherUser = require('../models/TeacherUser');
 const Teacher = require('../models/Teacher');
 const Feedback = require('../models/Feedback');
 const Department = require('../models/Department');
+const CourseAssignment = require('../models/CourseAssignment');
 const teacherAuth = require('../middleware/teacherAuth');
 const { sendVerificationEmail } = require('../utils/sendEmail');
 
@@ -246,6 +247,7 @@ router.post('/login', async (req, res) => {
         email: user.email,
         teacherId: user.teacher,
         designation: user.designation,
+        forcePasswordChange: Boolean(user.forcePasswordChange),
       },
     });
   } catch (error) {
@@ -269,6 +271,47 @@ router.get('/me', teacherAuth, async (req, res) => {
     res.json(user);
   } catch (error) {
     res.status(500).json({ message: 'Failed to fetch profile' });
+  }
+});
+
+// ══════════════════════════════════════════
+//  POST /change-password — Mandatory or optional password change
+// ══════════════════════════════════════════
+router.post('/change-password', teacherAuth, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({ message: 'New password must be at least 6 characters long' });
+    }
+
+    const user = await TeacherUser.findById(req.teacherUserId);
+    if (!user) {
+      return res.status(404).json({ message: 'Teacher user not found' });
+    }
+
+    if (currentPassword && !(await user.comparePassword(currentPassword))) {
+      return res.status(401).json({ message: 'Incorrect current password' });
+    }
+
+    user.password = newPassword;
+    user.forcePasswordChange = false;
+    await user.save();
+
+    res.json({ 
+      message: 'Password changed successfully!',
+      forcePasswordChange: false,
+      teacherUser: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        teacherId: user.teacher,
+        designation: user.designation,
+        forcePasswordChange: false
+      }
+    });
+  } catch (error) {
+    console.error('Change password error:', error);
+    res.status(500).json({ message: 'Failed to change password. Please try again.' });
   }
 });
 
@@ -333,11 +376,16 @@ router.get('/dashboard', teacherAuth, async (req, res) => {
     const sentimentCounts = { positive: 0, neutral: 0, negative: 0 };
     feedbacks.forEach(f => sentimentCounts[f.sentiment || 'neutral']++);
 
+    // Get assigned courses from admin assignments
+    const assignedCourses = await CourseAssignment.find({ teacher: req.teacherId, isActive: true })
+      .populate('department', 'name code')
+      .sort({ semester: 1, courseCode: 1 });
+
     res.json({
       teacher,
       summary: {
         totalFeedbacks,
-        totalCourses: courses.length,
+        totalCourses: Math.max(courses.length, assignedCourses.length),
         overallAvg,
         avgStructure: teacher?.avgStructure || 0,
         avgDelivery: teacher?.avgDelivery || 0,
@@ -347,6 +395,7 @@ router.get('/dashboard', teacherAuth, async (req, res) => {
         sentimentCounts,
       },
       courses,
+      assignedCourses,
     });
   } catch (error) {
     console.error('Dashboard error:', error);
