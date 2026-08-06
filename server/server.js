@@ -83,4 +83,20 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
   console.log(`🚀 RUET Feedback Server running on port ${PORT}`);
+  
+  // Keep-alive ping to prevent Render from sleeping (free tier)
+  const https = require('https');
+  const url = "https://web-programming-final-project-ac5f.onrender.com/api/health";
+  
+  setInterval(() => {
+    https.get(url, (res) => {
+      if (res.statusCode === 200) {
+        console.log('✅ Keep-alive ping successful');
+      } else {
+        console.log(`⚠️ Keep-alive ping failed with status code: ${res.statusCode}`);
+      }
+    }).on('error', (err) => {
+      console.error('❌ Keep-alive ping error:', err.message);
+    });
+  }, 5 * 60 * 1000); // 5 minutes in milliseconds
 });
