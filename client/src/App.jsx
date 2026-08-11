@@ -35,22 +35,22 @@ function App() {
               <Route path="/teacher/register" element={<TeacherRegister />} />
               <Route path="/teacher/login" element={<TeacherLogin />} />
               <Route path="/teacher/dashboard" element={
-                <ProtectedRoute><TeacherDashboard /></ProtectedRoute>
+                <ProtectedRoute requireTeacher><TeacherDashboard /></ProtectedRoute>
               } />
               <Route path="/teacher/course/:courseName" element={
-                <ProtectedRoute><TeacherCourseFeedback /></ProtectedRoute>
+                <ProtectedRoute requireTeacher><TeacherCourseFeedback /></ProtectedRoute>
               } />
               <Route path="/dashboard" element={
-                <ProtectedRoute><Dashboard /></ProtectedRoute>
+                <ProtectedRoute requireAdmin><Dashboard /></ProtectedRoute>
               } />
               <Route path="/analytics" element={
-                <ProtectedRoute><Analytics /></ProtectedRoute>
+                <ProtectedRoute requireAdmin><Analytics /></ProtectedRoute>
               } />
               <Route path="/teacher/:id" element={
-                <ProtectedRoute><TeacherProfile /></ProtectedRoute>
+                <ProtectedRoute requireAdmin><TeacherProfile /></ProtectedRoute>
               } />
               <Route path="/department/:id" element={
-                <ProtectedRoute><DepartmentProfile /></ProtectedRoute>
+                <ProtectedRoute requireAdmin><DepartmentProfile /></ProtectedRoute>
               } />
             </Routes>
           </main>

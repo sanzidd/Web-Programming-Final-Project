@@ -1,8 +1,10 @@
 import { GraduationCap, Heart, Mail, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './Footer.css';
 
 export default function Footer() {
+  const { isStudent } = useAuth();
   return (
     <footer className="footer">
       <div className="container">
@@ -27,7 +29,7 @@ export default function Footer() {
             <h4 className="footer-heading">Quick Links</h4>
             <Link to="/" className="footer-link">Home</Link>
             <Link to="/feedback" className="footer-link">Give Feedback</Link>
-            <Link to="/login" className="footer-link">Admin Panel</Link>
+            {!isStudent && <Link to="/login" className="footer-link">Admin Panel</Link>}
           </div>
 
           <div className="footer-links-section">

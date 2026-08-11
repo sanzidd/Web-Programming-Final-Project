@@ -93,33 +93,20 @@ export default function Dashboard() {
 
   const fetchData = async () => {
     try {
-      const [overviewRes, deptRes, topRes, bottomRes, sessionRes] = await Promise.all([
+      const [overviewRes, deptRes, topRes, bottomRes] = await Promise.all([
         api.get('/analytics/overview'),
         api.get('/analytics/departments'),
         api.get('/teachers/top?limit=5'),
-        api.get('/teachers/bottom?limit=5'),
-        api.get('/admin/session'),
+        api.get('/teachers/bottom?limit=5')
       ]);
       setOverview(overviewRes.data);
       setDeptAnalytics(deptRes.data);
       setTopTeachers(topRes.data);
       setBottomTeachers(bottomRes.data);
-      setReviewSession(sessionRes.data);
     } catch {
       toast.error('Failed to load dashboard data');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const toggleSession = async () => {
-    if (!reviewSession) return;
-    try {
-      const res = await api.post('/admin/session/toggle', { isOpen: !reviewSession.isOpen });
-      setReviewSession(res.data.session);
-      toast.success(res.data.message);
-    } catch {
-      toast.error('Failed to toggle review session');
     }
   };
 
@@ -192,22 +179,6 @@ export default function Dashboard() {
             <p className="dashboard-subtitle">Overview of teacher feedback analytics</p>
           </div>
           <div className="dashboard-actions" style={{ flexWrap: 'wrap', gap: '10px' }}>
-            {reviewSession && (
-              <button 
-                onClick={toggleSession} 
-                className={`btn btn-sm ${reviewSession.isOpen ? 'btn-secondary' : 'btn-primary'}`}
-                style={{
-                  background: reviewSession.isOpen ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
-                  color: reviewSession.isOpen ? '#10B981' : '#EF4444',
-                  border: `1px solid ${reviewSession.isOpen ? '#10B981' : '#EF4444'}`,
-                  fontWeight: 600
-                }}
-                title="Click to toggle teacher review submission status"
-              >
-                <Clock size={14} />
-                Review Session: {reviewSession.isOpen ? 'OPEN' : 'CLOSED'}
-              </button>
-            )}
             <button onClick={() => setShowPasswordModal(true)} className="btn btn-secondary btn-sm">
               <Key size={14} />
               Change Password

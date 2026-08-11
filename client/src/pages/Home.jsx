@@ -39,8 +39,10 @@ function CountUpNumber({ end, duration = 2000, suffix = '' }) {
 
   return <span ref={ref}>{count}{suffix}</span>;
 }
+import { useAuth } from '../context/AuthContext';
 
 export default function Home() {
+  const { isStudent } = useAuth();
   const [stats, setStats] = useState({ feedbacks: 0, teachers: 0, departments: 0 });
 
   useEffect(() => {
@@ -102,10 +104,12 @@ export default function Home() {
                 Give Feedback
                 <ChevronRight size={18} />
               </Link>
-              <Link to="/login" className="btn btn-glass btn-lg" id="hero-admin">
-                <BarChart3 size={18} />
-                Admin Panel
-              </Link>
+              {!isStudent && (
+                <Link to="/login" className="btn btn-glass btn-lg" id="hero-admin">
+                  <BarChart3 size={18} />
+                  Admin Panel
+                </Link>
+              )}
             </div>
           </motion.div>
 
@@ -116,25 +120,11 @@ export default function Home() {
             className="hero-visual"
           >
             <div className="hero-card-stack">
-              <div className="hero-floating-card card-1">
-                <Star size={20} className="hero-card-icon gold" />
-                <div>
-                  <span className="hero-card-value">4.8</span>
-                  <span className="hero-card-label">Avg Rating</span>
-                </div>
-              </div>
               <div className="hero-floating-card card-2">
                 <Shield size={20} className="hero-card-icon emerald" />
                 <div>
                   <span className="hero-card-value">100%</span>
                   <span className="hero-card-label">Anonymous</span>
-                </div>
-              </div>
-              <div className="hero-floating-card card-3">
-                <TrendingUp size={20} className="hero-card-icon blue" />
-                <div>
-                  <span className="hero-card-value">Live</span>
-                  <span className="hero-card-label">Analytics</span>
                 </div>
               </div>
               <div className="hero-central-graphic">

@@ -50,21 +50,25 @@ export default function Navbar() {
         </button>
 
         <div className={`navbar-menu ${mobileOpen ? 'navbar-menu-open' : ''}`}>
-          <Link 
-            to="/" 
-            className={`navbar-link ${isActive('/') ? 'active' : ''}`}
-            id="nav-home"
-          >
-            Home
-          </Link>
-          <Link 
-            to="/feedback" 
-            className={`navbar-link ${isActive('/feedback') ? 'active' : ''}`}
-            id="nav-feedback"
-          >
-            <MessageSquarePlus size={16} />
-            Give Feedback
-          </Link>
+          {!isAdmin && (
+            <>
+              <Link 
+                to="/" 
+                className={`navbar-link ${isActive('/') ? 'active' : ''}`}
+                id="nav-home"
+              >
+                Home
+              </Link>
+              <Link 
+                to="/feedback" 
+                className={`navbar-link ${isActive('/feedback') ? 'active' : ''}`}
+                id="nav-feedback"
+              >
+                <MessageSquarePlus size={16} />
+                Give Feedback
+              </Link>
+            </>
+          )}
 
           {isAuthenticated ? (
             <>

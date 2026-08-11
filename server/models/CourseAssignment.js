@@ -8,6 +8,7 @@ const courseAssignmentSchema = new mongoose.Schema({
   series: { type: String, required: true, trim: true }, // e.g. "20", "21", or "all"
   teacher: { type: mongoose.Schema.Types.ObjectId, ref: 'Teacher', required: true },
   isActive: { type: Boolean, default: true },
+  isReviewSessionOpen: { type: Boolean, default: true },
 }, { timestamps: true });
 
 // Index for fast lookups by student department and series

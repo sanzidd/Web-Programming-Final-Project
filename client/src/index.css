@@ -8,6 +8,7 @@
 
 /* ── CSS Custom Properties (Design Tokens) ── */
 :root {
+  color-scheme: dark;
   /* Brand Colors — RUET Institutional Palette */
   --primary-color: #B91C3A;     /* Deep RUET Crimson */
   --primary-color-rgb: 185, 28, 58;
@@ -378,6 +379,19 @@ input, textarea, select {
   background-repeat: no-repeat;
   background-position: right 12px center;
   padding-right: 36px;
+}
+
+.form-select option {
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  padding: 10px;
+}
+
+.form-select option:checked,
+.form-select option:hover,
+.form-select option:focus {
+  background-color: var(--primary-color);
+  color: #FFFFFF;
 }
 
 /* ── Badge ── */

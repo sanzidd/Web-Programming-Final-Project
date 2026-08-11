@@ -29,7 +29,6 @@ export default function FeedbackForm() {
   const [teachers, setTeachers] = useState([]);
   const [myAssignments, setMyAssignments] = useState([]);
 
-  const [sessionStatus, setSessionStatus] = useState(null);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   
@@ -55,9 +54,6 @@ export default function FeedbackForm() {
     api.get('/departments')
       .then(res => setDepartments(res.data))
       .catch(() => console.warn('Failed to load departments'));
-    api.get('/feedback/session-status')
-      .then(res => setSessionStatus(res.data))
-      .catch(() => console.warn('Failed to load session status'));
   }, []);
 
 
@@ -138,7 +134,16 @@ export default function FeedbackForm() {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      await api.post('/feedback', form);
+      const selectedAssignment = myAssignments.find(a => 
+        a.courseName === form.courseName && 
+        (typeof a.teacher === 'object' ? a.teacher._id === form.teacher : a.teacher === form.teacher) &&
+        a.department?._id === form.department
+      );
+
+      await api.post('/feedback', {
+        ...form,
+        assignmentId: selectedAssignment?._id
+      });
       setSubmitted(true);
       scrollToTop();
       toast.success('Feedback submitted successfully!');
@@ -168,36 +173,6 @@ export default function FeedbackForm() {
   };
 
   const selectedTeacher = myAssignments.find(a => a.teacher?._id === form.teacher || a.teacher === form.teacher)?.teacher;
-
-  if (sessionStatus && sessionStatus.isOpen === false) {
-    return (
-      <div className="feedback-page page-transition" ref={formRef}>
-        <div className="container container-sm">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="success-card glass-card"
-            style={{ borderColor: 'var(--text-danger)', textAlign: 'center', padding: '50px 30px' }}
-          >
-            <div className="success-icon-wrap" style={{ background: 'rgba(239, 68, 68, 0.15)', color: 'var(--text-danger)', margin: '0 auto 20px' }}>
-              <Frown size={64} />
-            </div>
-            <h2 className="font-display" style={{ fontSize: '1.8rem', color: '#fff', marginBottom: '12px' }}>
-              Evaluation Period Closed
-            </h2>
-            <p className="success-text" style={{ fontSize: '1.05rem', lineHeight: '1.6', color: 'var(--text-secondary)' }}>
-              {sessionStatus.closedMessage || 'The teacher feedback session is currently closed. Please check back later during the designated evaluation period.'}
-            </p>
-            <div style={{ marginTop: '30px' }}>
-              <Link to="/" className="btn btn-outline" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-                Return Home
-              </Link>
-            </div>
-          </motion.div>
-        </div>
-      </div>
-    );
-  }
 
   if (submitted) {
     return (
@@ -348,7 +323,9 @@ export default function FeedbackForm() {
                           return teacherId === form.teacher && a.department?._id === form.department;
                         })
                         .map(a => (
-                          <option key={a._id} value={a.courseName}>{a.courseName}</option>
+                          <option key={a._id} value={a.courseName} disabled={!a.isReviewSessionOpen}>
+                            {a.courseName} {!a.isReviewSessionOpen && '(Closed)'}
+                          </option>
                         ))}
                     </select>
                   </div>

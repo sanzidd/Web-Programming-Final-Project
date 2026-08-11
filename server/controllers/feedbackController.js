@@ -82,16 +82,8 @@ exports.getMyAssignments = async (req, res) => {
 // Submit feedback (student auth required, but feedback itself is anonymous)
 exports.submitFeedback = async (req, res) => {
   try {
-    const currentSession = await ReviewSession.getCurrentSession();
-    if (!currentSession.isOpen) {
-      return res.status(403).json({ 
-        message: currentSession.closedMessage || 'The teacher feedback session is currently closed. Please check back later during the designated evaluation period.',
-        isClosed: true 
-      });
-    }
-
     const { 
-      teacher, department, courseName, 
+      assignmentId, teacher, department, courseName, 
       courseContent, studentContribution, learningEnvironment, learningResources, courseTeacher,
       courseRating, overallFeedback
     } = req.body;
@@ -115,11 +107,13 @@ exports.submitFeedback = async (req, res) => {
     }
 
     // Eligibility check: Ensure assignment exists for this course/teacher, department, and series
+    let targetAssignment = null;
     if (req.studentId) {
       const student = await Student.findById(req.studentId);
       if (student) {
         const derivedSeries = student.roll ? student.roll.substring(0, 2) : '';
-        const isEligible = await CourseAssignment.findOne({
+        targetAssignment = await CourseAssignment.findOne({
+          _id: assignmentId,
           isActive: true,
           teacher,
           department, // use the department submitted in the form
@@ -130,27 +124,24 @@ exports.submitFeedback = async (req, res) => {
             { series: '' }
           ]
         });
-        if (!isEligible) {
+        if (!targetAssignment) {
           return res.status(403).json({ message: 'You are not eligible to review this course/teacher because it is not assigned to your enrolled series/department.' });
+        }
+        if (!targetAssignment.isReviewSessionOpen) {
+          return res.status(403).json({ message: 'The feedback session for this course is currently closed.', isClosed: true });
         }
       }
     }
 
-    // Duplicate prevention: hash studentId + teacherId + courseName
-
-    // This hash cannot be reversed to identify who gave what feedback
-    if (req.studentId) {
-      const normalizedCourse = (courseName || 'default-course').trim().toLowerCase();
-      const hashInput = `${req.studentId}-${teacher}-${normalizedCourse}`;
-      const hash = crypto.createHash('sha256').update(hashInput).digest('hex');
-      
-      const existing = await FeedbackLog.findOne({ hash });
+    // Duplicate prevention: check studentId + assignmentId in FeedbackLog
+    // This allows tracking who gave feedback for a course without linking it to the feedback content
+    if (req.studentId && targetAssignment) {
+      const existing = await FeedbackLog.findOne({ student: req.studentId, assignment: targetAssignment._id });
       if (existing) {
-        console.warn(`[409] Duplicate submission prevented for student: ${req.studentId}, teacher: ${teacher}, course: ${normalizedCourse}`);
-        return res.status(409).json({ message: 'You have already submitted feedback for this teacher in this course' });
+        console.warn(`[409] Duplicate submission prevented for student: ${req.studentId}, assignment: ${targetAssignment._id}`);
+        return res.status(409).json({ message: 'You have already submitted feedback for this course' });
       }
-      // Store the hash (not the raw studentId)
-      await FeedbackLog.create({ hash });
+      await FeedbackLog.create({ student: req.studentId, assignment: targetAssignment._id });
     }
 
     const sentiment = analyzeSentiment(overallFeedback);

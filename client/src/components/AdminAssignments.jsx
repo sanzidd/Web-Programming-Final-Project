@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, Plus, Trash2, Building2, Users, Calendar, Filter, CheckCircle2, AlertCircle } from 'lucide-react';
+import { BookOpen, Plus, Trash2, Building2, Users, Calendar, Filter, CheckCircle2, AlertCircle, Eye, Download, ToggleLeft, ToggleRight } from 'lucide-react';
 import api from '../services/api';
 import { useToast } from '../context/ToastContext';
 
@@ -13,6 +13,9 @@ export default function AdminAssignments() {
   const [showModal, setShowModal] = useState(false);
   const [filterDept, setFilterDept] = useState('');
   const [filterSeries, setFilterSeries] = useState('');
+  const [statusModalOpen, setStatusModalOpen] = useState(false);
+  const [currentStatusList, setCurrentStatusList] = useState([]);
+  const [statusLoading, setStatusLoading] = useState(false);
 
   const [form, setForm] = useState({
     courseCode: '',
@@ -81,6 +84,50 @@ export default function AdminAssignments() {
       setAssignments(prev => prev.filter(a => a._id !== id));
     } catch (err) {
       toast.error('Failed to delete assignment');
+    }
+  };
+
+  const handleToggleSession = async (a) => {
+    try {
+      const res = await api.post(`/admin/assignments/${a._id}/toggle-session`, {
+        isReviewSessionOpen: !a.isReviewSessionOpen
+      });
+      toast.success(`Review session ${res.data.isReviewSessionOpen ? 'OPENED' : 'CLOSED'} for ${a.courseName}`);
+      setAssignments(prev => prev.map(item => item._id === a._id ? { ...item, isReviewSessionOpen: res.data.isReviewSessionOpen } : item));
+    } catch (err) {
+      toast.error('Failed to toggle session');
+    }
+  };
+
+  const handleViewStatus = async (id) => {
+    setStatusLoading(true);
+    setStatusModalOpen(true);
+    setCurrentStatusList([]);
+    try {
+      const res = await api.get(`/admin/assignments/${id}/status`);
+      setCurrentStatusList(res.data);
+    } catch (err) {
+      toast.error('Failed to fetch status');
+      setStatusModalOpen(false);
+    } finally {
+      setStatusLoading(false);
+    }
+  };
+
+  const handleDownloadExcel = async (a) => {
+    try {
+      toast.info(`Generating Excel for ${a.courseName}...`);
+      const response = await api.get(`/admin/assignments/${a._id}/export`, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Admin_Feedback_${a.courseName.replace(/[^a-zA-Z0-9]/g, '_')}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      toast.success('Download started');
+    } catch (err) {
+      toast.error('Failed to download Excel');
     }
   };
 
@@ -172,7 +219,7 @@ export default function AdminAssignments() {
                   <th>Series</th>
                   <th>Semester</th>
                   <th>Assigned Teacher</th>
-                  <th>Status</th>
+                  <th>Session Status</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -191,19 +238,46 @@ export default function AdminAssignments() {
                       </div>
                     </td>
                     <td>
-                      <span className="badge badge-emerald" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                        <CheckCircle2 size={12} /> Active
+                      <span className={`badge ${a.isReviewSessionOpen ? 'badge-emerald' : 'badge-danger'}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        {a.isReviewSessionOpen ? <CheckCircle2 size={12} /> : <AlertCircle size={12} />}
+                        {a.isReviewSessionOpen ? 'Open' : 'Closed'}
                       </span>
                     </td>
                     <td>
-                      <button 
-                        onClick={() => handleDelete(a._id)}
-                        className="btn btn-outline btn-sm"
-                        style={{ color: 'var(--text-danger)', borderColor: 'rgba(239, 68, 68, 0.2)', padding: '6px 10px' }}
-                        title="Delete Assignment"
-                      >
-                        <Trash2 size={14} />
-                      </button>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button 
+                          onClick={() => handleToggleSession(a)}
+                          className="btn btn-outline btn-sm"
+                          title={a.isReviewSessionOpen ? "Close Session" : "Open Session"}
+                          style={{ padding: '6px 10px', color: a.isReviewSessionOpen ? 'var(--text-danger)' : 'var(--ruet-emerald)', borderColor: a.isReviewSessionOpen ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.2)' }}
+                        >
+                          {a.isReviewSessionOpen ? <ToggleRight size={16} /> : <ToggleLeft size={16} />}
+                        </button>
+                        <button 
+                          onClick={() => handleViewStatus(a._id)}
+                          className="btn btn-outline btn-sm"
+                          title="View Student Status"
+                          style={{ padding: '6px 10px' }}
+                        >
+                          <Eye size={14} />
+                        </button>
+                        <button 
+                          onClick={() => handleDownloadExcel(a)}
+                          className="btn btn-outline btn-sm"
+                          title="Download Excel"
+                          style={{ padding: '6px 10px', color: 'var(--ruet-gold)', borderColor: 'rgba(212, 175, 55, 0.2)' }}
+                        >
+                          <Download size={14} />
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(a._id)}
+                          className="btn btn-outline btn-sm"
+                          style={{ color: 'var(--text-danger)', borderColor: 'rgba(239, 68, 68, 0.2)', padding: '6px 10px' }}
+                          title="Delete Assignment"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -314,6 +388,65 @@ export default function AdminAssignments() {
                   <button type="submit" className="btn btn-primary">Create Assignment</button>
                 </div>
               </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Status Modal */}
+      <AnimatePresence>
+        {statusModalOpen && (
+          <div style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+            background: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex',
+            alignItems: 'center', justifyContent: 'center', padding: '20px'
+          }}>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="glass-card"
+              style={{ width: '100%', maxWidth: '600px', padding: '30px', background: 'var(--bg-card)', maxHeight: '90vh', overflowY: 'auto' }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <h3 className="font-display" style={{ fontSize: '1.3rem' }}>Feedback Submission Status</h3>
+                <button onClick={() => setStatusModalOpen(false)} className="btn btn-sm btn-outline">Close</button>
+              </div>
+
+              {statusLoading ? (
+                <div style={{ padding: '20px', textAlign: 'center' }}>Loading status...</div>
+              ) : currentStatusList.length === 0 ? (
+                <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                  No students found matching this series.
+                </div>
+              ) : (
+                <div className="feedback-table-wrap">
+                  <table className="feedback-table">
+                    <thead>
+                      <tr>
+                        <th>Roll Number</th>
+                        <th>Name</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {currentStatusList.map(s => (
+                        <tr key={s.roll}>
+                          <td style={{ fontWeight: 600 }}>{s.roll}</td>
+                          <td>{s.name}</td>
+                          <td>
+                            {s.hasSubmitted ? (
+                              <span className="badge badge-emerald"><CheckCircle2 size={12} /> Feedback Given</span>
+                            ) : (
+                              <span className="badge badge-danger"><AlertCircle size={12} /> Not Given</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </motion.div>
           </div>
         )}
