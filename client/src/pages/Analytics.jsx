@@ -72,11 +72,10 @@ export default function Analytics() {
 
   const radarData = [
     { criteria: 'Overall', ...Object.fromEntries(topForRadar.map(t => [t.name.split(' ').pop(), t.avgRating])) },
-    { criteria: 'Structure', ...Object.fromEntries(topForRadar.map(t => [t.name.split(' ').pop(), t.avgStructure])) },
-    { criteria: 'Delivery', ...Object.fromEntries(topForRadar.map(t => [t.name.split(' ').pop(), t.avgDelivery])) },
-    { criteria: 'Duration', ...Object.fromEntries(topForRadar.map(t => [t.name.split(' ').pop(), t.avgDuration])) },
-    { criteria: 'Environment', ...Object.fromEntries(topForRadar.map(t => [t.name.split(' ').pop(), t.avgEnvironment])) },
-    { criteria: 'Skill', ...Object.fromEntries(topForRadar.map(t => [t.name.split(' ').pop(), t.avgSkill])) },
+    { criteria: 'Course Content', ...Object.fromEntries(topForRadar.map(t => [t.name.split(' ').pop(), t.avgCourseContent])) },
+    { criteria: 'Teaching-Learning', ...Object.fromEntries(topForRadar.map(t => [t.name.split(' ').pop(), t.avgTeachingLearning])) },
+    { criteria: 'Facilities', ...Object.fromEntries(topForRadar.map(t => [t.name.split(' ').pop(), t.avgFacilities])) },
+    { criteria: 'CO Attainment', ...Object.fromEntries(topForRadar.map(t => [t.name.split(' ').pop(), t.avgCOAttainment])) },
   ];
 
   const radarColors = ['#2563EB', '#059669', '#F59E0B', '#DC2626', '#8B5CF6'];

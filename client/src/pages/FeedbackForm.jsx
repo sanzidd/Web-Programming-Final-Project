@@ -1,33 +1,23 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Building2, User, Star as StarIcon, MessageSquare, CheckCircle2, 
-  Shield, ChevronRight, ChevronLeft, Send, Sparkles, BookOpen, Book, Users, Presentation, Lightbulb, Frown
+  Shield, ChevronRight, ChevronLeft, Send, Sparkles, BookOpen, Book, Users, Presentation, Lightbulb, Frown, Target, FlaskConical
 } from 'lucide-react';
 import api from '../services/api';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
-import StarRating from '../components/StarRating';
 import LikertScale from '../components/LikertScale';
 import './FeedbackForm.css';
-
-const STEPS = [
-  { label: 'Select', icon: Building2 },
-  { label: 'Content', icon: Book },
-  { label: 'Environment', icon: Presentation },
-  { label: 'Teacher', icon: Users },
-  { label: 'Rating', icon: StarIcon },
-  { label: 'Submit', icon: Send },
-];
 
 export default function FeedbackForm() {
   const { isStudent } = useAuth();
   const toast = useToast();
   const [step, setStep] = useState(0);
   const [departments, setDepartments] = useState([]);
-  const [teachers, setTeachers] = useState([]);
   const [myAssignments, setMyAssignments] = useState([]);
+  const [selectedAssignment, setSelectedAssignment] = useState(null);
 
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -38,24 +28,44 @@ export default function FeedbackForm() {
     department: '',
     teacher: '',
     courseName: '',
-    courseContent: { q1: 0, q2: 0, q3: 0, comment: '' },
-    studentContribution: { q5: 0, q6: 0, comment: '' },
-    learningEnvironment: { q8: 0, q9: 0, q10: 0, q11: 0, comment: '' },
-    learningResources: { q13: 0, q14: 0, q15: 0, comment: '' },
-    courseTeacher: { q17: 0, q18: 0, q19: 0, q20: 0, q21: 0, q22: 0, comment: '' },
-    courseRating: { structure: 0, delivery: 0, duration: 0, environment: 0, skill: 0, overall: 0, comment: '' },
-    overallFeedback: ''
+    courseContentOrg: { q1_objectives: 0, q2_workload: 0, q3_organized: 0, comment: '' },
+    coFeedback: [], // will be populated dynamically based on assignment COs
+    teachingLearning: { q1_structured: 0, q2_participation: 0, q3_materials: 0, q4_assessment: 0, comment: '' },
+    academicFacilities: { q1_environment: 0, q2_classrooms: 0, q3_laboratory: 0, comment: '' },
   });
 
   const [selectedDeptName, setSelectedDeptName] = useState('');
   const [selectedTeacherName, setSelectedTeacherName] = useState('');
+
+  // Derive COs from the selected assignment
+  const courseOutcomes = useMemo(() => {
+    return selectedAssignment?.courseOutcomes || [];
+  }, [selectedAssignment]);
+
+  // Build dynamic STEPS based on the number of COs
+  const STEPS = useMemo(() => {
+    const steps = [
+      { label: 'Select', icon: Building2 },
+      { label: 'Content', icon: Book },
+    ];
+    
+    // Add one step per CO
+    courseOutcomes.forEach((co, i) => {
+      steps.push({ label: `CO${co.coNumber || (i + 1)}`, icon: Target });
+    });
+
+    steps.push({ label: 'Teaching', icon: Presentation });
+    steps.push({ label: 'Facilities', icon: FlaskConical });
+    steps.push({ label: 'Submit', icon: Send });
+
+    return steps;
+  }, [courseOutcomes]);
 
   useEffect(() => {
     api.get('/departments')
       .then(res => setDepartments(res.data))
       .catch(() => console.warn('Failed to load departments'));
   }, []);
-
 
   useEffect(() => {
     if (isStudent) {
@@ -65,29 +75,52 @@ export default function FeedbackForm() {
     }
   }, [isStudent]);
 
-  useEffect(() => {
-    // Teachers are now derived directly from myAssignments based on the selected department.
-    // No need to fetch teachers from the backend.
-  }, [form.department]);
-
   const handleDeptChange = (e) => {
     const val = e.target.value;
     setForm(f => ({ ...f, department: val, teacher: '', courseName: '' }));
     const dept = departments.find(d => d._id === val);
     setSelectedDeptName(dept ? dept.name : '');
+    setSelectedAssignment(null);
   };
 
   const handleTeacherChange = (e) => {
     const val = e.target.value;
     setForm(f => ({ ...f, teacher: val, courseName: '' }));
-    
-    // Find the selected teacher from myAssignments
     const assignment = myAssignments.find(a => {
       const teacherId = typeof a.teacher === 'object' ? a.teacher?._id : a.teacher;
       return teacherId === val;
     });
     const t = assignment?.teacher;
     setSelectedTeacherName(t ? t.name : '');
+    setSelectedAssignment(null);
+  };
+
+  const handleCourseChange = (e) => {
+    const courseName = e.target.value;
+    setForm(f => ({ ...f, courseName }));
+    
+    // Find the selected assignment to get its COs
+    const assignment = myAssignments.find(a => {
+      const teacherId = typeof a.teacher === 'object' ? a.teacher?._id : a.teacher;
+      return a.courseName === courseName && teacherId === form.teacher && a.department?._id === form.department;
+    });
+    setSelectedAssignment(assignment || null);
+
+    // Initialize coFeedback based on assignment COs
+    if (assignment?.courseOutcomes?.length > 0) {
+      const coFeedback = assignment.courseOutcomes.map(co => ({
+        coNumber: co.coNumber,
+        coTitle: co.title,
+        coDescription: co.description,
+        q1_achievement: 0,
+        q2_alignment: 0,
+        q3_assessment: 0,
+        comment: ''
+      }));
+      setForm(f => ({ ...f, courseName, coFeedback }));
+    } else {
+      setForm(f => ({ ...f, courseName, coFeedback: [] }));
+    }
   };
 
   const scrollToTop = () => {
@@ -108,16 +141,41 @@ export default function FeedbackForm() {
     scrollToTop();
   };
 
+  // Determine what each step index corresponds to
+  const getStepType = (stepIdx) => {
+    if (stepIdx === 0) return { type: 'select' };
+    if (stepIdx === 1) return { type: 'courseContent' };
+    
+    const coCount = courseOutcomes.length;
+    if (stepIdx >= 2 && stepIdx < 2 + coCount) {
+      return { type: 'co', coIndex: stepIdx - 2 };
+    }
+    if (stepIdx === 2 + coCount) return { type: 'teachingLearning' };
+    if (stepIdx === 3 + coCount) return { type: 'facilities' };
+    if (stepIdx === 4 + coCount) return { type: 'submit' };
+    return { type: 'unknown' };
+  };
+
   const canNext = () => {
-    if (step === 0) return form.courseName.trim() !== '';
-    if (step === 1) return form.courseContent.q1 && form.courseContent.q2 && form.courseContent.q3 && 
-                           form.studentContribution.q5 && form.studentContribution.q6;
-    if (step === 2) return form.learningEnvironment.q8 && form.learningEnvironment.q9 && form.learningEnvironment.q10 && form.learningEnvironment.q11 &&
-                           form.learningResources.q13 && form.learningResources.q14 && form.learningResources.q15;
-    if (step === 3) return form.courseTeacher.q17 && form.courseTeacher.q18 && form.courseTeacher.q19 && 
-                           form.courseTeacher.q20 && form.courseTeacher.q21 && form.courseTeacher.q22;
-    if (step === 4) return form.courseRating.structure && form.courseRating.delivery && form.courseRating.duration && 
-                           form.courseRating.environment && form.courseRating.skill && form.courseRating.overall && form.overallFeedback.trim() !== '';
+    const info = getStepType(step);
+
+    if (info.type === 'select') {
+      return form.courseName.trim() !== '';
+    }
+    if (info.type === 'courseContent') {
+      return form.courseContentOrg.q1_objectives && form.courseContentOrg.q2_workload && form.courseContentOrg.q3_organized;
+    }
+    if (info.type === 'co') {
+      const co = form.coFeedback[info.coIndex];
+      return co && co.q1_achievement && co.q2_alignment && co.q3_assessment;
+    }
+    if (info.type === 'teachingLearning') {
+      return form.teachingLearning.q1_structured && form.teachingLearning.q2_participation && 
+             form.teachingLearning.q3_materials && form.teachingLearning.q4_assessment;
+    }
+    if (info.type === 'facilities') {
+      return form.academicFacilities.q1_environment && form.academicFacilities.q2_classrooms && form.academicFacilities.q3_laboratory;
+    }
     return true;
   };
 
@@ -131,10 +189,18 @@ export default function FeedbackForm() {
     }));
   };
 
+  const updateCOFeedback = (coIndex, field, value) => {
+    setForm(f => {
+      const updated = [...f.coFeedback];
+      updated[coIndex] = { ...updated[coIndex], [field]: value };
+      return { ...f, coFeedback: updated };
+    });
+  };
+
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const selectedAssignment = myAssignments.find(a => 
+      const matchedAssignment = myAssignments.find(a => 
         a.courseName === form.courseName && 
         (typeof a.teacher === 'object' ? a.teacher._id === form.teacher : a.teacher === form.teacher) &&
         a.department?._id === form.department
@@ -142,7 +208,7 @@ export default function FeedbackForm() {
 
       await api.post('/feedback', {
         ...form,
-        assignmentId: selectedAssignment?._id
+        assignmentId: matchedAssignment?._id
       });
       setSubmitted(true);
       scrollToTop();
@@ -157,22 +223,18 @@ export default function FeedbackForm() {
   const handleReset = () => {
     setForm({
       department: '', teacher: '', courseName: '',
-      courseContent: { q1: 0, q2: 0, q3: 0, comment: '' },
-      studentContribution: { q5: 0, q6: 0, comment: '' },
-      learningEnvironment: { q8: 0, q9: 0, q10: 0, q11: 0, comment: '' },
-      learningResources: { q13: 0, q14: 0, q15: 0, comment: '' },
-      courseTeacher: { q17: 0, q18: 0, q19: 0, q20: 0, q21: 0, q22: 0, comment: '' },
-      courseRating: { structure: 0, delivery: 0, duration: 0, environment: 0, skill: 0, overall: 0, comment: '' },
-      overallFeedback: ''
+      courseContentOrg: { q1_objectives: 0, q2_workload: 0, q3_organized: 0, comment: '' },
+      coFeedback: [],
+      teachingLearning: { q1_structured: 0, q2_participation: 0, q3_materials: 0, q4_assessment: 0, comment: '' },
+      academicFacilities: { q1_environment: 0, q2_classrooms: 0, q3_laboratory: 0, comment: '' },
     });
     setStep(0);
     setSubmitted(false);
     setSelectedDeptName('');
     setSelectedTeacherName('');
+    setSelectedAssignment(null);
     scrollToTop();
   };
-
-  const selectedTeacher = myAssignments.find(a => a.teacher?._id === form.teacher || a.teacher === form.teacher)?.teacher;
 
   if (submitted) {
     return (
@@ -202,6 +264,8 @@ export default function FeedbackForm() {
       </div>
     );
   }
+
+  const currentStepType = getStepType(step);
 
   return (
     <div className="feedback-page page-transition" ref={formRef}>
@@ -255,88 +319,108 @@ export default function FeedbackForm() {
             {/* Form Steps */}
             <div className="feedback-form-card glass-card">
               <AnimatePresence mode="wait">
-                {step === 0 && (
-                <motion.div
-                  key="step0"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  className="form-step"
-                >
-                  <h2 className="form-step-title">
-                    <Building2 size={22} className="form-step-icon" />
-                    Select Department & Teacher
-                  </h2>
-                  {/* Department Select */}
-                  <div className="form-group mt-4">
-                    <label className="form-label" htmlFor="dept-select">Department</label>
-                    <select
-                      id="dept-select"
-                      className="form-select"
-                      value={form.department}
-                      onChange={handleDeptChange}
-                      required
-                    >
-                      <option value="">Select Department</option>
-                      {departments.map(d => (
-                        <option key={d._id} value={d._id}>{d.name}</option>
-                      ))}
-                    </select>
-                  </div>
-                  {/* Teacher Select */}
-                  <div className="form-group mt-4">
-                    <label className="form-label" htmlFor="teacher-select">Teacher</label>
-                    <select
-                      id="teacher-select"
-                      className="form-select"
-                      value={form.teacher}
-                      onChange={handleTeacherChange}
-                      disabled={!form.department}
-                      required
-                    >
-                      <option value="">Select Teacher</option>
-                      {/* Extract unique teachers from myAssignments for the selected department */}
-                      {Array.from(new Map(
-                        myAssignments
-                          .filter(a => a.department?._id === form.department)
-                          .map(a => [typeof a.teacher === 'object' ? a.teacher._id : a.teacher, a.teacher])
-                      ).values()).map(t => (
-                        <option key={t._id || t} value={t._id || t}>{t.name}</option>
-                      ))}
-                    </select>
-                  </div>
-                  {/* Course Select */}
-                  <div className="form-group mt-4">
-                    <label className="form-label" htmlFor="course-select">Course</label>
-                    <select
-                      id="course-select"
-                      className="form-select"
-                      value={form.courseName}
-                      onChange={e => setForm(f => ({ ...f, courseName: e.target.value }))}
-                      disabled={!form.teacher}
-                      required
-                    >
-                      <option value="">Select Course</option>
-                      {myAssignments
-                        .filter(a => {
-                          const teacherId = typeof a.teacher === 'object' ? a.teacher?._id : a.teacher;
-                          return teacherId === form.teacher && a.department?._id === form.department;
-                        })
-                        .map(a => (
-                          <option key={a._id} value={a.courseName} disabled={!a.isReviewSessionOpen}>
-                            {a.courseName} {!a.isReviewSessionOpen && '(Closed)'}
-                          </option>
-                        ))}
-                    </select>
-                  </div>
-                </motion.div>
-              )}
 
-
-
-                {step === 1 && (
+                {/* Step 0: Select Department, Teacher, Course */}
+                {currentStepType.type === 'select' && (
                   <motion.div
-                    key="step1"
+                    key="step-select"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="form-step"
+                  >
+                    <h2 className="form-step-title">
+                      <Building2 size={22} className="form-step-icon" />
+                      Select Department & Teacher
+                    </h2>
+                    <div className="form-group mt-4">
+                      <label className="form-label" htmlFor="dept-select">Department</label>
+                      <select 
+                        id="dept-select" 
+                        className="form-select" 
+                        style={{ backgroundColor: '#FFFFFF', color: '#000000', fontWeight: 500 }}
+                        value={form.department} 
+                        onChange={handleDeptChange} 
+                        required
+                      >
+                        <option value="" style={{ backgroundColor: '#FFFFFF', color: '#64748B' }}>Select Department</option>
+                        {departments.map(d => (
+                          <option key={d._id} value={d._id} style={{ backgroundColor: '#FFFFFF', color: '#000000' }}>{d.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="form-group mt-4">
+                      <label className="form-label" htmlFor="teacher-select">Teacher</label>
+                      <select 
+                        id="teacher-select" 
+                        className="form-select" 
+                        style={{ backgroundColor: form.department ? '#FFFFFF' : '#F1F5F9', color: form.department ? '#000000' : '#64748B', fontWeight: 500 }}
+                        value={form.teacher} 
+                        onChange={handleTeacherChange} 
+                        disabled={!form.department} 
+                        required
+                      >
+                        <option value="" style={{ backgroundColor: '#FFFFFF', color: '#64748B' }}>Select Teacher</option>
+                        {Array.from(new Map(
+                          myAssignments
+                            .filter(a => a.department?._id === form.department)
+                            .map(a => [typeof a.teacher === 'object' ? a.teacher._id : a.teacher, a.teacher])
+                        ).values()).map(t => (
+                          <option key={t._id || t} value={t._id || t} style={{ backgroundColor: '#FFFFFF', color: '#000000' }}>{t.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="form-group mt-4">
+                      <label className="form-label" htmlFor="course-select">Course</label>
+                      <select 
+                        id="course-select" 
+                        className="form-select" 
+                        style={{ backgroundColor: form.teacher ? '#FFFFFF' : '#F1F5F9', color: form.teacher ? '#000000' : '#64748B', fontWeight: 500 }}
+                        value={form.courseName} 
+                        onChange={handleCourseChange} 
+                        disabled={!form.teacher} 
+                        required
+                      >
+                        <option value="" style={{ backgroundColor: '#FFFFFF', color: '#64748B' }}>Select Course</option>
+                        {myAssignments
+                          .filter(a => {
+                            const teacherId = typeof a.teacher === 'object' ? a.teacher?._id : a.teacher;
+                            return teacherId === form.teacher && a.department?._id === form.department;
+                          })
+                          .map(a => (
+                            <option key={a._id} value={a.courseName} disabled={!a.isReviewSessionOpen} style={{ backgroundColor: '#FFFFFF', color: '#000000' }}>
+                              {a.courseName} {!a.isReviewSessionOpen && '(Closed)'}
+                            </option>
+                          ))}
+                      </select>
+                    </div>
+
+                    {/* Show CO info if assignment is selected */}
+                    {selectedAssignment && courseOutcomes.length > 0 && (
+                      <div className="co-preview mt-4" style={{ 
+                        background: 'rgba(39, 174, 96, 0.08)', 
+                        borderRadius: 'var(--radius-md)', 
+                        padding: '16px',
+                        border: '1px solid rgba(39, 174, 96, 0.2)'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px', color: 'var(--ruet-emerald)' }}>
+                          <Target size={16} />
+                          <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>This course has {courseOutcomes.length} Course Outcome(s)</span>
+                        </div>
+                        {courseOutcomes.map((co, i) => (
+                          <div key={i} style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '4px' }}>
+                            <strong>CO{co.coNumber || (i + 1)}:</strong> {co.title}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+
+                {/* Step 1: Course Content & Organisation */}
+                {currentStepType.type === 'courseContent' && (
+                  <motion.div
+                    key="step-courseContent"
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
@@ -344,40 +428,100 @@ export default function FeedbackForm() {
                   >
                     <h2 className="form-step-title">
                       <Book size={22} className="form-step-icon" />
-                      Course Content & Organization
+                      Course Content & Organisation
                     </h2>
+                    <p className="form-step-desc">Rate the following from Strongly Disagree to Strongly Agree</p>
                     
                     <div className="likert-section">
-                      <LikertScale question="1. The course objectives were clear" value={form.courseContent.q1} onChange={(v) => updateNestedForm('courseContent', 'q1', v)} />
-                      <LikertScale question="2. The course workload was manageable" value={form.courseContent.q2} onChange={(v) => updateNestedForm('courseContent', 'q2', v)} />
-                      <LikertScale question="3. The course was well organized (e.g. timely access to materials, notification of changes, etc.)" value={form.courseContent.q3} onChange={(v) => updateNestedForm('courseContent', 'q3', v)} />
+                      <LikertScale 
+                        question="1. The course objectives were clear" 
+                        value={form.courseContentOrg.q1_objectives} 
+                        onChange={(v) => updateNestedForm('courseContentOrg', 'q1_objectives', v)} 
+                      />
+                      <LikertScale 
+                        question="2. The course workload was manageable" 
+                        value={form.courseContentOrg.q2_workload} 
+                        onChange={(v) => updateNestedForm('courseContentOrg', 'q2_workload', v)} 
+                      />
+                      <LikertScale 
+                        question="3. The course was well organized" 
+                        value={form.courseContentOrg.q3_organized} 
+                        onChange={(v) => updateNestedForm('courseContentOrg', 'q3_organized', v)} 
+                      />
                       
                       <div className="form-group mt-4">
-                        <label className="form-label">4. Comments on Course Content and Organization (Optional)</label>
-                        <textarea className="form-textarea" rows={3} value={form.courseContent.comment} onChange={(e) => updateNestedForm('courseContent', 'comment', e.target.value)} />
-                      </div>
-                    </div>
-
-                    <h2 className="form-step-title mt-8">
-                      <User size={22} className="form-step-icon" />
-                      Student Contribution
-                    </h2>
-                    
-                    <div className="likert-section">
-                      <LikertScale question="5. I participated actively in the course" value={form.studentContribution.q5} onChange={(v) => updateNestedForm('studentContribution', 'q5', v)} />
-                      <LikertScale question="6. I think I have made progress in this course" value={form.studentContribution.q6} onChange={(v) => updateNestedForm('studentContribution', 'q6', v)} />
-                      
-                      <div className="form-group mt-4">
-                        <label className="form-label">7. Comments on Student Contribution (Optional)</label>
-                        <textarea className="form-textarea" rows={3} value={form.studentContribution.comment} onChange={(e) => updateNestedForm('studentContribution', 'comment', e.target.value)} />
+                        <label className="form-label">4. Comments on Course Content & Organisation (Optional)</label>
+                        <textarea className="form-textarea" rows={3} value={form.courseContentOrg.comment} onChange={(e) => updateNestedForm('courseContentOrg', 'comment', e.target.value)} />
                       </div>
                     </div>
                   </motion.div>
                 )}
 
-                {step === 2 && (
+                {/* Dynamic CO Steps */}
+                {currentStepType.type === 'co' && (() => {
+                  const coIndex = currentStepType.coIndex;
+                  const co = courseOutcomes[coIndex];
+                  const coNum = co?.coNumber || (coIndex + 1);
+                  const coData = form.coFeedback[coIndex] || {};
+
+                  return (
+                    <motion.div
+                      key={`step-co-${coIndex}`}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      className="form-step"
+                    >
+                      <h2 className="form-step-title">
+                        <Target size={22} className="form-step-icon" style={{ color: 'var(--ruet-emerald)' }} />
+                        CO{coNum}: {co?.title}
+                      </h2>
+                      <p className="form-step-desc" style={{ 
+                        background: 'rgba(39, 174, 96, 0.08)', 
+                        padding: '12px 16px', 
+                        borderRadius: 'var(--radius-md)',
+                        border: '1px solid rgba(39, 174, 96, 0.15)',
+                        marginBottom: '20px'
+                      }}>
+                        {co?.description}
+                      </p>
+                      
+                      <div className="likert-section">
+                        <LikertScale 
+                          question={`1. To what extent this course helped you to achieve this CO`}
+                          value={coData.q1_achievement || 0}
+                          onChange={(v) => updateCOFeedback(coIndex, 'q1_achievement', v)}
+                          variant="achievement"
+                        />
+                        <LikertScale 
+                          question={`2. Does the teaching-learning method aligned with this CO`}
+                          value={coData.q2_alignment || 0}
+                          onChange={(v) => updateCOFeedback(coIndex, 'q2_alignment', v)}
+                        />
+                        <LikertScale 
+                          question={`3. Does the assessment tool used for this CO engage you in the learning process`}
+                          value={coData.q3_assessment || 0}
+                          onChange={(v) => updateCOFeedback(coIndex, 'q3_assessment', v)}
+                        />
+                        
+                        <div className="form-group mt-4">
+                          <label className="form-label">4. Comments or suggestions regarding this CO (Optional)</label>
+                          <textarea 
+                            className="form-textarea" 
+                            rows={3} 
+                            value={coData.comment || ''} 
+                            onChange={(e) => updateCOFeedback(coIndex, 'comment', e.target.value)} 
+                          />
+                        </div>
+                      </div>
+                    </motion.div>
+                  );
+                })()}
+
+                {/* Teaching-Learning & Assessment */}
+                {currentStepType.type === 'teachingLearning' && (
                   <motion.div
-                    key="step2"
+                    key="step-teachingLearning"
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
@@ -385,123 +529,84 @@ export default function FeedbackForm() {
                   >
                     <h2 className="form-step-title">
                       <Presentation size={22} className="form-step-icon" />
-                      Learning Environment & Teaching Methods
+                      Teaching-Learning & Assessment
                     </h2>
+                    <p className="form-step-desc">Rate the following from Strongly Disagree to Strongly Agree</p>
                     
                     <div className="likert-section">
-                      <LikertScale question="8. I think the course was well structured to achieve the learning outcomes" value={form.learningEnvironment.q8} onChange={(v) => updateNestedForm('learningEnvironment', 'q8', v)} />
-                      <LikertScale question="9. The learning and teaching methods encouraged participation" value={form.learningEnvironment.q9} onChange={(v) => updateNestedForm('learningEnvironment', 'q9', v)} />
-                      <LikertScale question="10. The overall environment in the class was conducive to learning" value={form.learningEnvironment.q10} onChange={(v) => updateNestedForm('learningEnvironment', 'q10', v)} />
-                      <LikertScale question="11. Classrooms were satisfactory" value={form.learningEnvironment.q11} onChange={(v) => updateNestedForm('learningEnvironment', 'q11', v)} />
+                      <LikertScale 
+                        question="1. I think the course was well structured to achieve the learning outcomes" 
+                        value={form.teachingLearning.q1_structured} 
+                        onChange={(v) => updateNestedForm('teachingLearning', 'q1_structured', v)} 
+                      />
+                      <LikertScale 
+                        question="2. The learning and teaching methods encouraged participation" 
+                        value={form.teachingLearning.q2_participation} 
+                        onChange={(v) => updateNestedForm('teachingLearning', 'q2_participation', v)} 
+                      />
+                      <LikertScale 
+                        question="3. Learning materials were relevant and useful" 
+                        value={form.teachingLearning.q3_materials} 
+                        onChange={(v) => updateNestedForm('teachingLearning', 'q3_materials', v)} 
+                      />
+                      <LikertScale 
+                        question="4. Do the assessment activities encourage you to apply the knowledge and skills you have learned" 
+                        value={form.teachingLearning.q4_assessment} 
+                        onChange={(v) => updateNestedForm('teachingLearning', 'q4_assessment', v)} 
+                      />
                       
                       <div className="form-group mt-4">
-                        <label className="form-label">12. Comments on Learning Environment (Optional)</label>
-                        <textarea className="form-textarea" rows={3} value={form.learningEnvironment.comment} onChange={(e) => updateNestedForm('learningEnvironment', 'comment', e.target.value)} />
-                      </div>
-                    </div>
-
-                    <h2 className="form-step-title mt-8">
-                      <Lightbulb size={22} className="form-step-icon" />
-                      Learning Resources
-                    </h2>
-                    
-                    <div className="likert-section">
-                      <LikertScale question="13. Learning materials (lesson plans, course notes, etc.) were relevant and useful" value={form.learningResources.q13} onChange={(v) => updateNestedForm('learningResources', 'q13', v)} />
-                      <LikertScale question="14. Recommended reading books etc. were relevant and appropriate" value={form.learningResources.q14} onChange={(v) => updateNestedForm('learningResources', 'q14', v)} />
-                      <LikertScale question="15. The provision of learning resources in the library was adequate and appropriate" value={form.learningResources.q15} onChange={(v) => updateNestedForm('learningResources', 'q15', v)} />
-                      
-                      <div className="form-group mt-4">
-                        <label className="form-label">16. Comments on Learning Resources (Optional)</label>
-                        <textarea className="form-textarea" rows={3} value={form.learningResources.comment} onChange={(e) => updateNestedForm('learningResources', 'comment', e.target.value)} />
+                        <label className="form-label">5. Comments on Teaching, Learning and Assessment (Optional)</label>
+                        <textarea className="form-textarea" rows={3} value={form.teachingLearning.comment} onChange={(e) => updateNestedForm('teachingLearning', 'comment', e.target.value)} />
                       </div>
                     </div>
                   </motion.div>
                 )}
 
-                {step === 3 && (
+                {/* Academic and Laboratory Facilities */}
+                {currentStepType.type === 'facilities' && (
                   <motion.div
-                    key="step3"
+                    key="step-facilities"
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
                     className="form-step"
                   >
                     <h2 className="form-step-title">
-                      <Users size={22} className="form-step-icon" />
-                      Course Teacher Evaluation
+                      <FlaskConical size={22} className="form-step-icon" />
+                      Academic & Laboratory Facilities
                     </h2>
-                    <p className="form-step-desc">Evaluate {selectedTeacherName}</p>
+                    <p className="form-step-desc">Rate the following from Strongly Disagree to Strongly Agree</p>
                     
                     <div className="likert-section">
-                      <LikertScale question="17. Course teacher showed empathy and helped solving critical problems" value={form.courseTeacher.q17} onChange={(v) => updateNestedForm('courseTeacher', 'q17', v)} />
-                      <LikertScale question="18. You felt that course teacher is an expert of this course" value={form.courseTeacher.q18} onChange={(v) => updateNestedForm('courseTeacher', 'q18', v)} />
-                      <LikertScale question="19. Delivery skill of teacher was satisfactory" value={form.courseTeacher.q19} onChange={(v) => updateNestedForm('courseTeacher', 'q19', v)} />
-                      <LikertScale question="20. Course teacher responded to your queries" value={form.courseTeacher.q20} onChange={(v) => updateNestedForm('courseTeacher', 'q20', v)} />
-                      <LikertScale question="21. Communication skill of teacher was satisfactory" value={form.courseTeacher.q21} onChange={(v) => updateNestedForm('courseTeacher', 'q21', v)} />
-                      <LikertScale question="22. You felt comfortable expressing your problems to your course teacher" value={form.courseTeacher.q22} onChange={(v) => updateNestedForm('courseTeacher', 'q22', v)} />
+                      <LikertScale 
+                        question="1. The overall environment in the class was conducive to learning" 
+                        value={form.academicFacilities.q1_environment} 
+                        onChange={(v) => updateNestedForm('academicFacilities', 'q1_environment', v)} 
+                      />
+                      <LikertScale 
+                        question="2. Classrooms were satisfactory" 
+                        value={form.academicFacilities.q2_classrooms} 
+                        onChange={(v) => updateNestedForm('academicFacilities', 'q2_classrooms', v)} 
+                      />
+                      <LikertScale 
+                        question="3. Laboratory facilities were adequate and appropriate" 
+                        value={form.academicFacilities.q3_laboratory} 
+                        onChange={(v) => updateNestedForm('academicFacilities', 'q3_laboratory', v)} 
+                      />
                       
                       <div className="form-group mt-4">
-                        <label className="form-label">23. Comments on Course Teacher (Optional)</label>
-                        <textarea className="form-textarea" rows={3} value={form.courseTeacher.comment} onChange={(e) => updateNestedForm('courseTeacher', 'comment', e.target.value)} />
+                        <label className="form-label">4. Comments on Academic & Laboratory Facilities (Optional)</label>
+                        <textarea className="form-textarea" rows={3} value={form.academicFacilities.comment} onChange={(e) => updateNestedForm('academicFacilities', 'comment', e.target.value)} />
                       </div>
                     </div>
                   </motion.div>
                 )}
 
-                {step === 4 && (
+                {/* Review & Submit */}
+                {currentStepType.type === 'submit' && (
                   <motion.div
-                    key="step4"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    className="form-step"
-                  >
-                    <h2 className="form-step-title">
-                      <StarIcon size={22} className="form-step-icon" />
-                      Course Rating (1 to 5)
-                    </h2>
-                    <p className="form-step-desc">Rate the following criteria out of 5 stars.</p>
-
-                    <div className="ratings-grid">
-                      <div className="rating-row">
-                        <StarRating label="24. Course Structure and Contents" value={form.courseRating.structure} onChange={(v) => updateNestedForm('courseRating', 'structure', v)} size={32} />
-                      </div>
-                      <div className="rating-row">
-                        <StarRating label="25. Delivery Quality of Teacher" value={form.courseRating.delivery} onChange={(v) => updateNestedForm('courseRating', 'delivery', v)} size={32} />
-                      </div>
-                      <div className="rating-row">
-                        <StarRating label="26. Course Duration" value={form.courseRating.duration} onChange={(v) => updateNestedForm('courseRating', 'duration', v)} size={32} />
-                      </div>
-                      <div className="rating-row">
-                        <StarRating label="27. Environment" value={form.courseRating.environment} onChange={(v) => updateNestedForm('courseRating', 'environment', v)} size={32} />
-                      </div>
-                      <div className="rating-row">
-                        <StarRating label="28. New Skill Acquisition/Old Skill Developed" value={form.courseRating.skill} onChange={(v) => updateNestedForm('courseRating', 'skill', v)} size={32} />
-                      </div>
-                      <div className="rating-row">
-                        <StarRating label="29. Overall Rating" value={form.courseRating.overall} onChange={(v) => updateNestedForm('courseRating', 'overall', v)} size={32} />
-                      </div>
-                    </div>
-                    
-                    <div className="form-group mt-4">
-                      <label className="form-label">30. Comments on Course Rating (Optional)</label>
-                      <textarea className="form-textarea" rows={3} value={form.courseRating.comment} onChange={(e) => updateNestedForm('courseRating', 'comment', e.target.value)} />
-                    </div>
-
-                    <h2 className="form-step-title mt-8">
-                      <MessageSquare size={22} className="form-step-icon" />
-                      Any Other Feedback
-                    </h2>
-                    <div className="form-group">
-                      <label className="form-label">31. Provide feedback to improve the course *</label>
-                      <textarea className="form-textarea" rows={5} placeholder="Your detailed feedback is required..." value={form.overallFeedback} onChange={(e) => setForm(f => ({ ...f, overallFeedback: e.target.value }))} />
-                    </div>
-                  </motion.div>
-                )}
-
-                {step === 5 && (
-                  <motion.div
-                    key="step5"
+                    key="step-submit"
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
@@ -529,19 +634,28 @@ export default function FeedbackForm() {
                       )}
                       
                       <div className="divider" style={{ margin: 'var(--sp-4) 0' }} />
-                      <h4 className="review-section-title">Final Course Rating</h4>
+
+                      <h4 className="review-section-title">Sections Completed</h4>
                       
                       <div className="review-row">
-                        <span className="review-label">Overall Rating</span>
-                        <span className="review-value review-stars">{'⭐'.repeat(form.courseRating.overall)}</span>
+                        <span className="review-label">Course Content & Organisation</span>
+                        <span className="review-value" style={{ color: 'var(--ruet-emerald)' }}>✓ Completed</span>
+                      </div>
+                      
+                      {courseOutcomes.map((co, i) => (
+                        <div className="review-row" key={i}>
+                          <span className="review-label">CO{co.coNumber || (i + 1)}: {co.title}</span>
+                          <span className="review-value" style={{ color: 'var(--ruet-emerald)' }}>✓ Completed</span>
+                        </div>
+                      ))}
+
+                      <div className="review-row">
+                        <span className="review-label">Teaching-Learning & Assessment</span>
+                        <span className="review-value" style={{ color: 'var(--ruet-emerald)' }}>✓ Completed</span>
                       </div>
                       <div className="review-row">
-                        <span className="review-label">Teacher Delivery</span>
-                        <span className="review-value review-stars">{'⭐'.repeat(form.courseRating.delivery)}</span>
-                      </div>
-                      <div className="review-row">
-                        <span className="review-label">Course Structure</span>
-                        <span className="review-value review-stars">{'⭐'.repeat(form.courseRating.structure)}</span>
+                        <span className="review-label">Academic & Lab Facilities</span>
+                        <span className="review-value" style={{ color: 'var(--ruet-emerald)' }}>✓ Completed</span>
                       </div>
                     </div>
 

@@ -9,6 +9,7 @@ const Department = require('../models/Department');
 const CourseAssignment = require('../models/CourseAssignment');
 const teacherAuth = require('../middleware/teacherAuth');
 const { sendVerificationEmail } = require('../utils/sendEmail');
+const { generateFeedbackExcel } = require('../services/excelReportGenerator');
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'ruet-feedback-secret-key-2026';
@@ -22,6 +23,26 @@ function generateCode() {
 function scoreToLabel(score) {
   const map = { 5: 'Strongly Agree', 4: 'Agree', 3: 'Neutral', 2: 'Disagree', 1: 'Strongly Disagree' };
   return map[score] || '';
+}
+
+function achievementToLabel(score) {
+  const map = { 1: 'Not at all', 2: 'Slightly', 3: 'Moderately', 4: 'Significantly', 5: 'Completely' };
+  return map[score] || '';
+}
+
+// Helper: compute overall avg for a single feedback
+function computeFeedbackOverall(f) {
+  const scores = [];
+  if (f.courseContentOrg) {
+    scores.push((f.courseContentOrg.q1_objectives + f.courseContentOrg.q2_workload + f.courseContentOrg.q3_organized) / 3);
+  }
+  if (f.teachingLearning) {
+    scores.push((f.teachingLearning.q1_structured + f.teachingLearning.q2_participation + f.teachingLearning.q3_materials + f.teachingLearning.q4_assessment) / 4);
+  }
+  if (f.academicFacilities) {
+    scores.push((f.academicFacilities.q1_environment + f.academicFacilities.q2_classrooms + f.academicFacilities.q3_laboratory) / 3);
+  }
+  return scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
 }
 
 // ══════════════════════════════════════════
@@ -144,15 +165,12 @@ router.post('/verify', async (req, res) => {
     // Find or create matching Teacher profile document
     let teacher = await Teacher.findOne({ email: user.email });
     if (!teacher) {
-      // Also try matching by name + department
       const query = { name: user.name };
       if (user.department) query.department = user.department;
       teacher = await Teacher.findOne(query);
     }
 
     if (!teacher) {
-      // Create a new Teacher profile
-      // Department is required — use the user's department or find a default
       let deptId = user.department;
       if (!deptId) {
         const defaultDept = await Department.findOne({});
@@ -173,7 +191,6 @@ router.post('/verify', async (req, res) => {
         courses: [],
       });
     } else {
-      // Update email on existing teacher if missing
       if (!teacher.email) {
         teacher.email = user.email;
         await teacher.save();
@@ -183,7 +200,6 @@ router.post('/verify', async (req, res) => {
     user.teacher = teacher._id;
     await user.save();
 
-    // Generate JWT
     const token = jwt.sign(
       { id: user._id, role: 'teacher', teacherId: teacher._id },
       JWT_SECRET,
@@ -342,11 +358,10 @@ router.get('/dashboard', teacherAuth, async (req, res) => {
           feedbacks: [],
           totalFeedbacks: 0,
           avgOverall: 0,
-          avgStructure: 0,
-          avgDelivery: 0,
-          avgDuration: 0,
-          avgEnvironment: 0,
-          avgSkill: 0,
+          avgCourseContent: 0,
+          avgTeachingLearning: 0,
+          avgFacilities: 0,
+          avgCOAttainment: 0,
           sentimentCounts: { positive: 0, neutral: 0, negative: 0 },
         };
       }
@@ -358,12 +373,34 @@ router.get('/dashboard', teacherAuth, async (req, res) => {
     // Compute averages per course
     const courses = Object.values(courseMap).map(c => {
       const n = c.totalFeedbacks || 1;
-      c.avgOverall = +(c.feedbacks.reduce((s, f) => s + (f.courseRating?.overall || 0), 0) / n).toFixed(2);
-      c.avgStructure = +(c.feedbacks.reduce((s, f) => s + (f.courseRating?.structure || 0), 0) / n).toFixed(2);
-      c.avgDelivery = +(c.feedbacks.reduce((s, f) => s + (f.courseRating?.delivery || 0), 0) / n).toFixed(2);
-      c.avgDuration = +(c.feedbacks.reduce((s, f) => s + (f.courseRating?.duration || 0), 0) / n).toFixed(2);
-      c.avgEnvironment = +(c.feedbacks.reduce((s, f) => s + (f.courseRating?.environment || 0), 0) / n).toFixed(2);
-      c.avgSkill = +(c.feedbacks.reduce((s, f) => s + (f.courseRating?.skill || 0), 0) / n).toFixed(2);
+      
+      c.avgCourseContent = +(c.feedbacks.reduce((s, f) => {
+        if (!f.courseContentOrg) return s;
+        return s + (f.courseContentOrg.q1_objectives + f.courseContentOrg.q2_workload + f.courseContentOrg.q3_organized) / 3;
+      }, 0) / n).toFixed(2);
+
+      c.avgTeachingLearning = +(c.feedbacks.reduce((s, f) => {
+        if (!f.teachingLearning) return s;
+        return s + (f.teachingLearning.q1_structured + f.teachingLearning.q2_participation + f.teachingLearning.q3_materials + f.teachingLearning.q4_assessment) / 4;
+      }, 0) / n).toFixed(2);
+
+      c.avgFacilities = +(c.feedbacks.reduce((s, f) => {
+        if (!f.academicFacilities) return s;
+        return s + (f.academicFacilities.q1_environment + f.academicFacilities.q2_classrooms + f.academicFacilities.q3_laboratory) / 3;
+      }, 0) / n).toFixed(2);
+
+      // CO Attainment
+      let coTotal = 0, coCount = 0;
+      c.feedbacks.forEach(f => {
+        (f.coFeedback || []).forEach(co => {
+          coTotal += co.q1_achievement;
+          coCount++;
+        });
+      });
+      c.avgCOAttainment = coCount > 0 ? +(coTotal / coCount).toFixed(2) : 0;
+
+      c.avgOverall = +((c.avgCourseContent + c.avgTeachingLearning + c.avgFacilities + (c.avgCOAttainment || c.avgCourseContent)) / (c.avgCOAttainment > 0 ? 4 : 3)).toFixed(2);
+
       delete c.feedbacks; // Don't send all feedbacks in dashboard overview
       return c;
     });
@@ -371,7 +408,7 @@ router.get('/dashboard', teacherAuth, async (req, res) => {
     // Overall summary
     const totalFeedbacks = feedbacks.length;
     const overallAvg = totalFeedbacks > 0
-      ? +(feedbacks.reduce((s, f) => s + (f.courseRating?.overall || 0), 0) / totalFeedbacks).toFixed(2)
+      ? +(feedbacks.reduce((s, f) => s + computeFeedbackOverall(f), 0) / totalFeedbacks).toFixed(2)
       : 0;
     const sentimentCounts = { positive: 0, neutral: 0, negative: 0 };
     feedbacks.forEach(f => sentimentCounts[f.sentiment || 'neutral']++);
@@ -387,11 +424,10 @@ router.get('/dashboard', teacherAuth, async (req, res) => {
         totalFeedbacks,
         totalCourses: Math.max(courses.length, assignedCourses.length),
         overallAvg,
-        avgStructure: teacher?.avgStructure || 0,
-        avgDelivery: teacher?.avgDelivery || 0,
-        avgDuration: teacher?.avgDuration || 0,
-        avgEnvironment: teacher?.avgEnvironment || 0,
-        avgSkill: teacher?.avgSkill || 0,
+        avgCourseContent: teacher?.avgCourseContent || 0,
+        avgTeachingLearning: teacher?.avgTeachingLearning || 0,
+        avgFacilities: teacher?.avgFacilities || 0,
+        avgCOAttainment: teacher?.avgCOAttainment || 0,
         sentimentCounts,
       },
       courses,
@@ -419,15 +455,41 @@ router.get('/course-feedback/:courseName', teacherAuth, async (req, res) => {
 
     // Compute course averages
     const n = feedbacks.length || 1;
+
+    const avgCourseContent = +(feedbacks.reduce((s, f) => {
+      if (!f.courseContentOrg) return s;
+      return s + (f.courseContentOrg.q1_objectives + f.courseContentOrg.q2_workload + f.courseContentOrg.q3_organized) / 3;
+    }, 0) / n).toFixed(2);
+
+    const avgTeachingLearning = +(feedbacks.reduce((s, f) => {
+      if (!f.teachingLearning) return s;
+      return s + (f.teachingLearning.q1_structured + f.teachingLearning.q2_participation + f.teachingLearning.q3_materials + f.teachingLearning.q4_assessment) / 4;
+    }, 0) / n).toFixed(2);
+
+    const avgFacilities = +(feedbacks.reduce((s, f) => {
+      if (!f.academicFacilities) return s;
+      return s + (f.academicFacilities.q1_environment + f.academicFacilities.q2_classrooms + f.academicFacilities.q3_laboratory) / 3;
+    }, 0) / n).toFixed(2);
+
+    let coTotal = 0, coCount = 0;
+    feedbacks.forEach(f => {
+      (f.coFeedback || []).forEach(co => {
+        coTotal += co.q1_achievement;
+        coCount++;
+      });
+    });
+    const avgCOAttainment = coCount > 0 ? +(coTotal / coCount).toFixed(2) : 0;
+
+    const avgOverall = +((avgCourseContent + avgTeachingLearning + avgFacilities + (avgCOAttainment || avgCourseContent)) / (avgCOAttainment > 0 ? 4 : 3)).toFixed(2);
+
     const summary = {
       courseName,
       totalFeedbacks: feedbacks.length,
-      avgOverall: +(feedbacks.reduce((s, f) => s + (f.courseRating?.overall || 0), 0) / n).toFixed(2),
-      avgStructure: +(feedbacks.reduce((s, f) => s + (f.courseRating?.structure || 0), 0) / n).toFixed(2),
-      avgDelivery: +(feedbacks.reduce((s, f) => s + (f.courseRating?.delivery || 0), 0) / n).toFixed(2),
-      avgDuration: +(feedbacks.reduce((s, f) => s + (f.courseRating?.duration || 0), 0) / n).toFixed(2),
-      avgEnvironment: +(feedbacks.reduce((s, f) => s + (f.courseRating?.environment || 0), 0) / n).toFixed(2),
-      avgSkill: +(feedbacks.reduce((s, f) => s + (f.courseRating?.skill || 0), 0) / n).toFixed(2),
+      avgOverall,
+      avgCourseContent,
+      avgTeachingLearning,
+      avgFacilities,
+      avgCOAttainment,
     };
 
     res.json({ summary, feedbacks });
@@ -438,7 +500,7 @@ router.get('/course-feedback/:courseName', teacherAuth, async (req, res) => {
 });
 
 // ══════════════════════════════════════════
-//  GET /course-feedback/:courseName/export — Download .xlsx (3 sheets)
+//  GET /course-feedback/:courseName/export — Download full .xlsx report
 // ══════════════════════════════════════════
 router.get('/course-feedback/:courseName/export', teacherAuth, async (req, res) => {
   try {
@@ -451,128 +513,31 @@ router.get('/course-feedback/:courseName/export', teacherAuth, async (req, res) 
       .populate('department', 'name code')
       .sort({ createdAt: 1 });
 
-    // Get teacher info for headers
+    // Get teacher info
     const teacher = await Teacher.findById(req.teacherId).populate('department', 'name code');
-    const teacherName = teacher?.name || 'Unknown';
-    const teacherDesignation = teacher?.designation || '';
-    const deptName = teacher?.department?.name || feedbacks[0]?.department?.name || 'Unknown';
-    const totalStudents = feedbacks.length;
 
-    // Load template using xlsx-populate
-    const templatePath = path.join(__dirname, '..', 'feedback_template.xlsx');
-    const workbook = await XlsxPopulate.fromFileAsync(templatePath);
+    // Get course assignment to find COs
+    const assignmentDoc = await CourseAssignment.findOne({ 
+      teacher: req.teacherId, 
+      courseName 
+    }).populate('department', 'name code');
 
-    const ws = workbook.sheet('Input');
+    const assignment = {
+      courseName,
+      courseCode: assignmentDoc?.courseCode || '',
+      semester: assignmentDoc?.semester || '',
+      series: assignmentDoc?.series || '',
+      courseOutcomes: assignmentDoc?.courseOutcomes || [],
+      teacher: {
+        name: teacher?.name || 'Unknown',
+        designation: teacher?.designation || ''
+      },
+      department: assignmentDoc?.department || teacher?.department || feedbacks[0]?.department || { name: 'Unknown', code: '' }
+    };
 
-    // Clear existing data rows in Input sheet (A4 to AF1000)
-    for (let r = 4; r <= 1000; r++) {
-      for (let c = 1; c <= 32; c++) {
-        const cell = ws.row(r).cell(c);
-        if (cell.value() !== undefined) {
-          cell.value(undefined);
-        }
-      }
-    }
-
-    // Populate actual data
-    feedbacks.forEach((fb, idx) => {
-      const rowNum = idx + 4;
-      const row = ws.row(rowNum);
-
-      row.cell(1).value(idx + 1); // Student No
-
-      // Course Content
-      row.cell(2).value(scoreToLabel(fb.courseContent?.q1));
-      row.cell(3).value(scoreToLabel(fb.courseContent?.q2));
-      row.cell(4).value(scoreToLabel(fb.courseContent?.q3));
-      row.cell(5).value(fb.courseContent?.comment || '');
-
-      // Student Contribution
-      row.cell(6).value(scoreToLabel(fb.studentContribution?.q5));
-      row.cell(7).value(scoreToLabel(fb.studentContribution?.q6));
-      row.cell(8).value(fb.studentContribution?.comment || '');
-
-      // Learning Environment
-      row.cell(9).value(scoreToLabel(fb.learningEnvironment?.q8));
-      row.cell(10).value(scoreToLabel(fb.learningEnvironment?.q9));
-      row.cell(11).value(scoreToLabel(fb.learningEnvironment?.q10));
-      row.cell(12).value(scoreToLabel(fb.learningEnvironment?.q11));
-      row.cell(13).value(fb.learningEnvironment?.comment || '');
-
-      // Learning Resources
-      row.cell(14).value(scoreToLabel(fb.learningResources?.q13));
-      row.cell(15).value(scoreToLabel(fb.learningResources?.q14));
-      row.cell(16).value(scoreToLabel(fb.learningResources?.q15));
-      row.cell(17).value(fb.learningResources?.comment || '');
-
-      // Course Teacher
-      row.cell(18).value(scoreToLabel(fb.courseTeacher?.q17));
-      row.cell(19).value(scoreToLabel(fb.courseTeacher?.q18));
-      row.cell(20).value(scoreToLabel(fb.courseTeacher?.q19));
-      row.cell(21).value(scoreToLabel(fb.courseTeacher?.q20));
-      row.cell(22).value(scoreToLabel(fb.courseTeacher?.q21));
-      row.cell(23).value(scoreToLabel(fb.courseTeacher?.q22));
-      row.cell(24).value(fb.courseTeacher?.comment || '');
-
-      // Course Rating
-      row.cell(25).value(fb.courseRating?.structure || '');
-      row.cell(26).value(fb.courseRating?.delivery || '');
-      row.cell(27).value(fb.courseRating?.duration || '');
-      row.cell(28).value(fb.courseRating?.environment || '');
-      row.cell(29).value(fb.courseRating?.skill || '');
-      row.cell(30).value(fb.courseRating?.overall || '');
-      row.cell(31).value(fb.courseRating?.comment || '');
-
-      // Overall Feedback
-      row.cell(32).value(fb.overallFeedback || '');
-    });
-
-    // ── Update Graphs Sheet ──
-    const gs = workbook.sheet('Graphs');
-
-    // Expand all COUNTIF formulas from row 68 to 1000 to handle any number of students
-    gs.usedRange().forEach(cell => {
-      const f = cell.formula();
-      if (f && f.includes('68')) {
-        cell.formula(f.replace(/68/g, '1000'));
-      }
-    });
-
-    // Override F2 with the actual student count (replaces the formula)
-    gs.cell('F2').value(totalStudents);
-
-    // ── Update Final Feedback Sheet ──
-    const ff = workbook.sheet('Final Feedback');
-
-    ff.cell('A1').value(`Department of ${deptName}`);
-    ff.cell('A3').value(`Students' Feedback on ${courseName}`);
-    ff.cell('A4').value(`Course Teacher: ${teacherName}, ${teacherDesignation}, Dept of ${teacher?.department?.code || ''}`);
-    ff.cell('A5').value(`Total Responses: ${totalStudents}`);
-
-    // Aggregate unique non-empty comments
-    function collectComments(sectionKey) {
-      const comments = [];
-      feedbacks.forEach(fb => {
-        const c = fb[sectionKey]?.comment;
-        if (c && c.trim() && c.trim().toLowerCase() !== 'no comments') {
-          comments.push(c.trim());
-        }
-      });
-      return [...new Set(comments)].join('; ') || 'No comments';
-    }
-
-    // Overwrite the specific comment rows mapped in the template
-    ff.cell('B13').value(`Comments (if any): ${collectComments('courseContent')}`);
-    ff.cell('B18').value(`Comments (if any): ${collectComments('studentContribution')}`);
-    ff.cell('B25').value(`Comments (if any): ${collectComments('learningEnvironment')}`);
-    ff.cell('B31').value(`Comments (if any): ${collectComments('learningResources')}`);
-    ff.cell('B41').value(`Comments (if any): ${collectComments('courseTeacher')}`);
-    ff.cell('B52').value(`Comments (if any): ${collectComments('courseRating')}`);
-
-    // ── Send file ──
+    const buffer = await generateFeedbackExcel({ assignment, feedbacks });
     const filename = `Student_Feedback_${courseName.replace(/[^a-zA-Z0-9]/g, '_')}.xlsx`;
-    const buffer = await workbook.outputAsync();
-    
+
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     res.send(buffer);
@@ -583,4 +548,3 @@ router.get('/course-feedback/:courseName/export', teacherAuth, async (req, res) 
 });
 
 module.exports = router;
-

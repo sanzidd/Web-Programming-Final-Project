@@ -1,7 +1,7 @@
 import React from 'react';
 import './LikertScale.css';
 
-const OPTIONS = [
+const LIKERT_OPTIONS = [
   { value: 5, label: 'Strongly Agree' },
   { value: 4, label: 'Agree' },
   { value: 3, label: 'Neutral' },
@@ -9,12 +9,22 @@ const OPTIONS = [
   { value: 1, label: 'Strongly Disagree' }
 ];
 
-export default function LikertScale({ question, value, onChange }) {
+const ACHIEVEMENT_OPTIONS = [
+  { value: 5, label: 'Completely' },
+  { value: 4, label: 'Significantly' },
+  { value: 3, label: 'Moderately' },
+  { value: 2, label: 'Slightly' },
+  { value: 1, label: 'Not at all' }
+];
+
+export default function LikertScale({ question, value, onChange, variant = 'likert' }) {
+  const options = variant === 'achievement' ? ACHIEVEMENT_OPTIONS : LIKERT_OPTIONS;
+
   return (
     <div className="likert-container">
       <p className="likert-question">{question}</p>
       <div className="likert-options">
-        {OPTIONS.map(opt => (
+        {options.map(opt => (
           <label 
             key={opt.value} 
             className={`likert-option ${value === opt.value ? 'selected' : ''}`}

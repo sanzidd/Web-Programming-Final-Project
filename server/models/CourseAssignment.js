@@ -1,5 +1,11 @@
 const mongoose = require('mongoose');
 
+const courseOutcomeSchema = new mongoose.Schema({
+  coNumber: { type: Number, required: true },
+  title: { type: String, required: true, trim: true },
+  description: { type: String, required: true, trim: true }
+}, { _id: false });
+
 const courseAssignmentSchema = new mongoose.Schema({
   courseCode: { type: String, required: true, trim: true },
   courseName: { type: String, required: true, trim: true },
@@ -7,6 +13,7 @@ const courseAssignmentSchema = new mongoose.Schema({
   semester: { type: String, default: '' },
   series: { type: String, required: true, trim: true }, // e.g. "20", "21", or "all"
   teacher: { type: mongoose.Schema.Types.ObjectId, ref: 'Teacher', required: true },
+  courseOutcomes: { type: [courseOutcomeSchema], default: [] },
   isActive: { type: Boolean, default: true },
   isReviewSessionOpen: { type: Boolean, default: true },
 }, { timestamps: true });

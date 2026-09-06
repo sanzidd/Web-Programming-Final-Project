@@ -8,11 +8,10 @@ const teacherSchema = new mongoose.Schema({
   photoUrl: { type: String, default: '' },
   courses: [{ type: String }],
   avgRating: { type: Number, default: 0 },
-  avgStructure: { type: Number, default: 0 },
-  avgDelivery: { type: Number, default: 0 },
-  avgDuration: { type: Number, default: 0 },
-  avgEnvironment: { type: Number, default: 0 },
-  avgSkill: { type: Number, default: 0 },
+  avgCourseContent: { type: Number, default: 0 },
+  avgTeachingLearning: { type: Number, default: 0 },
+  avgFacilities: { type: Number, default: 0 },
+  avgCOAttainment: { type: Number, default: 0 },
   totalFeedbacks: { type: Number, default: 0 },
 }, { timestamps: true });
 

@@ -38,6 +38,10 @@ connectDB().then(() => {
       }
     })
     .catch(err => console.error('[Auto-Migration] Error running teacher user migration:', err));
+
+  // Safe drop of legacy hash index on feedbacklogs if it exists
+  const mongoose = require('mongoose');
+  mongoose.connection.collection('feedbacklogs').dropIndex('hash_1').catch(() => {});
 });
 
 // Routes

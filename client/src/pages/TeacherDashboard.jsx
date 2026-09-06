@@ -197,11 +197,10 @@ export default function TeacherDashboard() {
           </h2>
           <div className="td-rating-grid">
             {[
-              { label: 'Course Structure', value: summary.avgStructure },
-              { label: 'Delivery Quality', value: summary.avgDelivery },
-              { label: 'Course Duration', value: summary.avgDuration },
-              { label: 'Environment', value: summary.avgEnvironment },
-              { label: 'Skill Development', value: summary.avgSkill },
+              { label: 'Course Content & Organisation', value: summary.avgCourseContent },
+              { label: 'Teaching-Learning & Assessment', value: summary.avgTeachingLearning },
+              { label: 'Academic & Lab Facilities', value: summary.avgFacilities },
+              { label: 'CO Attainment', value: summary.avgCOAttainment },
               { label: 'Overall', value: summary.overallAvg },
             ].map(item => (
               <div key={item.label} className="td-rating-item">

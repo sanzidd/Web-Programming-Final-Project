@@ -165,18 +165,17 @@ export default function TeacherProfile() {
             <h3 className="chart-title">Rating Breakdown</h3>
             <div className="criteria-list">
               {[
-                { label: 'Overall', value: teacher.avgRating, emoji: '⭐' },
-                { label: 'Structure', value: teacher.avgStructure, emoji: '📚' },
-                { label: 'Delivery', value: teacher.avgDelivery, emoji: '🗣️' },
-                { label: 'Duration', value: teacher.avgDuration, emoji: '⏱️' },
-                { label: 'Environment', value: teacher.avgEnvironment, emoji: '🌱' },
-                { label: 'Skill', value: teacher.avgSkill, emoji: '🧠' }
+                { label: 'Overall', value: teacher.avgRating || 0, emoji: '⭐' },
+                { label: 'Course Content', value: teacher.avgCourseContent || 0, emoji: '📚' },
+                { label: 'Teaching-Learning', value: teacher.avgTeachingLearning || 0, emoji: '🗣️' },
+                { label: 'Facilities', value: teacher.avgFacilities || 0, emoji: '🏫' },
+                { label: 'CO Attainment', value: teacher.avgCOAttainment || 0, emoji: '🎯' }
               ].map((c, i) => (
                 <div key={i} className="criteria-row">
                   <span className="criteria-emoji">{c.emoji}</span>
                   <span className="criteria-label">{c.label}</span>
-                  <div className="criteria-bar-track"><div className="criteria-bar-fill" style={{ width: `${(c.value / 5) * 100}%` }} /></div>
-                  <span className="criteria-value">{c.value.toFixed(1)}</span>
+                  <div className="criteria-bar-track"><div className="criteria-bar-fill" style={{ width: `${((c.value || 0) / 5) * 100}%` }} /></div>
+                  <span className="criteria-value">{(c.value || 0).toFixed(1)}</span>
                 </div>
               ))}
             </div>

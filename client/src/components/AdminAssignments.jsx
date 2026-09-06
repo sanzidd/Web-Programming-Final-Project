@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, Plus, Trash2, Building2, Users, Calendar, Filter, CheckCircle2, AlertCircle, Eye, Download, ToggleLeft, ToggleRight } from 'lucide-react';
+import { BookOpen, Plus, Trash2, Building2, Users, Calendar, Filter, CheckCircle2, AlertCircle, Eye, Download, ToggleLeft, ToggleRight, Target, X } from 'lucide-react';
 import api from '../services/api';
 import { useToast } from '../context/ToastContext';
 
@@ -23,7 +23,8 @@ export default function AdminAssignments() {
     department: '',
     semester: '1st Semester',
     series: '21',
-    teacher: ''
+    teacher: '',
+    courseOutcomes: [{ coNumber: 1, title: '', description: '' }]
   });
 
   const fetchData = async () => {
@@ -52,14 +53,51 @@ export default function AdminAssignments() {
     setForm(f => ({ ...f, department: deptId, teacher: '' }));
   };
 
+  const addCO = () => {
+    setForm(f => ({
+      ...f,
+      courseOutcomes: [
+        ...f.courseOutcomes,
+        { coNumber: f.courseOutcomes.length + 1, title: '', description: '' }
+      ]
+    }));
+  };
+
+  const removeCO = (index) => {
+    setForm(f => {
+      const updated = f.courseOutcomes.filter((_, i) => i !== index);
+      // Re-number COs
+      return { ...f, courseOutcomes: updated.map((co, i) => ({ ...co, coNumber: i + 1 })) };
+    });
+  };
+
+  const updateCO = (index, field, value) => {
+    setForm(f => {
+      const updated = [...f.courseOutcomes];
+      updated[index] = { ...updated[index], [field]: value };
+      return { ...f, courseOutcomes: updated };
+    });
+  };
+
   const handleCreate = async (e) => {
     e.preventDefault();
     if (!form.courseCode || !form.courseName || !form.department || !form.series || !form.teacher) {
       toast.error('Please fill in all required fields');
       return;
     }
+
+    // Validate COs
+    const validCOs = form.courseOutcomes.filter(co => co.title.trim() && co.description.trim());
+    if (validCOs.length === 0) {
+      toast.error('Please add at least one Course Outcome with title and description');
+      return;
+    }
+
     try {
-      await api.post('/admin/assignments', form);
+      await api.post('/admin/assignments', {
+        ...form,
+        courseOutcomes: validCOs
+      });
       toast.success('Course assignment created successfully!');
       setShowModal(false);
       setForm({
@@ -68,7 +106,8 @@ export default function AdminAssignments() {
         department: '',
         semester: '1st Semester',
         series: '21',
-        teacher: ''
+        teacher: '',
+        courseOutcomes: [{ coNumber: 1, title: '', description: '' }]
       });
       fetchData();
     } catch (err) {
@@ -121,7 +160,7 @@ export default function AdminAssignments() {
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `Admin_Feedback_${a.courseName.replace(/[^a-zA-Z0-9]/g, '_')}.xlsx`);
+      link.setAttribute('download', `Feedback_Report_${a.courseName.replace(/[^a-zA-Z0-9]/g, '_')}.xlsx`);
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -218,8 +257,9 @@ export default function AdminAssignments() {
                   <th>Department</th>
                   <th>Series</th>
                   <th>Semester</th>
-                  <th>Assigned Teacher</th>
-                  <th>Session Status</th>
+                  <th>Teacher</th>
+                  <th>COs</th>
+                  <th>Session</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -236,6 +276,18 @@ export default function AdminAssignments() {
                         <div style={{ fontWeight: 600 }}>{a.teacher?.name || '—'}</div>
                         <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{a.teacher?.designation || ''}</div>
                       </div>
+                    </td>
+                    <td>
+                      <span className="badge" style={{ 
+                        background: 'rgba(39, 174, 96, 0.15)', 
+                        color: 'var(--ruet-emerald)',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}>
+                        <Target size={12} />
+                        {a.courseOutcomes?.length || 0}
+                      </span>
                     </td>
                     <td>
                       <span className={`badge ${a.isReviewSessionOpen ? 'badge-emerald' : 'badge-danger'}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
@@ -264,7 +316,7 @@ export default function AdminAssignments() {
                         <button 
                           onClick={() => handleDownloadExcel(a)}
                           className="btn btn-outline btn-sm"
-                          title="Download Excel"
+                          title="Download Excel Report"
                           style={{ padding: '6px 10px', color: 'var(--ruet-gold)', borderColor: 'rgba(212, 175, 55, 0.2)' }}
                         >
                           <Download size={14} />
@@ -287,20 +339,21 @@ export default function AdminAssignments() {
         )}
       </div>
 
-      {/* Modal */}
+      {/* Create Assignment Modal */}
       <AnimatePresence>
         {showModal && (
           <div style={{
             position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
             background: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex',
-            alignItems: 'center', justifyContent: 'center', padding: '20px'
+            alignItems: 'center', justifyContent: 'center', padding: '20px',
+            overflowY: 'auto'
           }}>
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               className="glass-card"
-              style={{ width: '100%', maxWidth: '700px', padding: '30px', background: 'var(--bg-card)' }}
+              style={{ width: '100%', maxWidth: '750px', padding: '30px', background: 'var(--bg-card)', maxHeight: '90vh', overflowY: 'auto' }}
             >
               <h3 className="font-display" style={{ marginBottom: '20px', fontSize: '1.3rem' }}>Create New Course Assignment</h3>
               <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
@@ -381,6 +434,79 @@ export default function AdminAssignments() {
                       </option>
                     ))}
                   </select>
+                </div>
+
+                {/* Course Outcomes Section */}
+                <div style={{ 
+                  border: '1px solid rgba(39, 174, 96, 0.3)', 
+                  borderRadius: 'var(--radius-md)', 
+                  padding: '20px',
+                  background: 'rgba(39, 174, 96, 0.04)'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <Target size={18} style={{ color: 'var(--ruet-emerald)' }} />
+                      <span style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--ruet-emerald)' }}>Course Outcomes (COs) *</span>
+                    </div>
+                    <button 
+                      type="button" 
+                      onClick={addCO} 
+                      className="btn btn-outline btn-sm"
+                      style={{ color: 'var(--ruet-emerald)', borderColor: 'rgba(39, 174, 96, 0.3)' }}
+                    >
+                      <Plus size={14} /> Add CO
+                    </button>
+                  </div>
+
+                  {form.courseOutcomes.map((co, index) => (
+                    <div key={index} style={{ 
+                      background: 'var(--bg-card)', 
+                      borderRadius: 'var(--radius-sm)', 
+                      padding: '15px',
+                      marginBottom: '12px',
+                      border: '1px solid rgba(255,255,255,0.05)'
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                        <span style={{ fontWeight: 700, color: 'var(--ruet-emerald)', fontSize: '0.9rem' }}>
+                          CO{co.coNumber}
+                        </span>
+                        {form.courseOutcomes.length > 1 && (
+                          <button 
+                            type="button" 
+                            onClick={() => removeCO(index)}
+                            style={{ 
+                              background: 'none', border: 'none', cursor: 'pointer', 
+                              color: 'var(--text-danger)', padding: '4px' 
+                            }}
+                          >
+                            <X size={16} />
+                          </button>
+                        )}
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <input
+                          type="text"
+                          className="form-input"
+                          placeholder={`CO${co.coNumber} Title (e.g., "Understand signal processing fundamentals")`}
+                          value={co.title}
+                          onChange={e => updateCO(index, 'title', e.target.value)}
+                          style={{ fontSize: '0.9rem' }}
+                        />
+                        <textarea
+                          className="form-textarea"
+                          placeholder={`CO${co.coNumber} Description (detailed description of this course outcome)`}
+                          value={co.description}
+                          onChange={e => updateCO(index, 'description', e.target.value)}
+                          rows={2}
+                          style={{ fontSize: '0.85rem' }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '8px' }}>
+                    Students will answer 4 questions per CO in the feedback form. Each CO must have a title and description.
+                  </p>
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '15px' }}>

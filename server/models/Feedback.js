@@ -1,60 +1,54 @@
 const mongoose = require('mongoose');
 
+// Sub-schema for individual CO feedback
+const coFeedbackSchema = new mongoose.Schema({
+  coNumber: { type: Number, required: true },
+  coTitle: { type: String, default: '' },
+  coDescription: { type: String, default: '' },
+  // Q1: To what extent this course helped you achieve this CO (1=Not at all, 5=Completely)
+  q1_achievement: { type: Number, required: true, min: 1, max: 5 },
+  // Q2: Does the teaching-learning method align with this CO (1=SD, 5=SA)
+  q2_alignment: { type: Number, required: true, min: 1, max: 5 },
+  // Q3: Does the assessment tool engage you in learning (1=SD, 5=SA)
+  q3_assessment: { type: Number, required: true, min: 1, max: 5 },
+  // Q4: Comments
+  comment: { type: String, default: '' }
+}, { _id: false });
+
 const feedbackSchema = new mongoose.Schema({
   teacher: { type: mongoose.Schema.Types.ObjectId, ref: 'Teacher', required: true },
   department: { type: mongoose.Schema.Types.ObjectId, ref: 'Department', required: true },
   courseName: { type: String, required: true },
   
-  // Section A: Core Questions (1-5 scale)
-  courseContent: {
-    q1: { type: Number, required: true, min: 1, max: 5 },
-    q2: { type: Number, required: true, min: 1, max: 5 },
-    q3: { type: Number, required: true, min: 1, max: 5 },
-    comment: { type: String, default: '' }
-  },
-  studentContribution: {
-    q5: { type: Number, required: true, min: 1, max: 5 },
-    q6: { type: Number, required: true, min: 1, max: 5 },
-    comment: { type: String, default: '' }
-  },
-  learningEnvironment: {
-    q8: { type: Number, required: true, min: 1, max: 5 },
-    q9: { type: Number, required: true, min: 1, max: 5 },
-    q10: { type: Number, required: true, min: 1, max: 5 },
-    q11: { type: Number, required: true, min: 1, max: 5 },
-    comment: { type: String, default: '' }
-  },
-  learningResources: {
-    q13: { type: Number, required: true, min: 1, max: 5 },
-    q14: { type: Number, required: true, min: 1, max: 5 },
-    q15: { type: Number, required: true, min: 1, max: 5 },
-    comment: { type: String, default: '' }
-  },
-  courseTeacher: {
-    q17: { type: Number, required: true, min: 1, max: 5 },
-    q18: { type: Number, required: true, min: 1, max: 5 },
-    q19: { type: Number, required: true, min: 1, max: 5 },
-    q20: { type: Number, required: true, min: 1, max: 5 },
-    q21: { type: Number, required: true, min: 1, max: 5 },
-    q22: { type: Number, required: true, min: 1, max: 5 },
+  // Section 1: Course Content & Organisation (3 Likert + comment)
+  courseContentOrg: {
+    q1_objectives: { type: Number, required: true, min: 1, max: 5 },   // Course objectives were clear
+    q2_workload: { type: Number, required: true, min: 1, max: 5 },     // Course workload manageable
+    q3_organized: { type: Number, required: true, min: 1, max: 5 },    // Course was well organized
     comment: { type: String, default: '' }
   },
 
-  // Section B: Course Rating (1-5 scale)
-  courseRating: {
-    structure: { type: Number, required: true, min: 1, max: 5 },
-    delivery: { type: Number, required: true, min: 1, max: 5 },
-    duration: { type: Number, required: true, min: 1, max: 5 },
-    environment: { type: Number, required: true, min: 1, max: 5 },
-    skill: { type: Number, required: true, min: 1, max: 5 },
-    overall: { type: Number, required: true, min: 1, max: 5 },
+  // Section 2: CO-specific feedback (dynamic array)
+  coFeedback: { type: [coFeedbackSchema], default: [] },
+
+  // Section 3: Teaching-Learning & Assessment (4 Likert + comment)
+  teachingLearning: {
+    q1_structured: { type: Number, required: true, min: 1, max: 5 },       // Well structured for learning outcomes
+    q2_participation: { type: Number, required: true, min: 1, max: 5 },    // Methods encouraged participation
+    q3_materials: { type: Number, required: true, min: 1, max: 5 },        // Learning materials relevant/useful
+    q4_assessment: { type: Number, required: true, min: 1, max: 5 },       // Assessment encourages applying knowledge
     comment: { type: String, default: '' }
   },
 
-  // Section C: General Feedback
-  overallFeedback: { type: String, required: true },
-  
-  sentiment: { type: String, enum: ['positive', 'neutral', 'negative'], default: 'neutral' },
+  // Section 4: Academic and Laboratory Facilities (3 Likert + comment)
+  academicFacilities: {
+    q1_environment: { type: Number, required: true, min: 1, max: 5 },  // Environment conducive to learning
+    q2_classrooms: { type: Number, required: true, min: 1, max: 5 },   // Classrooms satisfactory
+    q3_laboratory: { type: Number, required: true, min: 1, max: 5 },   // Lab facilities adequate
+    comment: { type: String, default: '' }
+  },
+
+  sentiment: { type: String, enum: ['positive', 'neutral', 'negative', null, ''], default: null },
 }, { timestamps: true });
 
 // Index for efficient analytics queries

@@ -375,23 +375,47 @@ input, textarea, select {
 .form-select {
   cursor: pointer;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B6E7E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  padding-right: 36px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: #FFFFFF !important;
+  color: #000000 !important;
+  border: 1.5px solid #CBD5E1 !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23000000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 14px center !important;
+  background-size: 16px 16px !important;
+  padding-right: 40px !important;
+  font-weight: 500;
+}
+
+.form-select:focus {
+  background-color: #FFFFFF !important;
+  color: #000000 !important;
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 3px rgba(185, 28, 58, 0.15) !important;
+}
+
+.form-select:disabled {
+  background-color: #F1F5F9 !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 14px center !important;
+  background-size: 16px 16px !important;
+  color: #64748B !important;
+  border-color: #E2E8F0 !important;
+  cursor: not-allowed;
+  opacity: 0.85;
 }
 
 .form-select option {
-  background-color: var(--bg-card);
-  color: var(--text-primary);
+  background-color: #FFFFFF !important;
+  color: #000000 !important;
+  font-weight: 500;
   padding: 10px;
 }
 
-.form-select option:checked,
-.form-select option:hover,
-.form-select option:focus {
-  background-color: var(--primary-color);
-  color: #FFFFFF;
+.form-select option:disabled {
+  color: #94A3B8 !important;
 }
 
 /* ── Badge ── */
