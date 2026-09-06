@@ -4,7 +4,7 @@
  
   <p>An anonymous, web-based platform for students of Rajshahi University of Engineering & Technology to rate and review their teachers confidentially — enabling data-driven academic improvement.</p>
   <p>
-    <a href="https://web-programming-final-project-five.vercel.app" target="_blank">
+    <a href="https://teacher-feedback-system.netlify.app/" target="_blank">
       <img src="https://img.shields.io/badge/Live%20Demo-Visit%20Site-0A1628?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Demo" />
     </a>
     &nbsp;
@@ -150,7 +150,7 @@ node test_db.js
  
 | Environment | URL |
 |---|---|
-| **Production** | [web-programming-final-project-five.vercel.app](https://web-programming-final-project-five.vercel.app) |
+| **Production** | [teacher-feedback-system.netlify.app](https://teacher-feedback-system.netlify.app/) |
  
 ---
  
