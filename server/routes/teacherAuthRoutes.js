@@ -493,17 +493,73 @@ router.get('/dashboard', teacherAuth, async (req, res) => {
       return c;
     });
 
-    // Overall summary
+    // Overall summary across all feedbacks for this teacher
     const totalFeedbacks = feedbacks.length;
-    let computedAvg = 0;
-    if (totalFeedbacks > 0) {
-      const validAverages = feedbacks.map(f => computeFeedbackOverall(f)).filter(v => v > 0);
-      computedAvg = validAverages.length > 0
-        ? +(validAverages.reduce((a, b) => a + b, 0) / validAverages.length).toFixed(2)
-        : 0;
-    }
+    let totalContent = 0, contentCount = 0;
+    let totalTL = 0, tlCount = 0;
+    let totalFac = 0, facCount = 0;
+    let coTotal = 0, coCount = 0;
 
-    const overallAvg = teacher?.avgRating || computedAvg;
+    feedbacks.forEach(f => {
+      const cont = f.courseContentOrg || f.courseContent;
+      if (cont) {
+        const vals = [safeNum(cont.q1_objectives || cont.q1), safeNum(cont.q2_workload || cont.q2), safeNum(cont.q3_organized || cont.q3)].filter(v => v !== null);
+        if (vals.length > 0) {
+          totalContent += vals.reduce((a, b) => a + b, 0) / vals.length;
+          contentCount++;
+        }
+      }
+
+      const tl = f.teachingLearning || f.learningEnvironment;
+      if (tl) {
+        const vals = [safeNum(tl.q1_structured || tl.q8), safeNum(tl.q2_participation || tl.q9), safeNum(tl.q3_materials || f.learningResources?.q13), safeNum(tl.q4_assessment || f.courseTeacher?.q18)].filter(v => v !== null);
+        if (vals.length > 0) {
+          totalTL += vals.reduce((a, b) => a + b, 0) / vals.length;
+          tlCount++;
+        }
+      }
+
+      const af = f.academicFacilities || f.learningResources;
+      if (af) {
+        const vals = [safeNum(af.q1_environment || f.learningEnvironment?.q10), safeNum(af.q2_classrooms || f.learningEnvironment?.q11), safeNum(af.q3_laboratory || af.q15)].filter(v => v !== null);
+        if (vals.length > 0) {
+          totalFac += vals.reduce((a, b) => a + b, 0) / vals.length;
+          facCount++;
+        }
+      }
+
+      (f.coFeedback || []).forEach(co => {
+        const q1 = safeNum(co.q1_achievement);
+        if (q1 !== null) {
+          coTotal += q1;
+          coCount++;
+        }
+      });
+    });
+
+    const summaryCourseContent = contentCount > 0 ? +(totalContent / contentCount).toFixed(2) : 0;
+    const summaryTeachingLearning = tlCount > 0 ? +(totalTL / tlCount).toFixed(2) : 0;
+    const summaryFacilities = facCount > 0 ? +(totalFac / facCount).toFixed(2) : 0;
+    const summaryCOAttainment = coCount > 0 ? +(coTotal / coCount).toFixed(2) : 0;
+
+    const validSummarySections = [summaryCourseContent, summaryTeachingLearning, summaryFacilities].filter(v => v > 0);
+    if (summaryCOAttainment > 0) validSummarySections.push(summaryCOAttainment);
+
+    const overallAvg = validSummarySections.length > 0
+      ? +(validSummarySections.reduce((a, b) => a + b, 0) / validSummarySections.length).toFixed(2)
+      : 0;
+
+    // Keep Teacher profile model synchronized with live feedback stats
+    if (teacher && totalFeedbacks > 0) {
+      await Teacher.findByIdAndUpdate(req.teacherId, {
+        avgRating: overallAvg,
+        avgCourseContent: summaryCourseContent,
+        avgTeachingLearning: summaryTeachingLearning,
+        avgFacilities: summaryFacilities,
+        avgCOAttainment: summaryCOAttainment,
+        totalFeedbacks
+      });
+    }
 
     // Get assigned courses from admin assignments
     const assignedCourses = await CourseAssignment.find({ teacher: req.teacherId, isActive: true })
@@ -516,10 +572,10 @@ router.get('/dashboard', teacherAuth, async (req, res) => {
         totalFeedbacks,
         totalCourses: Math.max(courses.length, assignedCourses.length),
         overallAvg,
-        avgCourseContent: teacher?.avgCourseContent || 0,
-        avgTeachingLearning: teacher?.avgTeachingLearning || 0,
-        avgFacilities: teacher?.avgFacilities || 0,
-        avgCOAttainment: teacher?.avgCOAttainment || 0,
+        avgCourseContent: summaryCourseContent,
+        avgTeachingLearning: summaryTeachingLearning,
+        avgFacilities: summaryFacilities,
+        avgCOAttainment: summaryCOAttainment,
       },
       courses,
       assignedCourses,

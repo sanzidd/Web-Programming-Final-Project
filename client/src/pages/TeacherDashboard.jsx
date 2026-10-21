@@ -232,7 +232,9 @@ export default function TeacherDashboard() {
             <div className="td-stat-icon" style={{ background: 'rgba(99, 102, 241, 0.15)' }}>
               <Star size={22} style={{ color: '#818CF8' }} />
             </div>
-            <div className="td-stat-value font-display">{summary.overallAvg}</div>
+            <div className="td-stat-value font-display">
+              {summary.overallAvg > 0 ? summary.overallAvg : 'N/A'}
+            </div>
             <div className="td-stat-label">Overall Rating</div>
           </div>
           <div className="td-stat-card">
@@ -265,10 +267,10 @@ export default function TeacherDashboard() {
                   <div className="td-rating-bar">
                     <div
                       className="td-rating-fill"
-                      style={{ width: `${(item.value / 5) * 100}%` }}
+                      style={{ width: `${item.value > 0 ? Math.min(100, Math.max(0, (item.value / 5) * 100)) : 0}%` }}
                     />
                   </div>
-                  <span className="td-rating-num">{item.value}/5</span>
+                  <span className="td-rating-num">{item.value > 0 ? `${item.value}/5` : '0/5'}</span>
                 </div>
               </div>
             ))}
