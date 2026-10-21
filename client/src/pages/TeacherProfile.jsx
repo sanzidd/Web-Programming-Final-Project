@@ -2,15 +2,13 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { User, Star, ArrowLeft, MessageSquare, BookOpen, Mail, TrendingUp, Smile, Meh, Frown, Download } from 'lucide-react';
+import { User, Star, ArrowLeft, MessageSquare, BookOpen, Mail, TrendingUp, Download } from 'lucide-react';
 import { LineChart, Line, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, BarChart, Bar } from 'recharts';
 import api from '../services/api';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import StarRating from '../components/StarRating';
 import './TeacherProfile.css';
-
-const SENTIMENT_ICONS = { positive: <Smile size={14} />, neutral: <Meh size={14} />, negative: <Frown size={14} /> };
 
 function ChartTip({ active, payload, label }) {
   if (!active || !payload?.length) return null;
@@ -74,7 +72,6 @@ export default function TeacherProfile() {
       'Duration',
       'Environment',
       'Skill',
-      'Sentiment',
       'General Comment',
       'Overall Feedback Comment'
     ];
@@ -90,7 +87,6 @@ export default function TeacherProfile() {
       const duration = f.courseRating?.duration || '';
       const environment = f.courseRating?.environment || '';
       const skill = f.courseRating?.skill || '';
-      const sentiment = f.sentiment || '';
       const ratingComment = f.courseRating?.comment || '';
       const overallComment = f.overallFeedback || '';
       
@@ -103,7 +99,6 @@ export default function TeacherProfile() {
         duration,
         environment,
         skill,
-        sentiment,
         ratingComment,
         overallComment
       ];
@@ -230,7 +225,6 @@ export default function TeacherProfile() {
               <div key={f._id} className="feedback-comment-card">
                 <div className="feedback-comment-header">
                   <StarRating value={f.rating} readonly size={16} />
-                  <span className={`badge badge-${f.sentiment === 'positive' ? 'emerald' : f.sentiment === 'negative' ? 'danger' : 'blue'}`}>{SENTIMENT_ICONS[f.sentiment]} {f.sentiment}</span>
                   <span className="feedback-date">{new Date(f.createdAt).toLocaleDateString()}</span>
                 </div>
                 {f.comment ? <p className="feedback-comment-text">"{f.comment}"</p> : <p className="feedback-no-comment">No comment</p>}

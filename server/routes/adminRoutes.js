@@ -3,7 +3,8 @@ const router = express.Router();
 const { 
   login, getAssignments, createAssignment, updateAssignment, deleteAssignment, 
   getReviewSession, toggleReviewSession, changePassword,
-  exportAssignmentExcel, getAssignmentStatus, toggleAssignmentSession
+  exportAssignmentExcel, getAssignmentStatus, toggleAssignmentSession,
+  sendAssignmentReportEmail, sendBulkReportsEmail
 } = require('../controllers/adminController');
 const { auth } = require('../middleware/auth');
 
@@ -18,6 +19,8 @@ router.delete('/assignments/:id', auth, deleteAssignment);
 router.get('/assignments/:id/export', auth, exportAssignmentExcel);
 router.get('/assignments/:id/status', auth, getAssignmentStatus);
 router.post('/assignments/:id/toggle-session', auth, toggleAssignmentSession);
+router.post('/assignments/:id/send-report', auth, sendAssignmentReportEmail);
+router.post('/assignments/send-bulk-reports', auth, sendBulkReportsEmail);
 
 // Review session routes
 router.get('/session', auth, getReviewSession);

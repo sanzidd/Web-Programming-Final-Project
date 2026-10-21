@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Building2, User, Star as StarIcon, MessageSquare, CheckCircle2, 
@@ -12,8 +12,9 @@ import LikertScale from '../components/LikertScale';
 import './FeedbackForm.css';
 
 export default function FeedbackForm() {
-  const { isStudent } = useAuth();
+  const { isStudent, student } = useAuth();
   const toast = useToast();
+  const location = useLocation();
   const [step, setStep] = useState(0);
   const [departments, setDepartments] = useState([]);
   const [myAssignments, setMyAssignments] = useState([]);
@@ -70,10 +71,57 @@ export default function FeedbackForm() {
   useEffect(() => {
     if (isStudent) {
       api.get('/feedback/my-assignments')
-        .then(res => setMyAssignments(res.data || []))
+        .then(res => {
+          const assignments = res.data || [];
+          setMyAssignments(assignments);
+
+          if (location.state?.assignmentId) {
+            const target = assignments.find(a => a._id === location.state.assignmentId);
+            if (target && !target.alreadyReviewed) {
+              const teacherId = typeof target.teacher === 'object' ? target.teacher?._id : target.teacher;
+              const deptId = target.department?._id || target.department;
+              setForm(f => ({
+                ...f,
+                department: deptId,
+                teacher: teacherId,
+                courseName: target.courseName
+              }));
+              setSelectedDeptName(target.department?.name || '');
+              setSelectedTeacherName(target.teacher?.name || '');
+              setSelectedAssignment(target);
+
+              if (target.courseOutcomes?.length > 0) {
+                const coFeedback = target.courseOutcomes.map(co => ({
+                  coNumber: co.coNumber,
+                  coTitle: co.title,
+                  coDescription: co.description,
+                  q1_achievement: 0,
+                  q2_alignment: 0,
+                  q3_assessment: 0,
+                  comment: '',
+                }));
+                setForm(f => ({ ...f, coFeedback }));
+              }
+            }
+          } else if (assignments.length > 0) {
+            const studentDeptId = typeof student?.department === 'object' ? student.department._id : student?.department;
+            const matchingAssignment = assignments.find(a => (a.department?._id || a.department) === studentDeptId);
+            const targetAssignment = matchingAssignment || assignments[0];
+            const deptObj = targetAssignment.department;
+            const deptId = deptObj?._id || deptObj;
+            const deptName = deptObj?.name || '';
+            setForm(f => ({ ...f, department: deptId }));
+            if (deptName) setSelectedDeptName(deptName);
+          } else if (student?.department) {
+            const studentDeptId = typeof student.department === 'object' ? student.department._id : student.department;
+            const studentDeptName = typeof student.department === 'object' ? student.department.name : '';
+            setForm(f => ({ ...f, department: studentDeptId }));
+            if (studentDeptName) setSelectedDeptName(studentDeptName);
+          }
+        })
         .catch(() => console.warn('Failed to load assigned courses'));
     }
-  }, [isStudent]);
+  }, [isStudent, student, location.state]);
 
   const handleDeptChange = (e) => {
     const val = e.target.value;
@@ -363,11 +411,16 @@ export default function FeedbackForm() {
                         <option value="" style={{ backgroundColor: '#FFFFFF', color: '#64748B' }}>Select Teacher</option>
                         {Array.from(new Map(
                           myAssignments
-                            .filter(a => a.department?._id === form.department)
+                            .filter(a => ((a.department?._id || a.department) === form.department))
                             .map(a => [typeof a.teacher === 'object' ? a.teacher._id : a.teacher, a.teacher])
-                        ).values()).map(t => (
-                          <option key={t._id || t} value={t._id || t} style={{ backgroundColor: '#FFFFFF', color: '#000000' }}>{t.name}</option>
-                        ))}
+                        ).values()).map(t => {
+                          const deptCode = t.department?.code || t.department?.name || '';
+                          return (
+                            <option key={t._id || t} value={t._id || t} style={{ backgroundColor: '#FFFFFF', color: '#000000' }}>
+                              {t.name} {t.designation ? `(${t.designation})` : ''} {deptCode ? `— ${deptCode}` : ''}
+                            </option>
+                          );
+                        })}
                       </select>
                     </div>
                     <div className="form-group mt-4">
@@ -385,14 +438,32 @@ export default function FeedbackForm() {
                         {myAssignments
                           .filter(a => {
                             const teacherId = typeof a.teacher === 'object' ? a.teacher?._id : a.teacher;
-                            return teacherId === form.teacher && a.department?._id === form.department;
+                            const deptId = a.department?._id || a.department;
+                            return teacherId === form.teacher && deptId === form.department;
                           })
+                          .filter(a => !a.alreadyReviewed)
                           .map(a => (
-                            <option key={a._id} value={a.courseName} disabled={!a.isReviewSessionOpen} style={{ backgroundColor: '#FFFFFF', color: '#000000' }}>
-                              {a.courseName} {!a.isReviewSessionOpen && '(Closed)'}
+                            <option key={a._id} value={a.courseName} disabled={a.isReviewSessionOpen === false} style={{ backgroundColor: '#FFFFFF', color: '#000000' }}>
+                              {a.courseName} {a.isReviewSessionOpen === false ? '(Closed)' : ''}
                             </option>
                           ))}
                       </select>
+                      {form.teacher && (() => {
+                        const teacherCourses = myAssignments.filter(a => {
+                          const teacherId = typeof a.teacher === 'object' ? a.teacher?._id : a.teacher;
+                          const deptId = a.department?._id || a.department;
+                          return teacherId === form.teacher && deptId === form.department;
+                        });
+                        const unreviewedCourses = teacherCourses.filter(a => !a.alreadyReviewed);
+                        if (teacherCourses.length > 0 && unreviewedCourses.length === 0) {
+                          return (
+                            <div style={{ marginTop: '12px', padding: '12px 16px', background: 'rgba(52, 211, 153, 0.1)', border: '1px solid rgba(52, 211, 153, 0.25)', borderRadius: 'var(--radius-md)', color: 'var(--ruet-emerald)', fontSize: '0.875rem' }}>
+                              ✓ You have already submitted feedback for all assigned courses with this teacher.
+                            </div>
+                          );
+                        }
+                        return null;
+                      })()}
                     </div>
 
                     {/* Show CO info if assignment is selected */}
@@ -434,17 +505,17 @@ export default function FeedbackForm() {
                     
                     <div className="likert-section">
                       <LikertScale 
-                        question="1. The course objectives were clear" 
+                        question="1. The course objectives were clear." 
                         value={form.courseContentOrg.q1_objectives} 
                         onChange={(v) => updateNestedForm('courseContentOrg', 'q1_objectives', v)} 
                       />
                       <LikertScale 
-                        question="2. The course workload was manageable" 
+                        question="2. The course workload was manageable." 
                         value={form.courseContentOrg.q2_workload} 
                         onChange={(v) => updateNestedForm('courseContentOrg', 'q2_workload', v)} 
                       />
                       <LikertScale 
-                        question="3. The course was well organized" 
+                        question="3. The course was well organized." 
                         value={form.courseContentOrg.q3_organized} 
                         onChange={(v) => updateNestedForm('courseContentOrg', 'q3_organized', v)} 
                       />
@@ -472,34 +543,25 @@ export default function FeedbackForm() {
                       exit={{ opacity: 0, x: -20 }}
                       className="form-step"
                     >
-                      <h2 className="form-step-title">
+                      <h2 className="form-step-title" style={{ marginBottom: '24px' }}>
                         <Target size={22} className="form-step-icon" style={{ color: 'var(--ruet-emerald)' }} />
                         CO{coNum}: {co?.title}
                       </h2>
-                      <p className="form-step-desc" style={{ 
-                        background: 'rgba(39, 174, 96, 0.08)', 
-                        padding: '12px 16px', 
-                        borderRadius: 'var(--radius-md)',
-                        border: '1px solid rgba(39, 174, 96, 0.15)',
-                        marginBottom: '20px'
-                      }}>
-                        {co?.description}
-                      </p>
                       
                       <div className="likert-section">
                         <LikertScale 
-                          question={`1. To what extent this course helped you to achieve this CO`}
+                          question="1. To what extent did this course help you achieve this CO?"
                           value={coData.q1_achievement || 0}
                           onChange={(v) => updateCOFeedback(coIndex, 'q1_achievement', v)}
                           variant="achievement"
                         />
                         <LikertScale 
-                          question={`2. Does the teaching-learning method aligned with this CO`}
+                          question="2. Were the teaching-learning methods aligned with this CO?"
                           value={coData.q2_alignment || 0}
                           onChange={(v) => updateCOFeedback(coIndex, 'q2_alignment', v)}
                         />
                         <LikertScale 
-                          question={`3. Does the assessment tool used for this CO engage you in the learning process`}
+                          question="3. Did the assessment tools used for this CO engage you in the learning process?"
                           value={coData.q3_assessment || 0}
                           onChange={(v) => updateCOFeedback(coIndex, 'q3_assessment', v)}
                         />
@@ -535,22 +597,22 @@ export default function FeedbackForm() {
                     
                     <div className="likert-section">
                       <LikertScale 
-                        question="1. I think the course was well structured to achieve the learning outcomes" 
+                        question="1. The course was well structured to achieve the learning outcomes." 
                         value={form.teachingLearning.q1_structured} 
                         onChange={(v) => updateNestedForm('teachingLearning', 'q1_structured', v)} 
                       />
                       <LikertScale 
-                        question="2. The learning and teaching methods encouraged participation" 
+                        question="2. The learning and teaching methods encouraged active participation." 
                         value={form.teachingLearning.q2_participation} 
                         onChange={(v) => updateNestedForm('teachingLearning', 'q2_participation', v)} 
                       />
                       <LikertScale 
-                        question="3. Learning materials were relevant and useful" 
+                        question="3. Learning materials were relevant and useful." 
                         value={form.teachingLearning.q3_materials} 
                         onChange={(v) => updateNestedForm('teachingLearning', 'q3_materials', v)} 
                       />
                       <LikertScale 
-                        question="4. Do the assessment activities encourage you to apply the knowledge and skills you have learned" 
+                        question="4. The assessment activities encouraged applying learned knowledge and skills." 
                         value={form.teachingLearning.q4_assessment} 
                         onChange={(v) => updateNestedForm('teachingLearning', 'q4_assessment', v)} 
                       />
@@ -580,17 +642,17 @@ export default function FeedbackForm() {
                     
                     <div className="likert-section">
                       <LikertScale 
-                        question="1. The overall environment in the class was conducive to learning" 
+                        question="1. The overall classroom environment was conducive to learning." 
                         value={form.academicFacilities.q1_environment} 
                         onChange={(v) => updateNestedForm('academicFacilities', 'q1_environment', v)} 
                       />
                       <LikertScale 
-                        question="2. Classrooms were satisfactory" 
+                        question="2. Classrooms and seating arrangements were satisfactory." 
                         value={form.academicFacilities.q2_classrooms} 
                         onChange={(v) => updateNestedForm('academicFacilities', 'q2_classrooms', v)} 
                       />
                       <LikertScale 
-                        question="3. Laboratory facilities were adequate and appropriate" 
+                        question="3. Laboratory facilities and equipment were adequate and appropriate." 
                         value={form.academicFacilities.q3_laboratory} 
                         onChange={(v) => updateNestedForm('academicFacilities', 'q3_laboratory', v)} 
                       />

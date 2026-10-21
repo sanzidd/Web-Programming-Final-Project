@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import Navbar from './components/Navbar';
@@ -8,6 +9,8 @@ import FeedbackForm from './pages/FeedbackForm';
 import Login from './pages/Login';
 import StudentLogin from './pages/StudentLogin';
 import StudentRegister from './pages/StudentRegister';
+import StudentDashboard from './pages/StudentDashboard';
+import ForgotPassword from './pages/ForgotPassword';
 import Dashboard from './pages/Dashboard';
 import Analytics from './pages/Analytics';
 import TeacherProfile from './pages/TeacherProfile';
@@ -21,17 +24,22 @@ import './App.css';
 
 function App() {
   return (
-    <AuthProvider>
-      <ToastProvider>
-        <Router>
-          <Navbar />
-          <main className="main-content">
+    <ThemeProvider>
+      <AuthProvider>
+        <ToastProvider>
+          <Router>
+            <Navbar />
+            <main className="main-content">
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/feedback" element={<FeedbackForm />} />
               <Route path="/login" element={<Login />} />
               <Route path="/student/login" element={<StudentLogin />} />
               <Route path="/student/register" element={<StudentRegister />} />
+              <Route path="/student/dashboard" element={
+                <ProtectedRoute requireStudent><StudentDashboard /></ProtectedRoute>
+              } />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/teacher/register" element={<TeacherRegister />} />
               <Route path="/teacher/login" element={<TeacherLogin />} />
               <Route path="/teacher/dashboard" element={
@@ -58,6 +66,7 @@ function App() {
         </Router>
       </ToastProvider>
     </AuthProvider>
+  </ThemeProvider>
   );
 }
 

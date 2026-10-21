@@ -25,7 +25,7 @@ export default function StudentLogin() {
     try {
       await studentLogin(roll, password);
       toast.success('Welcome back!');
-      navigate('/');
+      navigate('/student/dashboard');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Login failed');
     } finally {
@@ -91,6 +91,12 @@ export default function StudentLogin() {
             </div>
           </div>
 
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '-8px' }}>
+            <Link to="/forgot-password?role=student" className="forgot-password-link">
+              Forgot Password?
+            </Link>
+          </div>
+
           <button
             type="submit"
             className="btn btn-primary btn-lg login-btn"
@@ -106,7 +112,7 @@ export default function StudentLogin() {
         </form>
 
         <div className="login-hint" style={{ marginTop: '20px', textAlign: 'center' }}>
-          <p>Don't have an account? <Link to="/student/register" style={{ color: '#3b82f6', textDecoration: 'none' }}>Register here</Link></p>
+          <p>Don&apos;t have an account? <Link to="/student/register" className="theme-link" style={{ fontWeight: 600 }}>Register here</Link></p>
         </div>
       </motion.div>
     </div>

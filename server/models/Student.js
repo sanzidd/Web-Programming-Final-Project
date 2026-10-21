@@ -9,6 +9,8 @@ const studentSchema = new mongoose.Schema({
   department: { type: mongoose.Schema.Types.ObjectId, ref: 'Department' },
   series: { type: String, default: '' },
   isVerified: { type: Boolean, default: true },
+  resetCode: { type: String },
+  resetCodeExpires: { type: Date },
 }, { timestamps: true });
 
 // Hash password before saving

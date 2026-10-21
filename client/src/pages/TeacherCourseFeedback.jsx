@@ -5,7 +5,7 @@ import { useToast } from '../context/ToastContext';
 import api from '../services/api';
 import {
   ArrowLeft, Download, Star, MessageSquare, BarChart3,
-  ThumbsUp, Minus, ThumbsDown, Loader2, FileSpreadsheet,
+  Loader2, FileSpreadsheet,
   BookOpen, User, Target, FlaskConical, Presentation
 } from 'lucide-react';
 import './TeacherCourseFeedback.css';
@@ -99,8 +99,6 @@ export default function TeacherCourseFeedback() {
   }
 
   const { summary, feedbacks } = data;
-  const sentimentCounts = { positive: 0, neutral: 0, negative: 0 };
-  feedbacks.forEach(f => sentimentCounts[f.sentiment || 'neutral']++);
 
   return (
     <div className="teacher-course-feedback">
@@ -154,22 +152,6 @@ export default function TeacherCourseFeedback() {
               <div className="tcf-stat-lbl">{item.label}</div>
             </div>
           ))}
-        </div>
-
-        {/* Sentiment */}
-        <div className="tcf-sentiment-row">
-          <div className="tcf-sent-item positive">
-            <ThumbsUp size={16} />
-            <span>{sentimentCounts.positive} Positive</span>
-          </div>
-          <div className="tcf-sent-item neutral">
-            <Minus size={16} />
-            <span>{sentimentCounts.neutral} Neutral</span>
-          </div>
-          <div className="tcf-sent-item negative">
-            <ThumbsDown size={16} />
-            <span>{sentimentCounts.negative} Negative</span>
-          </div>
         </div>
 
         {/* Individual Feedbacks */}
@@ -269,12 +251,6 @@ export default function TeacherCourseFeedback() {
                     </div>
 
                     <div className="tcf-fb-footer">
-                      <span className={`sentiment-tag ${fb.sentiment}`}>
-                        {fb.sentiment === 'positive' && <ThumbsUp size={12} />}
-                        {fb.sentiment === 'neutral' && <Minus size={12} />}
-                        {fb.sentiment === 'negative' && <ThumbsDown size={12} />}
-                        {fb.sentiment}
-                      </span>
                       <span className="tcf-fb-date">
                         {new Date(fb.createdAt).toLocaleDateString('en-US', {
                           year: 'numeric', month: 'short', day: 'numeric'

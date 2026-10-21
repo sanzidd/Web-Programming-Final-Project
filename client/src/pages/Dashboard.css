@@ -165,7 +165,7 @@
 /* ── Bottom Row ── */
 .bottom-row {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: var(--sp-6);
   margin-bottom: var(--sp-6);
 }
@@ -437,4 +437,33 @@
   .teacher-list-item {
     padding: var(--sp-2) var(--sp-3);
   }
+}
+
+@media (max-width: 440px) {
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Light Theme Overrides (Modern Academic Style) */
+[data-theme="light"] .chart-card,
+[data-theme="light"] .dashboard-card {
+  background: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.05), 0 2px 4px -2px rgba(15, 23, 42, 0.03) !important;
+}
+
+[data-theme="light"] .dashboard-tabs {
+  background: #F1F5F9 !important;
+  border: 1px solid #E2E8F0 !important;
+}
+
+[data-theme="light"] .dashboard-tab.active {
+  background: #1D4ED8 !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 2px 8px rgba(29, 78, 216, 0.3) !important;
+}
+
+[data-theme="light"] .teacher-list-item:hover {
+  background: #F8FAFC !important;
 }

@@ -126,3 +126,54 @@
     font-size: var(--fs-sm);
   }
 }
+
+/* ══════════════════════════════════════
+   Light Theme Overrides (Modern Academic Style)
+   ══════════════════════════════════════ */
+[data-theme="light"] .likert-container {
+  background: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.05) !important;
+}
+
+[data-theme="light"] .likert-container:hover {
+  border-color: #CBD5E1 !important;
+  box-shadow: 0 10px 20px -3px rgba(15, 23, 42, 0.08) !important;
+}
+
+[data-theme="light"] .likert-question {
+  color: #0F172A !important;
+}
+
+[data-theme="light"] .likert-label {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .likert-option.selected .likert-label {
+  color: #1D4ED8 !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="light"] .likert-radio-custom {
+  border-color: #94A3B8 !important;
+}
+
+[data-theme="light"] .likert-option input[type="radio"]:checked ~ .likert-radio-custom {
+  border-color: #1D4ED8 !important;
+  background-color: #1D4ED8 !important;
+}
+
+[data-theme="light"] .likert-option:hover {
+  background-color: #EFF6FF !important;
+}
+
+@media (max-width: 640px) {
+  [data-theme="light"] .likert-option {
+    border-color: #E2E8F0 !important;
+  }
+
+  [data-theme="light"] .likert-option.selected {
+    background-color: #EFF6FF !important;
+    border-color: #1D4ED8 !important;
+  }
+}

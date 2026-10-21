@@ -13,6 +13,8 @@ const teacherUserSchema = new mongoose.Schema({
   forcePasswordChange: { type: Boolean, default: true },
   verificationCode: { type: String },
   verificationExpires: { type: Date },
+  resetCode: { type: String },
+  resetCodeExpires: { type: Date },
 }, { timestamps: true });
 
 // Hash password before saving

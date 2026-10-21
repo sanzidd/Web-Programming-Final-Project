@@ -35,6 +35,9 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ message: 'This email is already registered' });
     }
 
+    // Derive series from roll if not provided
+    const derivedSeries = (series && series.trim()) ? series.trim() : (trimmedRoll.length >= 2 ? trimmedRoll.substring(0, 2) : '');
+
     // Create student
     const student = new Student({
       roll: trimmedRoll,
@@ -42,10 +45,13 @@ router.post('/register', async (req, res) => {
       email: email.toLowerCase(),
       password,
       department: departmentId || undefined,
-      series: series || '',
+      series: derivedSeries,
     });
 
     await student.save();
+    if (student.department) {
+      await student.populate('department', 'name code');
+    }
 
     // Generate JWT
     const token = jwt.sign(
@@ -63,6 +69,7 @@ router.post('/register', async (req, res) => {
         name: student.name,
         email: student.email,
         series: student.series,
+        department: student.department,
       },
     });
   } catch (error) {
@@ -83,7 +90,7 @@ router.post('/login', async (req, res) => {
     const trimmedRoll = String(roll).trim();
 
     // Find student by roll
-    const student = await Student.findOne({ roll: trimmedRoll });
+    const student = await Student.findOne({ roll: trimmedRoll }).populate('department', 'name code');
     if (!student) {
       return res.status(401).json({ message: 'Invalid roll number or password' });
     }
@@ -92,6 +99,34 @@ router.post('/login', async (req, res) => {
     const isMatch = await student.comparePassword(password);
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid roll number or password' });
+    }
+
+    // Auto-repair series if missing or mismatched with roll
+    if (student.roll && student.roll.length >= 2) {
+      const rollSeries = student.roll.substring(0, 2);
+      if (!student.series || student.series !== rollSeries) {
+        student.series = rollSeries;
+        await student.save();
+      }
+    }
+
+    // Auto-heal department if missing or orphaned
+    if (!student.department && student.roll && student.roll.length >= 4) {
+      const deptDigits = student.roll.substring(2, 4);
+      const deptCodeMap = {
+        '01': 'CE', '02': 'EEE', '03': 'ME', '04': 'ETE', '05': 'CSE',
+        '06': 'IPE', '07': 'MTE', '08': 'MSE', '09': 'CHE', '10': 'CME',
+        '11': 'URP', '12': 'BECM', '13': 'ARCH'
+      };
+      const code = deptCodeMap[deptDigits];
+      if (code) {
+        const foundDept = await Department.findOne({ code });
+        if (foundDept) {
+          student.department = foundDept._id;
+          await student.save();
+          await student.populate('department', 'name code');
+        }
+      }
     }
 
     // Generate JWT
@@ -110,6 +145,7 @@ router.post('/login', async (req, res) => {
         name: student.name,
         email: student.email,
         series: student.series,
+        department: student.department,
       },
     });
   } catch (error) {
@@ -130,6 +166,39 @@ router.get('/me', studentAuth, async (req, res) => {
     res.json(student);
   } catch (error) {
     res.status(500).json({ message: 'Failed to fetch profile' });
+  }
+});
+
+// PUT /api/students/profile — Update student profile (e.g. department, series)
+router.put('/profile', studentAuth, async (req, res) => {
+  try {
+    const { name, departmentId, series } = req.body;
+    const student = await Student.findById(req.studentId);
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    if (name) student.name = name.trim();
+    if (departmentId) student.department = departmentId;
+    if (series) student.series = series.trim();
+
+    await student.save();
+    await student.populate('department', 'name code');
+
+    res.json({
+      message: 'Profile updated successfully',
+      student: {
+        id: student._id,
+        roll: student.roll,
+        name: student.name,
+        email: student.email,
+        series: student.series,
+        department: student.department,
+      }
+    });
+  } catch (error) {
+    console.error('Profile update error:', error);
+    res.status(500).json({ message: 'Failed to update profile' });
   }
 });
 

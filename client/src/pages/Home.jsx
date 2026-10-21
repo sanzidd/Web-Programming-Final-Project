@@ -127,8 +127,9 @@ export default function Home() {
                   <span className="hero-card-label">Anonymous</span>
                 </div>
               </div>
+              <div className="hero-logo-orbit" />
               <div className="hero-central-graphic">
-                <img src="/ruet-logo.png" alt="RUET Logo" style={{ width: '120px', height: '120px', objectFit: 'cover', borderRadius: '50%' }} />
+                <img src="/ruet-logo.png" alt="RUET Official Logo" className="hero-logo-img" />
               </div>
             </div>
           </motion.div>
@@ -265,9 +266,8 @@ export default function Home() {
                 <span className="text-gradient-emerald">100% Anonymous</span>
               </h2>
               <p className="section-subtitle" style={{ textAlign: 'left' }}>
-                We take your privacy seriously. No login required, no IP tracking, 
-                no personal data collection. Your identity is never associated with 
-                your feedback.
+                We take your privacy seriously. Your student identity is strictly protected and 
+                never linked to your evaluation responses, ensuring 100% candid feedback.
               </p>
               <motion.div 
                 className="trust-features"
@@ -283,8 +283,8 @@ export default function Home() {
                 viewport={{ once: true, margin: "-50px" }}
               >
                 {[
-                  { icon: <Shield size={18} />, text: 'No login required to submit feedback' },
-                  { icon: <Lock size={18} />, text: 'Zero personal data collection' },
+                  { icon: <Shield size={18} />, text: 'Strict student identity protection' },
+                  { icon: <Lock size={18} />, text: 'Confidential evaluation responses' },
                   { icon: <Eye size={18} />, text: 'No IP tracking or browser fingerprinting' },
                   { icon: <Award size={18} />, text: 'End-to-end anonymous submissions' },
                 ].map((item, i) => (

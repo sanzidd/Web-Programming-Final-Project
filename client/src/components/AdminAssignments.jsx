@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, Plus, Trash2, Building2, Users, Calendar, Filter, CheckCircle2, AlertCircle, Eye, Download, ToggleLeft, ToggleRight, Target, X } from 'lucide-react';
+import { BookOpen, Plus, Trash2, Building2, Users, Calendar, Filter, CheckCircle2, AlertCircle, Eye, Download, ToggleLeft, ToggleRight, Target, X, Mail, Loader2, Send, GraduationCap } from 'lucide-react';
 import api from '../services/api';
 import { useToast } from '../context/ToastContext';
 
@@ -12,15 +12,23 @@ export default function AdminAssignments() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [filterDept, setFilterDept] = useState('');
+  const [filterTeacherDept, setFilterTeacherDept] = useState('');
   const [filterSeries, setFilterSeries] = useState('');
   const [statusModalOpen, setStatusModalOpen] = useState(false);
   const [currentStatusList, setCurrentStatusList] = useState([]);
   const [statusLoading, setStatusLoading] = useState(false);
+  const [sendingEmailId, setSendingEmailId] = useState(null);
+
+  // Email Reports to Faculty Modal state
+  const [showEmailReportModal, setShowEmailReportModal] = useState(false);
+  const [selectedEmailCourseId, setSelectedEmailCourseId] = useState('');
+  const [sendingEmailReport, setSendingEmailReport] = useState(false);
 
   const [form, setForm] = useState({
     courseCode: '',
     courseName: '',
-    department: '',
+    department: '', // Student Department
+    teacherDepartment: '', // Teacher's Department
     semester: '1st Semester',
     series: '21',
     teacher: '',
@@ -49,8 +57,29 @@ export default function AdminAssignments() {
     fetchData();
   }, []);
 
-  const handleDeptChangeInForm = (deptId) => {
-    setForm(f => ({ ...f, department: deptId, teacher: '' }));
+  const handleStudentDeptChange = (deptId) => {
+    setForm(f => ({ ...f, department: deptId }));
+  };
+
+  const handleTeacherDeptChange = (deptId) => {
+    setForm(f => {
+      const isTeacherInNewDept = teachers.some(t => t._id === f.teacher && ((t.department?._id || t.department) === deptId));
+      return {
+        ...f,
+        teacherDepartment: deptId,
+        teacher: (deptId && !isTeacherInNewDept) ? '' : f.teacher
+      };
+    });
+  };
+
+  const handleTeacherChangeInForm = (teacherId) => {
+    const found = teachers.find(t => t._id === teacherId);
+    const teacherDeptId = found?.department?._id || found?.department || '';
+    setForm(f => ({
+      ...f,
+      teacher: teacherId,
+      teacherDepartment: f.teacherDepartment || teacherDeptId
+    }));
   };
 
   const addCO = () => {
@@ -79,6 +108,19 @@ export default function AdminAssignments() {
     });
   };
 
+  // Generate series options dynamically: (currentYear - 6) to (currentYear + 1)
+  const seriesOptions = (() => {
+    const currentYear = new Date().getFullYear();
+    const startSeries = currentYear - 6;
+    const endSeries = currentYear + 1;
+    const options = [];
+    for (let y = startSeries; y <= endSeries; y++) {
+      const s = String(y).slice(-2); // last 2 digits
+      options.push(s);
+    }
+    return options;
+  })();
+
   const handleCreate = async (e) => {
     e.preventDefault();
     if (!form.courseCode || !form.courseName || !form.department || !form.series || !form.teacher) {
@@ -86,12 +128,8 @@ export default function AdminAssignments() {
       return;
     }
 
-    // Validate COs
-    const validCOs = form.courseOutcomes.filter(co => co.title.trim() && co.description.trim());
-    if (validCOs.length === 0) {
-      toast.error('Please add at least one Course Outcome with title and description');
-      return;
-    }
+    // COs are optional — filter to valid ones (title is enough)
+    const validCOs = form.courseOutcomes.filter(co => co.title.trim());
 
     try {
       await api.post('/admin/assignments', {
@@ -104,6 +142,7 @@ export default function AdminAssignments() {
         courseCode: '',
         courseName: '',
         department: '',
+        teacherDepartment: '',
         semester: '1st Semester',
         series: '21',
         teacher: '',
@@ -170,14 +209,53 @@ export default function AdminAssignments() {
     }
   };
 
+  const handleSendSingleReport = async (a) => {
+    if (!window.confirm(`Email the official XLSX feedback report for "${a.courseName}" directly to ${a.teacher?.name || 'the teacher'}?`)) {
+      return;
+    }
+    setSendingEmailId(a._id);
+    try {
+      const res = await api.post(`/admin/assignments/${a._id}/send-report`);
+      toast.success(res.data.message || 'Report emailed successfully!');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to email report');
+    } finally {
+      setSendingEmailId(null);
+    }
+  };
+
+  const handleSendReportFromModal = async () => {
+    if (!selectedEmailCourseId) return;
+    setSendingEmailReport(true);
+    try {
+      if (selectedEmailCourseId === 'all') {
+        const res = await api.post('/admin/assignments/send-bulk-reports');
+        toast.success(res.data.message || 'Reports emailed to all faculty!');
+      } else {
+        const targetAssign = assignments.find(a => a._id === selectedEmailCourseId);
+        const res = await api.post(`/admin/assignments/${selectedEmailCourseId}/send-report`);
+        toast.success(res.data.message || `Feedback report for ${targetAssign?.courseName || 'course'} successfully sent!`);
+      }
+      setShowEmailReportModal(false);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to email report');
+    } finally {
+      setSendingEmailReport(false);
+    }
+  };
+
   const filteredAssignments = assignments.filter(a => {
     if (filterDept && a.department?._id !== filterDept) return false;
+    if (filterTeacherDept) {
+      const teacherDeptId = a.teacherDepartment?._id || a.teacherDepartment || a.teacher?.department?._id || a.teacher?.department;
+      if (teacherDeptId !== filterTeacherDept) return false;
+    }
     if (filterSeries && a.series !== filterSeries) return false;
     return true;
   });
 
-  const availableTeachersForForm = form.department 
-    ? teachers.filter(t => t.department?._id === form.department || t.department === form.department)
+  const availableTeachersForForm = form.teacherDepartment
+    ? teachers.filter(t => (t.department?._id || t.department) === form.teacherDepartment)
     : teachers;
 
   return (
@@ -192,10 +270,24 @@ export default function AdminAssignments() {
             Configure which student series and departments are eligible to evaluate specific courses and teachers.
           </p>
         </div>
-        <button onClick={() => setShowModal(true)} className="btn btn-primary">
-          <Plus size={18} />
-          Add Assignment
-        </button>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          <button 
+            onClick={() => {
+              setSelectedEmailCourseId('');
+              setShowEmailReportModal(true);
+            }} 
+            className="btn btn-outline"
+            style={{ borderColor: 'var(--ruet-emerald)', color: 'var(--ruet-emerald)', display: 'flex', alignItems: 'center', gap: '8px' }}
+            title="Email feedback reports (.xlsx) to faculty"
+          >
+            <Mail size={16} />
+            Email Reports to Faculty
+          </button>
+          <button onClick={() => setShowModal(true)} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Plus size={18} />
+            Add Assignment
+          </button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -210,7 +302,18 @@ export default function AdminAssignments() {
           value={filterDept} 
           onChange={e => setFilterDept(e.target.value)}
         >
-          <option value="">All Departments</option>
+          <option value="">All Student Depts</option>
+          {departments.map(d => (
+            <option key={d._id} value={d._id}>{d.name} ({d.code})</option>
+          ))}
+        </select>
+        <select 
+          className="form-select" 
+          style={{ width: 'auto', padding: '6px 12px', fontSize: '0.9rem' }}
+          value={filterTeacherDept} 
+          onChange={e => setFilterTeacherDept(e.target.value)}
+        >
+          <option value="">All Faculty Depts</option>
           {departments.map(d => (
             <option key={d._id} value={d._id}>{d.name} ({d.code})</option>
           ))}
@@ -222,14 +325,13 @@ export default function AdminAssignments() {
           onChange={e => setFilterSeries(e.target.value)}
         >
           <option value="">All Series</option>
-          <option value="20">Series 20</option>
-          <option value="21">Series 21</option>
-          <option value="22">Series 22</option>
-          <option value="23">Series 23</option>
+          {seriesOptions.map(s => (
+            <option key={s} value={s}>Series {s}</option>
+          ))}
           <option value="all">All Series (Universal)</option>
         </select>
-        {(filterDept || filterSeries) && (
-          <button onClick={() => { setFilterDept(''); setFilterSeries(''); }} className="btn btn-outline btn-sm">
+        {(filterDept || filterTeacherDept || filterSeries) && (
+          <button onClick={() => { setFilterDept(''); setFilterTeacherDept(''); setFilterSeries(''); }} className="btn btn-outline btn-sm">
             Reset Filters
           </button>
         )}
@@ -252,49 +354,65 @@ export default function AdminAssignments() {
             <table className="feedback-table">
               <thead>
                 <tr>
-                  <th>Course Code</th>
-                  <th>Course Name</th>
-                  <th>Department</th>
-                  <th>Series</th>
+                  <th>Course</th>
+                  <th>Student Dept & Series</th>
+                  <th>Faculty & Dept</th>
                   <th>Semester</th>
-                  <th>Teacher</th>
                   <th>COs</th>
                   <th>Session</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredAssignments.map(a => (
-                  <tr key={a._id}>
-                    <td style={{ fontWeight: 600, color: 'var(--ruet-gold)' }}>{a.courseCode}</td>
-                    <td>{a.courseName}</td>
-                    <td><span className="badge badge-blue">{a.department?.code || '—'}</span></td>
-                    <td><span className="badge badge-emerald">Series {a.series}</span></td>
-                    <td>{a.semester || '—'}</td>
-                    <td>
-                      <div>
-                        <div style={{ fontWeight: 600 }}>{a.teacher?.name || '—'}</div>
-                        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{a.teacher?.designation || ''}</div>
-                      </div>
-                    </td>
-                    <td>
-                      <span className="badge" style={{ 
-                        background: 'rgba(39, 174, 96, 0.15)', 
-                        color: 'var(--ruet-emerald)',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '4px'
-                      }}>
-                        <Target size={12} />
-                        {a.courseOutcomes?.length || 0}
-                      </span>
-                    </td>
-                    <td>
-                      <span className={`badge ${a.isReviewSessionOpen ? 'badge-emerald' : 'badge-danger'}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                        {a.isReviewSessionOpen ? <CheckCircle2 size={12} /> : <AlertCircle size={12} />}
-                        {a.isReviewSessionOpen ? 'Open' : 'Closed'}
-                      </span>
-                    </td>
+                {filteredAssignments.map(a => {
+                  const studentDeptCode = a.department?.code || a.department?.name || '—';
+                  const teacherDeptCode = a.teacherDepartment?.code || a.teacher?.department?.code || a.teacherDepartment?.name || a.teacher?.department?.name || '—';
+                  const isCrossDept = a.department && (a.teacherDepartment || a.teacher?.department) && 
+                    (a.department?._id?.toString() !== (a.teacherDepartment?._id || a.teacher?.department?._id || a.teacherDepartment || a.teacher?.department)?.toString());
+
+                  return (
+                    <tr key={a._id}>
+                      <td>
+                        <div className="assignment-course-code">{a.courseCode}</div>
+                        <div style={{ fontWeight: 500, fontSize: '0.85rem' }}>{a.courseName}</div>
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
+                          <span className="badge badge-blue">{studentDeptCode}</span>
+                          <span className="badge badge-emerald" style={{ fontSize: '0.75rem' }}>Series {a.series}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <div>
+                          <div style={{ fontWeight: 600 }}>{a.teacher?.name || '—'}</div>
+                          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', marginTop: '2px' }}>
+                            <span>{a.teacher?.designation || ''}</span>
+                            <span className="badge badge-gold" style={{ fontSize: '0.72rem' }}>Dept: {teacherDeptCode}</span>
+                            {isCrossDept && (
+                              <span className="badge badge-orange" style={{ fontSize: '0.7rem' }}>Cross-Dept</span>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      <td>{a.semester || '—'}</td>
+                      <td>
+                        <span className="badge" style={{ 
+                          background: 'rgba(39, 174, 96, 0.15)', 
+                          color: 'var(--ruet-emerald)',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}>
+                          <Target size={12} />
+                          {a.courseOutcomes?.length || 0}
+                        </span>
+                      </td>
+                      <td>
+                        <span className={`badge ${a.isReviewSessionOpen ? 'badge-emerald' : 'badge-danger'}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                          {a.isReviewSessionOpen ? <CheckCircle2 size={12} /> : <AlertCircle size={12} />}
+                          {a.isReviewSessionOpen ? 'Open' : 'Closed'}
+                        </span>
+                      </td>
                     <td>
                       <div style={{ display: 'flex', gap: '8px' }}>
                         <button 
@@ -322,6 +440,15 @@ export default function AdminAssignments() {
                           <Download size={14} />
                         </button>
                         <button 
+                          onClick={() => handleSendSingleReport(a)}
+                          className="btn btn-outline btn-sm"
+                          title={`Email XLSX Report to ${a.teacher?.name || 'Teacher'}`}
+                          style={{ padding: '6px 10px', color: 'var(--ruet-emerald)', borderColor: 'rgba(16, 185, 129, 0.2)' }}
+                          disabled={sendingEmailId === a._id}
+                        >
+                          {sendingEmailId === a._id ? <Loader2 size={14} className="spin" /> : <Mail size={14} />}
+                        </button>
+                        <button 
                           onClick={() => handleDelete(a._id)}
                           className="btn btn-outline btn-sm"
                           style={{ color: 'var(--text-danger)', borderColor: 'rgba(239, 68, 68, 0.2)', padding: '6px 10px' }}
@@ -332,7 +459,8 @@ export default function AdminAssignments() {
                       </div>
                     </td>
                   </tr>
-                ))}
+                );
+              })}
               </tbody>
             </table>
           </div>
@@ -355,16 +483,48 @@ export default function AdminAssignments() {
               className="glass-card"
               style={{ width: '100%', maxWidth: '750px', padding: '30px', background: 'var(--bg-card)', maxHeight: '90vh', overflowY: 'auto' }}
             >
-              <h3 className="font-display" style={{ marginBottom: '20px', fontSize: '1.3rem' }}>Create New Course Assignment</h3>
-              <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+              <h3 className="font-display" style={{ marginBottom: '6px', fontSize: '1.35rem' }}>Create New Course Assignment</h3>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '22px' }}>
+                Assign a course to a teacher. Student Department and Teacher Department can be the same or different.
+              </p>
+              
+              <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+                {/* Row 1: Course Code & Course Name */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                   <div>
                     <label className="form-label">Course Code *</label>
                     <input 
-                      type="text" className="form-input" placeholder="e.g. ETE 3101"
+                      type="text" className="form-input" placeholder="e.g. ETE 3101 / MATH 1201"
                       value={form.courseCode} onChange={e => setForm({ ...form, courseCode: e.target.value })}
                       required
                     />
+                  </div>
+                  <div>
+                    <label className="form-label">Course Title *</label>
+                    <input 
+                      type="text" className="form-input" placeholder="e.g. Digital Image Processing"
+                      value={form.courseName} onChange={e => setForm({ ...form, courseName: e.target.value })}
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Row 2: Student Department & Series */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <div>
+                    <label className="form-label">Student Department (Enrolled Class) *</label>
+                    <select 
+                      className="form-select" value={form.department}
+                      onChange={e => handleStudentDeptChange(e.target.value)} required
+                    >
+                      <option value="">Select Student Department...</option>
+                      {departments.map(d => (
+                        <option key={d._id} value={d._id}>{d.name} ({d.code})</option>
+                      ))}
+                    </select>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px', display: 'block' }}>
+                      Students of this department will evaluate this subject.
+                    </span>
                   </div>
                   <div>
                     <label className="form-label">Series *</label>
@@ -372,67 +532,62 @@ export default function AdminAssignments() {
                       className="form-select" value={form.series}
                       onChange={e => setForm({ ...form, series: e.target.value })} required
                     >
-                      <option value="20">Series 20</option>
-                      <option value="21">Series 21</option>
-                      <option value="22">Series 22</option>
-                      <option value="23">Series 23</option>
+                      {seriesOptions.map(s => (
+                        <option key={s} value={s}>Series {s}</option>
+                      ))}
                       <option value="all">All Series (Universal)</option>
                     </select>
                   </div>
                 </div>
 
-                <div>
-                  <label className="form-label">Course Name *</label>
-                  <input 
-                    type="text" className="form-input" placeholder="e.g. Digital Communications"
-                    value={form.courseName} onChange={e => setForm({ ...form, courseName: e.target.value })}
-                    required
-                  />
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                {/* Row 3: Teacher's Department & Assigned Faculty Member */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                   <div>
-                    <label className="form-label">Department *</label>
+                    <label className="form-label">Teacher's Department (Faculty) *</label>
                     <select 
-                      className="form-select" value={form.department}
-                      onChange={e => handleDeptChangeInForm(e.target.value)} required
+                      className="form-select" value={form.teacherDepartment}
+                      onChange={e => handleTeacherDeptChange(e.target.value)}
                     >
-                      <option value="">Select Dept...</option>
+                      <option value="">All Faculty Departments (Any)</option>
                       {departments.map(d => (
                         <option key={d._id} value={d._id}>{d.name} ({d.code})</option>
                       ))}
                     </select>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px', display: 'block' }}>
+                      Department where the instructor belongs (may differ from student dept).
+                    </span>
                   </div>
                   <div>
-                    <label className="form-label">Semester *</label>
+                    <label className="form-label">Assigned Teacher *</label>
                     <select 
-                      className="form-select" value={form.semester}
-                      onChange={e => setForm({ ...form, semester: e.target.value })} required
+                      className="form-select" value={form.teacher}
+                      onChange={e => handleTeacherChangeInForm(e.target.value)} required
                     >
-                      <option value="1st Semester">1st Semester</option>
-                      <option value="2nd Semester">2nd Semester</option>
-                      <option value="3rd Semester">3rd Semester</option>
-                      <option value="4th Semester">4th Semester</option>
-                      <option value="5th Semester">5th Semester</option>
-                      <option value="6th Semester">6th Semester</option>
-                      <option value="7th Semester">7th Semester</option>
-                      <option value="8th Semester">8th Semester</option>
+                      <option value="">Select Teacher...</option>
+                      {availableTeachersForForm.map(t => (
+                        <option key={t._id} value={t._id}>
+                          {t.name} — {t.designation} ({t.department?.code || t.department?.name || 'Dept'})
+                        </option>
+                      ))}
                     </select>
                   </div>
                 </div>
 
+                {/* Row 4: Semester */}
                 <div>
-                  <label className="form-label">Assigned Teacher *</label>
+                  <label className="form-label">Semester *</label>
                   <select 
-                    className="form-select" value={form.teacher}
-                    onChange={e => setForm({ ...form, teacher: e.target.value })} required
+                    className="form-select" value={form.semester}
+                    onChange={e => setForm({ ...form, semester: e.target.value })} required
                   >
-                    <option value="">Select Teacher...</option>
-                    {availableTeachersForForm.map(t => (
-                      <option key={t._id} value={t._id}>
-                        {t.name} — {t.designation} ({t.department?.code || ''})
-                      </option>
-                    ))}
+                    <option value="1st Semester">1st Semester</option>
+                    <option value="2nd Semester">2nd Semester</option>
+                    <option value="3rd Semester">3rd Semester</option>
+                    <option value="4th Semester">4th Semester</option>
+                    <option value="5th Semester">5th Semester</option>
+                    <option value="6th Semester">6th Semester</option>
+                    <option value="7th Semester">7th Semester</option>
+                    <option value="8th Semester">8th Semester</option>
                   </select>
                 </div>
 
@@ -446,7 +601,7 @@ export default function AdminAssignments() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <Target size={18} style={{ color: 'var(--ruet-emerald)' }} />
-                      <span style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--ruet-emerald)' }}>Course Outcomes (COs) *</span>
+                      <span style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--ruet-emerald)' }}>Course Outcomes (COs) <span style={{ fontWeight: 400, fontSize: '0.85rem', color: 'var(--text-muted)' }}>(Optional — Teachers can also add)</span></span>
                     </div>
                     <button 
                       type="button" 
@@ -464,7 +619,7 @@ export default function AdminAssignments() {
                       borderRadius: 'var(--radius-sm)', 
                       padding: '15px',
                       marginBottom: '12px',
-                      border: '1px solid rgba(255,255,255,0.05)'
+                      border: '1px solid var(--border-default)'
                     }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                         <span style={{ fontWeight: 700, color: 'var(--ruet-emerald)', fontSize: '0.9rem' }}>
@@ -505,7 +660,7 @@ export default function AdminAssignments() {
                   ))}
 
                   <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '8px' }}>
-                    Students will answer 4 questions per CO in the feedback form. Each CO must have a title and description.
+                    Students will answer 3 questions per CO in the feedback form. COs are optional here — teachers can also add them from their dashboard.
                   </p>
                 </div>
 
@@ -573,6 +728,147 @@ export default function AdminAssignments() {
                   </table>
                 </div>
               )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Email Report to Faculty Modal with Course Selector */}
+      <AnimatePresence>
+        {showEmailReportModal && (
+          <div style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+            background: 'rgba(0,0,0,0.75)', zIndex: 1000, display: 'flex',
+            alignItems: 'center', justifyContent: 'center', padding: '20px',
+            backdropFilter: 'blur(6px)'
+          }}>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="glass-card"
+              style={{ width: '100%', maxWidth: '640px', padding: '30px', background: 'var(--bg-card)', borderRadius: '16px', border: '1px solid rgba(16, 185, 129, 0.3)', boxShadow: '0 20px 40px rgba(0,0,0,0.6)' }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: 'rgba(16, 185, 129, 0.15)', color: 'var(--ruet-emerald)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Mail size={22} />
+                  </div>
+                  <div>
+                    <h3 className="font-display" style={{ fontSize: '1.25rem', color: 'var(--text-primary)', margin: 0 }}>Email Reports to Faculty</h3>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: '3px 0 0' }}>
+                      Select a specific course to email its evaluation report (.xlsx) to the faculty member.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowEmailReportModal(false)}
+                  style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '6px' }}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div style={{ marginBottom: '20px' }}>
+                <label className="form-label" style={{ fontWeight: 600, marginBottom: '8px' }}>Select Course / Target *</label>
+                <select
+                  className="form-select"
+                  value={selectedEmailCourseId}
+                  onChange={e => setSelectedEmailCourseId(e.target.value)}
+                  style={{ width: '100%', padding: '12px 14px', fontSize: '0.95rem' }}
+                >
+                  <option value="">Select Course (e.g. DIP / ETE 4101)...</option>
+                  <option value="all" style={{ fontWeight: 700, color: 'var(--ruet-emerald)' }}>
+                    🌟 All Courses (Send Reports to All Assigned Faculty at Once)
+                  </option>
+                  {assignments.map(a => {
+                    const studentCode = a.department?.code || a.department?.name || 'Dept';
+                    const facultyName = a.teacher?.name || 'Unassigned';
+                    return (
+                      <option key={a._id} value={a._id}>
+                        {a.courseCode}: {a.courseName} — {facultyName} ({studentCode} · Series {a.series})
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+
+              {/* Dynamic preview card for selected course */}
+              {selectedEmailCourseId && selectedEmailCourseId !== 'all' && (() => {
+                const targetAssign = assignments.find(a => a._id === selectedEmailCourseId);
+                if (!targetAssign) return null;
+                const teacherDept = targetAssign.teacherDepartment?.name || targetAssign.teacher?.department?.name || targetAssign.teacherDepartment?.code || targetAssign.teacher?.department?.code || 'N/A';
+                return (
+                  <div style={{
+                    padding: '16px',
+                    borderRadius: '12px',
+                    background: 'var(--bg-secondary)',
+                    border: '1px solid var(--border-default)',
+                    marginBottom: '20px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '10px'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <div>
+                        <span className="assignment-course-code" style={{ fontSize: '0.8rem', padding: '3px 10px', borderRadius: '4px', background: 'var(--bg-elevated)', border: '1px solid var(--border-default)', display: 'inline-block', marginBottom: '4px' }}>
+                          {targetAssign.courseCode}
+                        </span>
+                        <h4 style={{ margin: 0, fontSize: '1.05rem', color: 'var(--text-primary)' }}>{targetAssign.courseName}</h4>
+                      </div>
+                      <span className="badge badge-emerald">Series {targetAssign.series}</span>
+                    </div>
+
+                    <div className="modal-two-col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                      <div><strong>Student Dept:</strong> {targetAssign.department?.name} ({targetAssign.department?.code})</div>
+                      <div><strong>Faculty Dept:</strong> {teacherDept}</div>
+                      <div><strong>Assigned Teacher:</strong> {targetAssign.teacher?.name} ({targetAssign.teacher?.designation})</div>
+                      <div><strong>Recipient Email:</strong> <span style={{ color: 'var(--ruet-emerald)' }}>{targetAssign.teacher?.email || 'No email registered'}</span></div>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {selectedEmailCourseId === 'all' && (
+                <div style={{
+                  padding: '16px',
+                  borderRadius: '12px',
+                  background: 'rgba(16, 185, 129, 0.08)',
+                  border: '1px solid rgba(16, 185, 129, 0.25)',
+                  marginBottom: '20px',
+                  color: 'var(--text-secondary)',
+                  fontSize: '0.9rem',
+                  lineHeight: 1.5
+                }}>
+                  📢 <strong>Batch Delivery:</strong> Official XLSX feedback analysis reports will be generated and emailed to all <strong>{assignments.length}</strong> assigned teachers directly to their institutional email addresses.
+                </div>
+              )}
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowEmailReportModal(false)}
+                  className="btn btn-outline"
+                  disabled={sendingEmailReport}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSendReportFromModal}
+                  className="btn btn-primary"
+                  disabled={!selectedEmailCourseId || sendingEmailReport}
+                  style={{ background: 'var(--ruet-emerald)', borderColor: 'var(--ruet-emerald)', display: 'flex', alignItems: 'center', gap: '8px' }}
+                >
+                  {sendingEmailReport ? <Loader2 size={16} className="spin" /> : <Send size={16} />}
+                  {sendingEmailReport 
+                    ? 'Generating & Sending...' 
+                    : selectedEmailCourseId === 'all' 
+                      ? 'Email Reports to All Faculty' 
+                      : `Email Report to Faculty`}
+                </button>
+              </div>
             </motion.div>
           </div>
         )}

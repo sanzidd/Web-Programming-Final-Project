@@ -1,8 +1,8 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-export default function ProtectedRoute({ children, requireAdmin, requireTeacher }) {
-  const { isAuthenticated, isAdmin, isTeacher, loading } = useAuth();
+export default function ProtectedRoute({ children, requireAdmin, requireTeacher, requireStudent }) {
+  const { isAuthenticated, isAdmin, isTeacher, isStudent, loading } = useAuth();
 
   if (loading) {
     return (
@@ -27,6 +27,10 @@ export default function ProtectedRoute({ children, requireAdmin, requireTeacher 
 
   if (requireTeacher && !isTeacher) {
     return <Navigate to="/" replace />;
+  }
+
+  if (requireStudent && !isStudent) {
+    return <Navigate to="/student/login" replace />;
   }
 
   return children;

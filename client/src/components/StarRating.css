@@ -22,3 +22,13 @@
   cursor: default;
   pointer-events: none;
 }
+
+/* Light Theme Overrides */
+[data-theme="light"] .star-rating-label {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .star-rating-value {
+  color: #d97706 !important;
+  font-weight: 700 !important;
+}

@@ -61,17 +61,23 @@ exports.login = async (req, res) => {
 
 // ─── Course Assignment CRUD ───
 
-// Get all course assignments (optionally filter by department, series, semester)
+// Get all course assignments (optionally filter by department, teacherDepartment, series, semester)
 exports.getAssignments = async (req, res) => {
   try {
     const filter = {};
     if (req.query.department) filter.department = req.query.department;
+    if (req.query.teacherDepartment) filter.teacherDepartment = req.query.teacherDepartment;
     if (req.query.series) filter.series = req.query.series;
     if (req.query.semester) filter.semester = req.query.semester;
 
     const assignments = await CourseAssignment.find(filter)
       .populate('department', 'name code')
-      .populate('teacher', 'name designation email')
+      .populate('teacherDepartment', 'name code')
+      .populate({
+        path: 'teacher',
+        select: 'name designation email department courses',
+        populate: { path: 'department', select: 'name code' }
+      })
       .sort({ createdAt: -1 });
 
     res.json(assignments);
@@ -83,16 +89,20 @@ exports.getAssignments = async (req, res) => {
 // Create a course assignment
 exports.createAssignment = async (req, res) => {
   try {
-    const { courseCode, courseName, department, semester, series, teacher, courseOutcomes } = req.body;
+    const { courseCode, courseName, department, teacherDepartment, semester, series, teacher, courseOutcomes } = req.body;
 
     if (!courseCode || !courseName || !department || !series || !teacher) {
-      return res.status(400).json({ message: 'Course Code, Course Name, Department, Series, and Teacher are required' });
+      return res.status(400).json({ message: 'Course Code, Course Name, Student Department, Series, and Teacher are required' });
     }
+
+    const teacherDoc = await Teacher.findById(teacher);
+    const resolvedTeacherDept = teacherDepartment || (teacherDoc ? teacherDoc.department : undefined);
 
     const assignment = await CourseAssignment.create({
       courseCode: courseCode.trim(),
       courseName: courseName.trim(),
       department,
+      teacherDepartment: resolvedTeacherDept,
       semester: semester || '',
       series: series.trim(),
       teacher,
@@ -100,7 +110,6 @@ exports.createAssignment = async (req, res) => {
     });
 
     // Automatically add courseName to Teacher profile if not already listed
-    const teacherDoc = await Teacher.findById(teacher);
     if (teacherDoc && !teacherDoc.courses.includes(courseName.trim())) {
       teacherDoc.courses.push(courseName.trim());
       await teacherDoc.save();
@@ -108,7 +117,12 @@ exports.createAssignment = async (req, res) => {
 
     const populated = await CourseAssignment.findById(assignment._id)
       .populate('department', 'name code')
-      .populate('teacher', 'name designation email');
+      .populate('teacherDepartment', 'name code')
+      .populate({
+        path: 'teacher',
+        select: 'name designation email department courses',
+        populate: { path: 'department', select: 'name code' }
+      });
 
     res.status(201).json({ message: 'Course assignment created successfully', assignment: populated });
   } catch (error) {
@@ -119,12 +133,13 @@ exports.createAssignment = async (req, res) => {
 // Update a course assignment
 exports.updateAssignment = async (req, res) => {
   try {
-    const { courseCode, courseName, department, semester, series, teacher, isActive, courseOutcomes } = req.body;
+    const { courseCode, courseName, department, teacherDepartment, semester, series, teacher, isActive, courseOutcomes } = req.body;
 
     const updateFields = {};
     if (courseCode) updateFields.courseCode = courseCode.trim();
     if (courseName) updateFields.courseName = courseName.trim();
     if (department) updateFields.department = department;
+    if (teacherDepartment !== undefined) updateFields.teacherDepartment = teacherDepartment;
     if (semester !== undefined) updateFields.semester = semester;
     if (series) updateFields.series = series.trim();
     if (teacher) updateFields.teacher = teacher;
@@ -137,7 +152,12 @@ exports.updateAssignment = async (req, res) => {
       { new: true, runValidators: true }
     )
       .populate('department', 'name code')
-      .populate('teacher', 'name designation email');
+      .populate('teacherDepartment', 'name code')
+      .populate({
+        path: 'teacher',
+        select: 'name designation email department courses',
+        populate: { path: 'department', select: 'name code' }
+      });
 
     if (!updated) {
       return res.status(404).json({ message: 'Assignment not found' });
@@ -260,6 +280,10 @@ exports.getAssignmentStatus = async (req, res) => {
       // Find students whose roll starts with the series (e.g., "21")
       filter.roll = new RegExp(`^${assignment.series}`);
     }
+    // Only show students from the same department as the assignment
+    if (assignment.department) {
+      filter.department = assignment.department;
+    }
 
     const students = await Student.find(filter).select('name roll');
     const logs = await FeedbackLog.find({ assignment: assignment._id }).select('student');
@@ -303,6 +327,37 @@ exports.exportAssignmentExcel = async (req, res) => {
   } catch (error) {
     console.error('Excel export error:', error);
     res.status(500).json({ message: 'Failed to export feedback' });
+  }
+};
+
+// ══════════════════════════════════════════════════════════════
+//  Email XLSX reports to teachers
+// ══════════════════════════════════════════════════════════════
+const { sendReportForAssignment, sendAllApprovedReports } = require('../services/autoEmailService');
+
+exports.sendAssignmentReportEmail = async (req, res) => {
+  try {
+    const result = await sendReportForAssignment(req.params.id);
+    if (!result.success) {
+      return res.status(400).json({ message: result.reason || 'Failed to email report to teacher' });
+    }
+    res.json({ message: `Feedback report successfully sent to ${result.teacherEmail}`, result });
+  } catch (error) {
+    console.error('Email report error:', error);
+    res.status(500).json({ message: error.message || 'Failed to send report' });
+  }
+};
+
+exports.sendBulkReportsEmail = async (req, res) => {
+  try {
+    const results = await sendAllApprovedReports();
+    res.json({
+      message: `Reports emailed to faculty: ${results.sent} sent, ${results.skipped} skipped, ${results.failed} failed`,
+      results
+    });
+  } catch (error) {
+    console.error('Bulk email report error:', error);
+    res.status(500).json({ message: error.message || 'Failed to send bulk reports' });
   }
 };
 

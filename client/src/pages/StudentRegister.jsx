@@ -39,16 +39,45 @@ export default function StudentRegister() {
     fetchDepartments();
   }, []);
 
+  // Dynamic series: (currentYear - 6) to (currentYear + 1)
+  const seriesOptions = (() => {
+    const currentYear = new Date().getFullYear();
+    const startSeries = currentYear - 6;
+    const endSeries = currentYear + 1;
+    const options = [];
+    for (let y = startSeries; y <= endSeries; y++) {
+      options.push(String(y).slice(-2));
+    }
+    return options;
+  })();
+
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    if (name === 'roll') {
+      const updates = { roll: value };
+      if (value.length >= 2) {
+        const prefix = value.substring(0, 2);
+        if (seriesOptions.includes(prefix)) {
+          updates.series = prefix;
+        }
+      }
+      setFormData(prev => ({ ...prev, ...updates }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { name, roll, email, password, confirmPassword } = formData;
+    const { name, roll, email, password, confirmPassword, departmentId } = formData;
     
     if (!name || !roll || !email || !password) {
       toast.error('Please fill in all required fields');
+      return;
+    }
+
+    if (!departmentId) {
+      toast.error('Please select your department');
       return;
     }
     
@@ -68,12 +97,12 @@ export default function StudentRegister() {
         name,
         roll,
         email,
-        series: formData.series,
+        series: formData.series || (roll.length >= 2 ? roll.substring(0, 2) : ''),
         departmentId: formData.departmentId,
         password
       });
       toast.success('Registration successful! Welcome to the platform.');
-      navigate('/');
+      navigate('/student/dashboard');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Registration failed');
     } finally {
@@ -134,17 +163,21 @@ export default function StudentRegister() {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Series</label>
+              <label className="form-label">Series *</label>
               <div className="input-with-icon">
-                <Hash size={18} className="input-icon" />
-                <input
-                  type="text"
+                <Hash size={18} className="input-icon" style={{ zIndex: 2, color: '#334155' }} />
+                <select
                   name="series"
-                  className="form-input"
-                  placeholder="e.g. 19"
+                  className="form-input form-select"
                   value={formData.series}
                   onChange={handleChange}
-                />
+                  required
+                >
+                  <option value="">Select Series</option>
+                  {seriesOptions.map(s => (
+                    <option key={s} value={s}>Series {s}</option>
+                  ))}
+                </select>
               </div>
             </div>
           </div>
@@ -165,27 +198,28 @@ export default function StudentRegister() {
             </div>
           </div>
 
-          <div className="form-group">
-            <label className="form-label">Department</label>
-            <div className="input-with-icon">
-              <BookOpen size={18} className="input-icon" />
-              <select
-                name="departmentId"
-                className="form-input"
-                value={formData.departmentId}
-                onChange={handleChange}
-                style={{ appearance: 'none', cursor: 'pointer' }}
-              >
-                <option value="">Select Department</option>
-                {departments.map(dept => (
-                  <option key={dept._id} value={dept._id}>
-                    {dept.name} ({dept.code})
-                  </option>
-                ))}
-              </select>
-            </div>
+        <div className="form-group">
+          <label className="form-label">Department *</label>
+          <div className="input-with-icon">
+            <BookOpen size={18} className="input-icon" style={{ zIndex: 2, color: '#334155' }} />
+            <select
+              name="departmentId"
+              className="form-input form-select"
+              value={formData.departmentId}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select Department</option>
+              {departments.map(dept => (
+                <option key={dept._id} value={dept._id}>
+                  {dept.name} ({dept.code})
+                </option>
+              ))}
+            </select>
           </div>
+        </div>
 
+        <div className="register-two-col">
           <div className="form-group">
             <label className="form-label">Password</label>
             <div className="input-with-icon">
@@ -194,7 +228,7 @@ export default function StudentRegister() {
                 type={showPassword ? 'text' : 'password'}
                 name="password"
                 className="form-input"
-                placeholder="Create a password (min 6 chars)"
+                placeholder="Min 6 characters"
                 value={formData.password}
                 onChange={handleChange}
                 required
@@ -218,34 +252,27 @@ export default function StudentRegister() {
                 type={showPassword ? 'text' : 'password'}
                 name="confirmPassword"
                 className="form-input"
-                placeholder="Confirm your password"
+                placeholder="Confirm password"
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 required
               />
-              <button
-                type="button"
-                className="password-toggle"
-                onClick={() => setShowPassword(!showPassword)}
-                tabIndex={-1}
-              >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
             </div>
           </div>
+        </div>
 
-          <button
-            type="submit"
-            className="btn btn-primary btn-lg login-btn"
-            disabled={loading}
-            style={{ marginTop: '10px' }}
-          >
-            {loading ? 'Registering...' : 'Register'}
-          </button>
+        <button
+          type="submit"
+          className="btn btn-primary btn-lg login-btn"
+          disabled={loading}
+          style={{ marginTop: '12px' }}
+        >
+          {loading ? 'Registering...' : 'Register as Student'}
+        </button>
         </form>
 
         <div className="login-hint" style={{ marginTop: '20px', textAlign: 'center' }}>
-          <p>Already have an account? <Link to="/student/login" style={{ color: '#10b981', textDecoration: 'none' }}>Sign In here</Link></p>
+          <p>Already have an account? <Link to="/student/login" className="theme-link" style={{ fontWeight: 600 }}>Sign In here</Link></p>
         </div>
       </motion.div>
     </div>

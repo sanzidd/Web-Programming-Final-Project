@@ -129,7 +129,7 @@
   font-weight: 700;
   line-height: 1.12;
   letter-spacing: -0.015em;
-  color: #FFFFFF;
+  color: var(--text-primary);
 }
 
 .hero-title .text-gradient {
@@ -185,8 +185,27 @@
 
 .hero-card-stack {
   position: relative;
-  width: 380px;
-  height: 380px;
+  width: 440px;
+  height: 440px;
+}
+
+.hero-logo-orbit {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 324px;
+  height: 324px;
+  border-radius: 50%;
+  border: 1.5px dashed rgba(200, 146, 42, 0.4);
+  pointer-events: none;
+  animation: rotateSlow 50s linear infinite;
+  z-index: 1;
+}
+
+@keyframes rotateSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .hero-central-graphic {
@@ -194,24 +213,39 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 130px;
-  height: 130px;
+  width: 280px;
+  height: 280px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #FFFFFF;
+  border: 4px solid rgba(255, 255, 255, 0.9);
   border-radius: 50%;
+  overflow: hidden;
   box-shadow: 
-    0 0 60px rgba(185, 28, 58, 0.15),
-    0 0 120px rgba(200, 146, 42, 0.08),
-    inset 0 0 40px rgba(255, 255, 255, 0.02);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+    0 0 50px rgba(185, 28, 58, 0.25),
+    0 0 100px rgba(200, 146, 42, 0.15),
+    0 25px 50px rgba(0, 0, 0, 0.4),
+    inset 0 0 20px rgba(0, 0, 0, 0.04);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  z-index: 2;
 }
 
-.hero-central-graphic img {
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+.hero-central-graphic img,
+.hero-logo-img {
+  width: 240px;
+  height: 240px;
+  object-fit: contain;
+  border-radius: 50%;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.1));
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hero-central-graphic:hover img,
+.hero-central-graphic:hover .hero-logo-img {
+  transform: scale(1.05);
 }
 
 .hero-floating-card {
@@ -220,13 +254,14 @@
   align-items: center;
   gap: var(--sp-3);
   padding: 14px 20px;
-  background: rgba(26, 29, 46, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(26, 29, 46, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: var(--radius-xl);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   animation: float 5s ease-in-out infinite;
+  z-index: 5;
 }
 
 .card-1 {
@@ -236,9 +271,8 @@
 }
 
 .card-2 {
-  top: 50%;
-  right: -15px;
-  transform: translateY(-50%);
+  bottom: 20px;
+  right: 5px;
   animation-delay: 1.2s;
 }
 
@@ -257,13 +291,13 @@
   font-family: var(--font-body);
   font-size: var(--fs-lg);
   font-weight: 700;
-  color: #FFFFFF;
+  color: var(--text-primary);
 }
 
 .hero-card-label {
   display: block;
   font-size: var(--fs-xs);
-  color: #8B92A8;
+  color: var(--text-secondary);
 }
 
 /* ══════════════════════════════
@@ -272,7 +306,7 @@
 .stats-section {
   padding: var(--sp-16) 0 var(--sp-20);
   position: relative;
-  background: linear-gradient(180deg, #0F1120 0%, var(--bg-primary) 100%);
+  background: var(--bg-primary);
 }
 
 .stats-grid {
@@ -624,14 +658,14 @@
   font-family: var(--font-display);
   font-size: clamp(1.75rem, 3vw, 2.5rem);
   font-weight: 700;
-  color: #FFFFFF;
+  color: var(--text-primary);
   position: relative;
   z-index: 1;
 }
 
 .cta-subtitle {
   font-size: var(--fs-md);
-  color: #8B92A8;
+  color: var(--text-secondary);
   max-width: 500px;
   position: relative;
   z-index: 1;
@@ -669,7 +703,30 @@
   }
 
   .hero-visual {
-    display: none;
+    display: flex;
+    justify-content: center;
+    margin: var(--sp-4) auto 0;
+  }
+
+  .hero-card-stack {
+    width: 340px;
+    height: 340px;
+  }
+
+  .hero-central-graphic {
+    width: 220px;
+    height: 220px;
+  }
+
+  .hero-central-graphic img,
+  .hero-logo-img {
+    width: 170px;
+    height: 170px;
+  }
+
+  .card-2 {
+    bottom: 10px;
+    right: 0px;
   }
 
   .stats-grid {
@@ -902,4 +959,111 @@
   .cta-subtitle {
     font-size: var(--fs-sm);
   }
+}
+
+/* Light Theme Overrides (RUET Portal) */
+[data-theme="light"] .hero-title {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .hero-title .text-gradient {
+  background: linear-gradient(135deg, #3c8dbc 0%, #1e40af 50%, #3c8dbc 100%) !important;
+  background-size: 200% auto !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+[data-theme="light"] .hero-canvas-overlay {
+  background: 
+    radial-gradient(ellipse at 25% 40%, rgba(29, 78, 216, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 75% 60%, rgba(217, 119, 6, 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(248, 250, 252, 0.4) 0%, rgba(248, 250, 252, 0.95) 100%) !important;
+}
+
+[data-theme="light"] .hero-badge {
+  background: #EFF6FF !important;
+  border-color: #BFDBFE !important;
+  color: #1D4ED8 !important;
+}
+
+[data-theme="light"] .hero-card,
+[data-theme="light"] .hero-floating-card {
+  background: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.05), 0 10px 25px -3px rgba(15, 23, 42, 0.06) !important;
+}
+
+[data-theme="light"] .hero-card-value {
+  color: #0F172A !important;
+}
+
+[data-theme="light"] .hero-card-label {
+  color: #64748B !important;
+}
+
+[data-theme="light"] .hero-subtitle {
+  color: #334155 !important;
+}
+
+[data-theme="light"] .hero-orb {
+  opacity: 0.12 !important;
+}
+
+[data-theme="light"] .hero-central-graphic {
+  background: #FFFFFF !important;
+  border: 2px solid #E2E8F0 !important;
+  box-shadow: 
+    0 25px 60px -15px rgba(15, 23, 42, 0.14),
+    0 0 0 1px rgba(0, 0, 0, 0.04),
+    0 0 50px rgba(60, 141, 188, 0.12) !important;
+}
+
+[data-theme="light"] .hero-logo-orbit {
+  border-color: rgba(60, 141, 188, 0.4) !important;
+}
+
+[data-theme="light"] .hero-card-icon.emerald {
+  color: #059669 !important;
+}
+
+[data-theme="light"] .hero-card-icon.blue {
+  color: #1D4ED8 !important;
+}
+
+[data-theme="light"] .hero-card-icon.gold {
+  color: #D97706 !important;
+}
+
+[data-theme="light"] .stat-card,
+[data-theme="light"] .step-card,
+[data-theme="light"] .cta-card {
+  background: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.05), 0 2px 4px -2px rgba(15, 23, 42, 0.03) !important;
+}
+
+[data-theme="light"] .cta-title {
+  color: #0F172A !important;
+}
+
+[data-theme="light"] .cta-subtitle {
+  color: #334155 !important;
+}
+
+[data-theme="light"] .cta-card::after {
+  display: none !important;
+}
+
+[data-theme="light"] .trust-feature {
+  color: #334155 !important;
+}
+
+[data-theme="light"] .trust-feature-icon {
+  background: #DCFCE7 !important;
+  color: #15803D !important;
+}
+
+[data-theme="light"] .step-number {
+  opacity: 0.14 !important;
 }

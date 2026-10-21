@@ -99,6 +99,23 @@ export function AuthProvider({ children }) {
     setTeacherUser(newTeacherData);
   };
 
+  const updateStudent = (newStudentData) => {
+    localStorage.setItem('ruet_student', JSON.stringify(newStudentData));
+    setStudent(newStudentData);
+  };
+
+  const refreshStudentProfile = async () => {
+    try {
+      const res = await api.get('/students/me');
+      if (res.data) {
+        updateStudent(res.data);
+        return res.data;
+      }
+    } catch (e) {
+      // ignore silently if not authenticated
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('ruet_token');
     localStorage.removeItem('ruet_admin');
@@ -122,6 +139,8 @@ export function AuthProvider({ children }) {
       teacherLogin,
       teacherVerify,
       updateTeacherUser,
+      updateStudent,
+      refreshStudentProfile,
       logout, 
       isAuthenticated: !!admin || !!student || !!teacherUser,
       isAdmin: !!admin,

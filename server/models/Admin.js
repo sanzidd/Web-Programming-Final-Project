@@ -4,7 +4,10 @@ const bcrypt = require('bcryptjs');
 const adminSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  email: { type: String, trim: true, lowercase: true },
   role: { type: String, default: 'admin' },
+  resetCode: { type: String },
+  resetCodeExpires: { type: Date },
 }, { timestamps: true });
 
 // Hash password before save

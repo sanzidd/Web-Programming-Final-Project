@@ -44,6 +44,7 @@
   --bg-card: #14182C;
   --bg-card-hover: #1E243C;
   --bg-input: #0A0D1F;
+  --bg-elevated: #1A1F36;
   --bg-hover: rgba(185, 28, 58, 0.15);
   --bg-glass-light: rgba(255, 255, 255, 0.05);
   --bg-tertiary: #0F1120;
@@ -124,6 +125,77 @@
   --gradient-gold: var(--grad-primary);
 }
 
+/* ── Light Theme Tokens (Modern Academic Palette — Inspired by RUET result.ruet.ac.bd) ── */
+[data-theme="light"] {
+  color-scheme: light;
+  
+  /* Brand Colors — Royal Academic Blue Palette */
+  --primary-color: #1D4ED8;
+  --primary-color-rgb: 29, 78, 216;
+  --primary-hover: #1E40AF;
+  --primary-light: #EFF6FF;
+  --primary-soft: rgba(29, 78, 216, 0.08);
+  
+  --secondary-color: #0F172A;
+  --accent-color: #D97706;
+  --accent-light: #FEF3C7;
+  
+  /* RUET Brand Tokens in Light Mode */
+  --ruet-crimson: #B91C1C;
+  --ruet-gold: #D97706;
+  --ruet-gold-dim: rgba(217, 119, 6, 0.12);
+  --ruet-navy: #0F172A;
+  --ruet-emerald: #059669;
+  --ruet-emerald-dim: rgba(5, 150, 105, 0.1);
+
+  /* Vibrant Gradients */
+  --grad-primary: linear-gradient(135deg, #1D4ED8 0%, #2563EB 50%, #1E40AF 100%);
+  --grad-primary-hover: linear-gradient(135deg, #1E40AF 0%, #1D4ED8 100%);
+  --grad-emerald: linear-gradient(135deg, #059669 0%, #10B981 100%);
+  --grad-blue: linear-gradient(135deg, #1D4ED8 0%, #3B82F6 100%);
+  --grad-purple: linear-gradient(135deg, #6D28D9 0%, #8B5CF6 100%);
+  --grad-dark: linear-gradient(160deg, #0F172A 0%, #1E293B 100%);
+  --grad-hero: linear-gradient(165deg, #F8FAFC 0%, #EFF6FF 50%, #F8FAFC 100%);
+  --grad-warm: linear-gradient(135deg, rgba(29, 78, 216, 0.04) 0%, rgba(217, 119, 6, 0.04) 100%);
+
+  /* Neutral Palette — Luminous Slate-50 Background & Pure White Elevated Cards */
+  --bg-primary: #F8FAFC;
+  --bg-secondary: #F1F5F9;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #F8FAFC;
+  --bg-input: #FFFFFF;
+  --bg-elevated: #FFFFFF;
+  --bg-hover: rgba(29, 78, 216, 0.06);
+  --bg-glass-light: rgba(15, 23, 42, 0.02);
+  --bg-tertiary: #E2E8F0;
+
+  /* Text Colors — Deep, High-Contrast Typography */
+  --text-primary: #0F172A;
+  --text-secondary: #334155;
+  --text-tertiary: #475569;
+  --text-muted: #64748B;
+  
+  --text-success: #15803D;
+  --text-danger: #B91C1C;
+  --text-warning: #B45309;
+
+  /* Borders — Crisp, Refined Slate */
+  --border-subtle: #F1F5F9;
+  --border-default: #E2E8F0;
+  --border-hover: #CBD5E1;
+  --border-active: #2563EB;
+
+  /* Shadows — Multi-Stop Refined Academic Elevation */
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+  --shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.09), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+  --shadow-glow-crimson: 0 8px 24px rgba(185, 28, 58, 0.22);
+  --shadow-glow-gold: 0 8px 24px rgba(217, 119, 6, 0.22);
+
+  --gradient-gold: var(--grad-primary);
+}
+
 /* ── Reset & Base ── */
 *,
 *::before,
@@ -190,6 +262,23 @@ input, textarea, select {
   border: none;
   background: none;
 }
+
+/* ── Global Dropdown / Selection Menu — White BG & Black Font ── */
+select,
+select option,
+select optgroup,
+.form-select,
+.form-select option {
+  background-color: #FFFFFF !important;
+  color: #000000 !important;
+}
+
+select option {
+  background-color: #FFFFFF !important;
+  color: #000000 !important;
+  padding: 8px 12px;
+}
+
 
 /* ── Scrollbar ── */
 ::-webkit-scrollbar {
@@ -455,6 +544,55 @@ input, textarea, select {
   border: 1px solid #BFDBFE;
 }
 
+.badge-orange {
+  background: rgba(234, 88, 12, 0.15);
+  color: #fb923c;
+  border: 1px solid rgba(234, 88, 12, 0.3);
+}
+
+.assignment-course-code {
+  font-weight: 600;
+  color: var(--ruet-gold);
+  font-size: 0.9rem;
+}
+
+.theme-link {
+  color: var(--ruet-gold);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color var(--transition-fast);
+}
+
+.theme-link:hover {
+  text-decoration: underline;
+}
+
+/* ── Skeleton Loading ── */
+.skeleton {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.04) 25%, rgba(255, 255, 255, 0.09) 50%, rgba(255, 255, 255, 0.04) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-md);
+}
+
+.skeleton-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+
+.skeleton-heading {
+  height: 24px;
+  width: 60%;
+  border-radius: var(--radius-sm);
+}
+
+.skeleton-text {
+  height: 16px;
+  width: 85%;
+  border-radius: var(--radius-sm);
+}
+
 /* ── Layout Utilities ── */
 .container {
   width: 100%;
@@ -594,4 +732,375 @@ input, textarea, select {
 @media (max-width: 768px) {
   .container { padding: 0 var(--sp-4); }
   .section { padding: var(--sp-10) 0; }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Light Theme Visual Structure (RUET result.ruet.ac.bd demo)
+   ══════════════════════════════════════════════════════════════ */
+[data-theme="light"] body {
+  background-image: none !important;
+  background-color: #F8FAFC !important;
+  color: #0F172A !important;
+}
+
+[data-theme="light"] .glass-card,
+[data-theme="light"] .kpi-card,
+[data-theme="light"] .card {
+  background: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.05), 0 2px 4px -2px rgba(15, 23, 42, 0.03) !important;
+  color: #0F172A !important;
+}
+
+[data-theme="light"] .glass-card:hover,
+[data-theme="light"] .kpi-card:hover {
+  border-color: #CBD5E1 !important;
+  box-shadow: 0 10px 25px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.03) !important;
+}
+
+/* ── Light Theme Button Architecture ── */
+[data-theme="light"] .btn-primary {
+  background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 100%) !important;
+  color: #FFFFFF !important;
+  border: none !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.28) !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="light"] .btn-primary:hover {
+  background: linear-gradient(135deg, #1E40AF 0%, #1D4ED8 100%) !important;
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.4) !important;
+  transform: translateY(-1px);
+}
+
+/* Base outline button in light theme (No !important on colors, preserves inline/semantic colors!) */
+[data-theme="light"] .btn-outline {
+  border: 1.5px solid #2563EB;
+  color: #1D4ED8;
+  background: #FFFFFF;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  font-weight: 600;
+}
+
+[data-theme="light"] .btn-outline:hover {
+  background: #EFF6FF;
+  border-color: #1D4ED8;
+  color: #1E40AF;
+  transform: translateY(-1px);
+}
+
+/* Special Outline Button Flavors */
+[data-theme="light"] .btn-outline-emerald,
+[data-theme="light"] .btn-outline[style*="ruet-emerald"] {
+  border-color: #059669 !important;
+  color: #059669 !important;
+  background: #FFFFFF !important;
+}
+
+[data-theme="light"] .btn-outline-emerald:hover,
+[data-theme="light"] .btn-outline[style*="ruet-emerald"]:hover {
+  background: #ECFDF5 !important;
+  border-color: #047857 !important;
+  color: #047857 !important;
+}
+
+[data-theme="light"] .btn-outline-gold,
+[data-theme="light"] .btn-outline[style*="ruet-gold"] {
+  border-color: #D97706 !important;
+  color: #D97706 !important;
+  background: #FFFFFF !important;
+}
+
+[data-theme="light"] .btn-outline-gold:hover,
+[data-theme="light"] .btn-outline[style*="ruet-gold"]:hover {
+  background: #FEF3C7 !important;
+  border-color: #B45309 !important;
+  color: #B45309 !important;
+}
+
+[data-theme="light"] .btn-outline-danger,
+[data-theme="light"] .btn-outline[style*="danger"] {
+  border-color: #DC2626 !important;
+  color: #DC2626 !important;
+  background: #FFFFFF !important;
+}
+
+[data-theme="light"] .btn-outline-danger:hover,
+[data-theme="light"] .btn-outline[style*="danger"]:hover {
+  background: #FEE2E2 !important;
+  border-color: #B91C1C !important;
+  color: #B91C1C !important;
+}
+
+[data-theme="light"] .btn-secondary {
+  background: #FFFFFF !important;
+  color: #1E293B !important;
+  border: 1.5px solid #CBD5E1 !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05) !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="light"] .btn-secondary:hover {
+  background: #F8FAFC !important;
+  border-color: #94A3B8 !important;
+  color: #0F172A !important;
+  transform: translateY(-1px);
+}
+
+[data-theme="light"] .btn-glass {
+  background: #FFFFFF !important;
+  color: #1E293B !important;
+  border: 1.5px solid #E2E8F0 !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="light"] .btn-glass:hover {
+  background: #F1F5F9 !important;
+  border-color: #CBD5E1 !important;
+  color: #0F172A !important;
+  transform: translateY(-1px);
+}
+
+[data-theme="light"] .form-input,
+[data-theme="light"] .form-textarea {
+  background: #FFFFFF !important;
+  border: 1.5px solid #CBD5E1 !important;
+  color: #0F172A !important;
+}
+
+[data-theme="light"] .form-input:focus,
+[data-theme="light"] .form-textarea:focus {
+  border-color: #2563EB !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+}
+
+[data-theme="light"] .form-label {
+  color: #0F172A !important;
+  font-weight: 600;
+}
+
+[data-theme="light"] .text-gradient {
+  background: linear-gradient(135deg, #1E40AF 0%, #2563EB 50%, #D97706 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+[data-theme="light"] .toast {
+  background: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  color: #0F172A !important;
+  box-shadow: 0 10px 25px -3px rgba(15, 23, 42, 0.1) !important;
+}
+
+[data-theme="light"] .divider {
+  background: #E2E8F0 !important;
+}
+
+/* Light Theme Badge Palette */
+[data-theme="light"] .badge-blue {
+  background: #e0f2fe !important;
+  color: #0369a1 !important;
+  border: 1px solid #bae6fd !important;
+}
+
+[data-theme="light"] .badge-emerald {
+  background: #dcfce7 !important;
+  color: #15803d !important;
+  border: 1px solid #bbf7d0 !important;
+}
+
+[data-theme="light"] .badge-gold {
+  background: #fef3c7 !important;
+  color: #b45309 !important;
+  border: 1px solid #fde68a !important;
+}
+
+[data-theme="light"] .form-input::placeholder,
+[data-theme="light"] .form-textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+[data-theme="light"] .badge-danger {
+  background: #fee2e2 !important;
+  color: #b91c1c !important;
+  border: 1px solid #fecaca !important;
+}
+
+[data-theme="light"] .badge-orange {
+  background: #ffedd5 !important;
+  color: #c2410c !important;
+  border: 1px solid #fed7aa !important;
+}
+
+[data-theme="light"] .assignment-course-code {
+  color: #0369a1 !important;
+}
+
+[data-theme="light"] .theme-link {
+  color: #0369a1 !important;
+}
+
+[data-theme="light"] .theme-link:hover {
+  color: #0284c7 !important;
+}
+
+[data-theme="light"] .skeleton {
+  background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%) !important;
+  background-size: 200% 100% !important;
+}
+
+/* Light Theme Table Styling (Modern Academic Surface) */
+[data-theme="light"] .feedback-table th {
+  background: #F1F5F9 !important;
+  color: #0F172A !important;
+  border-bottom: 2px solid #CBD5E1 !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="light"] .feedback-table td {
+  background: #FFFFFF !important;
+  color: #1E293B !important;
+  border-bottom: 1px solid #E2E8F0 !important;
+}
+
+[data-theme="light"] .feedback-table tr:hover td {
+  background: #F8FAFC !important;
+}
+
+/* Light Theme Footer */
+[data-theme="light"] .footer {
+  background: #FFFFFF !important;
+  border-top: 1px solid #E2E8F0 !important;
+  color: #334155 !important;
+}
+
+[data-theme="light"] .footer-title {
+  color: #0F172A !important;
+}
+
+[data-theme="light"] .footer-subtitle,
+[data-theme="light"] .footer-desc,
+[data-theme="light"] .footer-link,
+[data-theme="light"] .footer-contact-item,
+[data-theme="light"] .footer-bottom,
+[data-theme="light"] .footer-tech {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .footer-link:hover {
+  color: #1D4ED8 !important;
+}
+
+[data-theme="light"] .footer-heading {
+  color: #0F172A !important;
+}
+
+[data-theme="light"] .footer-bottom {
+  border-top: 1px solid #E2E8F0 !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Universal Mobile Responsiveness & Layout Architecture
+   ══════════════════════════════════════════════════════════════ */
+html, body {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
+#root {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Tables & Horizontal Scroll Wrappers */
+.feedback-table-wrap,
+.table-responsive {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: var(--sp-4);
+  border-radius: var(--radius-lg);
+}
+
+/* Universal Modals Mobile Compatibility */
+.glass-card-modal,
+.modal-content,
+[style*="maxHeight: '90vh'"],
+[style*="max-height: 90vh"] {
+  max-width: 95vw !important;
+  max-height: 90vh !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+  box-sizing: border-box !important;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 16px !important;
+  }
+  
+  .section {
+    padding: var(--sp-10) 0 !important;
+  }
+
+  .main-content {
+    min-height: calc(100vh - 120px);
+  }
+
+  /* Form & Modal Grids collapse smoothly on mobile */
+  .modal-two-col,
+  .form-grid-2,
+  .register-two-col,
+  .form-row,
+  [style*="gridTemplateColumns: '1fr 1fr'"],
+  [style*="grid-template-columns: 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+
+  /* Modal Containers on Mobile */
+  [style*="zIndex: 1000"] > div,
+  [style*="z-index: 1000"] > div {
+    padding: 20px 16px !important;
+    width: 95vw !important;
+    max-width: 95vw !important;
+  }
+
+  /* Universal touch targets */
+  button, 
+  .btn,
+  .form-select,
+  .form-input {
+    min-height: 42px;
+  }
+
+  /* Toast notification on mobile */
+  .toast-container {
+    top: 12px;
+    right: 12px;
+    left: 12px;
+    max-width: calc(100vw - 24px);
+  }
+
+  .toast {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .theme-toggle-label {
+    display: none;
+  }
+
+  .theme-toggle-btn {
+    padding: 6px 10px;
+  }
 }

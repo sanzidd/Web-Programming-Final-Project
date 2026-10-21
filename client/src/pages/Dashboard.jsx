@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   MessageSquare, Star, Users, Building2, TrendingUp, TrendingDown,
-  ArrowUpRight, Clock, Smile, Meh, Frown, ChevronRight, Download, BookOpen, UserCheck, Key
+  ArrowUpRight, Clock, ChevronRight, Download, BookOpen, UserCheck, Key
 } from 'lucide-react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import api from '../services/api';
@@ -15,7 +15,6 @@ import AdminTeachers from '../components/AdminTeachers';
 import './Dashboard.css';
 
 const COLORS = ['#EF4444', '#F59E0B', '#818CF8', '#10B981', '#D4A843'];
-const SENTIMENT_COLORS = { positive: '#10B981', neutral: '#818CF8', negative: '#EF4444' };
 
 function KPICard({ icon, label, value, trend, color, delay = 0 }) {
   return (
@@ -117,7 +116,7 @@ export default function Dashboard() {
 
   const exportCSV = () => {
     if (!overview?.recentFeedbacks) return;
-    const headers = ['Date', 'Teacher', 'Department', 'Rating', 'Teaching', 'Communication', 'Helpfulness', 'Sentiment', 'Comment'];
+    const headers = ['Date', 'Teacher', 'Department', 'Rating', 'Teaching', 'Communication', 'Helpfulness', 'Comment'];
     const rows = overview.recentFeedbacks.map(f => [
       new Date(f.createdAt).toLocaleDateString(),
       f.teacher?.name || '',
@@ -126,7 +125,6 @@ export default function Dashboard() {
       f.teachingQuality,
       f.communication,
       f.helpfulness,
-      f.sentiment,
       `"${(f.comment || '').replace(/"/g, '""')}"`,
     ]);
     const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
@@ -195,7 +193,7 @@ export default function Dashboard() {
         </div>
 
         {/* Navigation Tabs */}
-        <div style={{ display: 'flex', gap: '10px', marginBottom: '25px', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '12px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '10px', marginBottom: '25px', borderBottom: '1px solid var(--border-default)', paddingBottom: '12px', flexWrap: 'wrap' }}>
           <button
             onClick={() => setActiveTab('overview')}
             className={`btn ${activeTab === 'overview' ? 'btn-primary' : 'btn-outline'}`}
@@ -327,39 +325,8 @@ export default function Dashboard() {
               </motion.div>
             </div>
 
-            {/* Sentiment + Top/Bottom Teachers */}
+            {/* Top/Bottom Teachers */}
             <div className="bottom-row">
-              {/* Sentiment */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="chart-card glass-card"
-              >
-                <h3 className="chart-title">Sentiment Analysis</h3>
-                <div className="sentiment-bars">
-                  {Object.entries(overview?.sentimentCounts || {}).map(([key, val]) => {
-                    const total = Object.values(overview?.sentimentCounts || {}).reduce((s, v) => s + v, 0) || 1;
-                    const pct = Math.round((val / total) * 100);
-                    const icons = { positive: <Smile size={18} />, neutral: <Meh size={18} />, negative: <Frown size={18} /> };
-                    return (
-                      <div key={key} className="sentiment-row">
-                        <div className="sentiment-label">
-                          <span style={{ color: SENTIMENT_COLORS[key] }}>{icons[key]}</span>
-                          <span className="sentiment-name">{key}</span>
-                        </div>
-                        <div className="sentiment-bar-track">
-                          <div
-                            className="sentiment-bar-fill"
-                            style={{ width: `${pct}%`, background: SENTIMENT_COLORS[key] }}
-                          />
-                        </div>
-                        <span className="sentiment-pct">{pct}%</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </motion.div>
 
               {/* Top Teachers */}
               <motion.div
@@ -439,7 +406,6 @@ export default function Dashboard() {
                       <th>Teacher</th>
                       <th>Dept</th>
                       <th>Rating</th>
-                      <th>Sentiment</th>
                       <th>Comment</th>
                     </tr>
                   </thead>
@@ -456,11 +422,6 @@ export default function Dashboard() {
                             <Star size={12} style={{ color: 'var(--ruet-gold)' }} />
                             {f.rating}
                           </div>
-                        </td>
-                        <td>
-                          <span className={`badge badge-${f.sentiment === 'positive' ? 'emerald' : f.sentiment === 'negative' ? 'danger' : 'blue'}`}>
-                            {f.sentiment}
-                          </span>
                         </td>
                         <td className="td-comment">{f.comment || '—'}</td>
                       </tr>

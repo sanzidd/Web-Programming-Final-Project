@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Lock, User, LogIn, Shield, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -91,6 +91,12 @@ export default function Login() {
             </div>
           </div>
 
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '-8px', marginBottom: '4px' }}>
+            <Link to="/forgot-password?role=admin" className="forgot-password-link">
+              Forgot Password?
+            </Link>
+          </div>
+
           <button
             type="submit"
             className="btn btn-primary btn-lg login-btn"
@@ -105,10 +111,6 @@ export default function Login() {
             )}
           </button>
         </form>
-   <div className="login-hint">
-          <p>Default credentials: <code>admin</code></p>
-        </div>
-
       </motion.div>
     </div>
   );

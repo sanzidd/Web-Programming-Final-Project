@@ -14,7 +14,7 @@ const ACHIEVEMENT_OPTIONS = [
   { value: 4, label: 'Significantly' },
   { value: 3, label: 'Moderately' },
   { value: 2, label: 'Slightly' },
-  { value: 1, label: 'Not at all' }
+  { value: 1, label: 'Not At All' }
 ];
 
 export default function LikertScale({ question, value, onChange, variant = 'likert' }) {

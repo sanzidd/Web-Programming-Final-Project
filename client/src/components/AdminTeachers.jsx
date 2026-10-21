@@ -138,14 +138,14 @@ export default function AdminTeachers() {
 
       {/* Filters */}
       <div className="glass-card" style={{ padding: '16px 20px', marginBottom: '25px', display: 'flex', gap: '15px', flexWrap: 'wrap', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: '1', minWidth: '220px', background: 'rgba(255,255,255,0.04)', padding: '8px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.08)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: '1', minWidth: '220px', background: 'var(--bg-elevated)', padding: '8px 14px', borderRadius: '8px', border: '1px solid var(--border-default)' }}>
           <Search size={16} style={{ color: 'var(--text-secondary)' }} />
           <input
             type="text"
             placeholder="Search by name, designation or email..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            style={{ background: 'transparent', border: 'none', color: '#fff', width: '100%', outline: 'none', fontSize: '0.9rem' }}
+            style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', width: '100%', outline: 'none', fontSize: '0.9rem' }}
           />
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -173,45 +173,42 @@ export default function AdminTeachers() {
             No teachers found matching your criteria.
           </div>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+          <div className="feedback-table-wrap" style={{ margin: 0 }}>
+            <table className="feedback-table">
               <thead>
-                <tr style={{ background: 'rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-                  <th style={{ padding: '16px 20px', fontWeight: 600, color: 'var(--text-secondary)', fontSize: '0.85rem', textTransform: 'uppercase' }}>Teacher</th>
-                  <th style={{ padding: '16px 20px', fontWeight: 600, color: 'var(--text-secondary)', fontSize: '0.85rem', textTransform: 'uppercase' }}>Department</th>
-                  <th style={{ padding: '16px 20px', fontWeight: 600, color: 'var(--text-secondary)', fontSize: '0.85rem', textTransform: 'uppercase' }}>Email</th>
-                  <th style={{ padding: '16px 20px', fontWeight: 600, color: 'var(--text-secondary)', fontSize: '0.85rem', textTransform: 'uppercase' }}>Courses</th>
-                  <th style={{ padding: '16px 20px', fontWeight: 600, color: 'var(--text-secondary)', fontSize: '0.85rem', textTransform: 'uppercase', textAlign: 'right' }}>Actions</th>
+                <tr>
+                  <th>Teacher</th>
+                  <th>Department</th>
+                  <th>Email</th>
+                  <th>Courses</th>
+                  <th style={{ textAlign: 'right' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredTeachers.map(t => (
-                  <tr key={t._id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                    <td style={{ padding: '16px 20px' }}>
+                  <tr key={t._id}>
+                    <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <div style={{ 
                           width: '38px', height: '38px', borderRadius: '50%', 
-                          background: 'linear-gradient(135deg, var(--primary), var(--accent))', 
+                          background: 'var(--grad-primary)', 
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                           fontWeight: 700, fontSize: '0.95rem', color: '#fff', flexShrink: 0 
                         }}>
                           {t.name?.charAt(0) || 'T'}
                         </div>
                         <div>
-                          <div style={{ fontWeight: 600, color: '#fff' }}>{t.name}</div>
+                          <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{t.name}</div>
                           <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{t.designation}</div>
                         </div>
                       </div>
                     </td>
-                    <td style={{ padding: '16px 20px' }}>
-                      <span style={{ 
-                        background: 'rgba(14, 165, 233, 0.15)', color: '#38bdf8', 
-                        padding: '4px 10px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 600 
-                      }}>
+                    <td>
+                      <span className="badge badge-blue">
                         {t.department?.code || 'N/A'}
                       </span>
                     </td>
-                    <td style={{ padding: '16px 20px', fontSize: '0.9rem', color: t.email ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
+                    <td style={{ fontSize: '0.9rem', color: t.email ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
                       {t.email ? (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                           <Mail size={14} style={{ color: 'var(--text-secondary)' }} />
@@ -221,12 +218,12 @@ export default function AdminTeachers() {
                         <span style={{ fontStyle: 'italic', fontSize: '0.85rem' }}>No edumail set</span>
                       )}
                     </td>
-                    <td style={{ padding: '16px 20px' }}>
+                    <td>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', maxWidth: '250px' }}>
                         {(t.courses || []).length > 0 ? t.courses.map((c, idx) => (
                           <span key={idx} style={{ 
-                            background: 'rgba(255, 255, 255, 0.08)', padding: '2px 8px', 
-                            borderRadius: '6px', fontSize: '0.75rem' 
+                            background: 'var(--bg-elevated)', border: '1px solid var(--border-default)', padding: '2px 8px', 
+                            borderRadius: '6px', fontSize: '0.75rem', color: 'var(--text-secondary)' 
                           }}>
                             {c}
                           </span>

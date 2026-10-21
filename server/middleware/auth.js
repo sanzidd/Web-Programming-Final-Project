@@ -9,6 +9,12 @@ const auth = (req, res, next) => {
       return res.status(401).json({ message: 'Authentication required' });
     }
     const decoded = jwt.verify(token, JWT_SECRET);
+    if (decoded.role === 'student' || decoded.role === 'teacher') {
+      return res.status(403).json({ message: 'Access denied: Admin privileges required' });
+    }
+    if (decoded.role && decoded.role !== 'admin' && decoded.role !== 'superadmin') {
+      return res.status(403).json({ message: 'Access denied: Admin privileges required' });
+    }
     req.admin = decoded;
     next();
   } catch (error) {

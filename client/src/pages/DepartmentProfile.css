@@ -186,3 +186,49 @@
     gap: var(--sp-3);
   }
 }
+
+/* Light Theme Overrides (RUET Portal) */
+[data-theme="light"] .teacher-card {
+  background: #ffffff !important;
+  border: 1px solid #d2d6de !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-theme="light"] .dept-code-badge {
+  background: #3c8dbc !important;
+}
+
+[data-theme="light"] .teacher-card .teacher-avatar {
+  background: #3c8dbc !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 10px rgba(60, 141, 188, 0.25) !important;
+}
+
+[data-theme="light"] .rating-high {
+  background: #dcfce7 !important;
+  color: #15803d !important;
+}
+
+[data-theme="light"] .rating-med {
+  background: #fef3c7 !important;
+  color: #b45309 !important;
+}
+
+[data-theme="light"] .rating-low {
+  background: #fee2e2 !important;
+  color: #b91c1c !important;
+}
+
+[data-theme="light"] .view-profile-btn {
+  background: #e0f2fe !important;
+  color: #0369a1 !important;
+}
+
+[data-theme="light"] .view-profile-btn:hover {
+  background: #3c8dbc !important;
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .stat-lbl {
+  color: #64748b !important;
+}

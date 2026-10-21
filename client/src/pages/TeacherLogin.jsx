@@ -89,6 +89,12 @@ export default function TeacherLogin() {
               </div>
             </div>
 
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '-10px', marginBottom: '4px' }}>
+              <Link to="/forgot-password?role=teacher" className="forgot-password-link">
+                Forgot Password?
+              </Link>
+            </div>
+
             <button type="submit" className="btn btn-primary btn-lg login-submit" disabled={loading}>
               {loading ? <Loader2 size={18} className="spin" /> : <LogIn size={18} />}
               {loading ? 'Logging in...' : 'Login'}

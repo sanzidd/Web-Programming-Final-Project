@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { 
   GraduationCap, MessageSquarePlus, LayoutDashboard, 
-  BarChart3, LogOut, LogIn, Menu, X 
+  BarChart3, LogOut, LogIn, Menu, X, BookOpen, Sun, Moon 
 } from 'lucide-react';
 import './Navbar.css';
 
 export default function Navbar() {
-  const { isAuthenticated, isAdmin, isTeacher, logout } = useAuth();
+  const { isAuthenticated, isAdmin, isTeacher, isStudent, logout } = useAuth();
+  const { theme, toggleTheme, isDark } = useTheme();
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -40,14 +42,37 @@ export default function Navbar() {
           </div>
         </Link>
 
-        <button 
-          className="navbar-toggle" 
-          onClick={() => setMobileOpen(!mobileOpen)}
-          aria-label="Toggle navigation"
-          id="navbar-toggle"
-        >
-          {mobileOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+        <div className="navbar-right-cluster">
+          <button 
+            type="button" 
+            onClick={toggleTheme} 
+            className="theme-toggle-btn"
+            title={isDark ? "Switch to RUET Light Theme (result.ruet.ac.bd)" : "Switch to RUET Dark Theme"}
+            aria-label="Toggle Theme"
+            id="nav-theme-toggle"
+          >
+            {isDark ? (
+              <>
+                <Sun size={16} className="theme-toggle-icon sun-icon" />
+                <span className="theme-toggle-label">Light</span>
+              </>
+            ) : (
+              <>
+                <Moon size={16} className="theme-toggle-icon moon-icon" />
+                <span className="theme-toggle-label">Dark</span>
+              </>
+            )}
+          </button>
+
+          <button 
+            className="navbar-toggle" 
+            onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label="Toggle navigation"
+            id="navbar-toggle"
+          >
+            {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
 
         <div className={`navbar-menu ${mobileOpen ? 'navbar-menu-open' : ''}`}>
           {!isAdmin && (
@@ -100,6 +125,16 @@ export default function Navbar() {
                 >
                   <GraduationCap size={16} />
                   My Dashboard
+                </Link>
+              )}
+              {isStudent && (
+                <Link 
+                  to="/student/dashboard" 
+                  className={`navbar-link ${isActive('/student/dashboard') ? 'active' : ''}`}
+                  id="nav-student-dashboard"
+                >
+                  <BookOpen size={16} />
+                  My Courses
                 </Link>
               )}
               <button onClick={logout} className="btn btn-sm btn-outline navbar-logout" id="nav-logout">

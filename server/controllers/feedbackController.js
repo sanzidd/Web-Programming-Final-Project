@@ -4,42 +4,33 @@ const Teacher = require('../models/Teacher');
 const FeedbackLog = require('../models/FeedbackLog');
 const CourseAssignment = require('../models/CourseAssignment');
 const Student = require('../models/Student');
+const Department = require('../models/Department');
 const ReviewSession = require('../models/ReviewSession');
 
-// Simple sentiment analysis based on keywords
-function analyzeSentiment(text) {
-  if (!text || text.trim().length === 0) return 'neutral';
-  const lower = text.toLowerCase();
-  const positiveWords = ['great', 'excellent', 'amazing', 'wonderful', 'fantastic', 'best', 'love', 
-    'helpful', 'outstanding', 'brilliant', 'good', 'nice', 'awesome', 'perfect', 'superb', 
-    'thank', 'appreciate', 'clear', 'engaging', 'inspiring', 'dedicated', 'supportive',
-    'knowledgeable', 'patient', 'friendly', 'recommend', 'impressive', 'exceptional'];
-  const negativeWords = ['bad', 'terrible', 'awful', 'worst', 'poor', 'horrible', 'hate', 
-    'boring', 'confusing', 'unclear', 'rude', 'unhelpful', 'lazy', 'difficult', 'waste',
-    'disappointed', 'frustrating', 'unfair', 'disorganized', 'unprepared', 'arrogant',
-    'incompetent', 'biased', 'careless', 'unprofessional'];
-
-  let posScore = 0, negScore = 0;
-  positiveWords.forEach(w => { if (lower.includes(w)) posScore++; });
-  negativeWords.forEach(w => { if (lower.includes(w)) negScore++; });
-
-  if (posScore > negScore) return 'positive';
-  if (negScore > posScore) return 'negative';
-  return 'neutral';
-}
-
-// Collect all comment text from a feedback for sentiment analysis
-function collectAllComments(body) {
-  const comments = [];
-  if (body.courseContentOrg?.comment) comments.push(body.courseContentOrg.comment);
-  if (body.teachingLearning?.comment) comments.push(body.teachingLearning.comment);
-  if (body.academicFacilities?.comment) comments.push(body.academicFacilities.comment);
-  if (Array.isArray(body.coFeedback)) {
-    body.coFeedback.forEach(co => {
-      if (co.comment) comments.push(co.comment);
-    });
+/**
+ * Helper to generate all common variants of a series string
+ * e.g., "22" -> ["22", "2022", "Series 22", "series 22", "Series 2022", "series 2022", "all", "*"]
+ */
+function getSeriesMatchVariants(inputSeries) {
+  if (!inputSeries) return ['all', 'All', '*', ''];
+  const raw = String(inputSeries).trim();
+  const digits = raw.replace(/\D/g, '');
+  const variants = new Set(['all', 'All', '*', '', raw, raw.toLowerCase()]);
+  
+  if (digits.length >= 2) {
+    const s2 = digits.slice(-2);
+    const s4 = `20${s2}`;
+    variants.add(s2);
+    variants.add(s4);
+    variants.add(`Series ${s2}`);
+    variants.add(`series ${s2}`);
+    variants.add(`Series ${s4}`);
+    variants.add(`series ${s4}`);
+    variants.add(`'${s2}`);
+    variants.add(`Batch ${s2}`);
+    variants.add(`Batch ${s4}`);
   }
-  return comments.join(' ');
+  return Array.from(variants);
 }
 
 // Get current review session status (public/student accessible)
@@ -70,24 +61,108 @@ exports.getMyAssignments = async (req, res) => {
       return res.status(404).json({ message: 'Student profile not found' });
     }
 
-    const filter = { isActive: true };
-    const derivedSeries = student.roll ? student.roll.substring(0, 2) : '';
-    
-    if (derivedSeries) {
-      filter.$or = [
-        { series: derivedSeries },
-        { series: 'all' },
-        { series: '*' },
-        { series: '' }
-      ];
+    // Extract series cleanly (2-digit and 4-digit)
+    const rawSeries = String(student.series || (student.roll && student.roll.length >= 2 ? student.roll.substring(0, 2) : '')).trim();
+    const digits = rawSeries.replace(/\D/g, '');
+    const s2 = digits.length >= 2 ? digits.slice(-2) : rawSeries;
+    const seriesVariants = getSeriesMatchVariants(s2 || rawSeries);
+
+    const seriesQuery = {
+      $or: [
+        { series: { $in: seriesVariants } },
+        ...(s2 ? [{ series: new RegExp(`(^|\\b|20)?${s2}(\\b|$)`, 'i') }] : [])
+      ]
+    };
+
+    // Verify student department is valid in DB (not orphaned or null)
+    let studentDeptId = student.department;
+    if (studentDeptId) {
+      const deptExists = await Department.findById(studentDeptId);
+      if (!deptExists) studentDeptId = null;
     }
 
-    const assignments = await CourseAssignment.find(filter)
-      .populate('department', 'name code')
-      .populate('teacher', 'name designation email courses')
-      .sort({ courseCode: 1, courseName: 1 });
+    // Auto-heal department and series if missing using RUET roll convention (YYDDNNN)
+    if (!studentDeptId && student.roll && student.roll.length >= 4) {
+      const deptDigits = student.roll.substring(2, 4);
+      const deptCodeMap = {
+        '01': 'CE',
+        '02': 'EEE',
+        '03': 'ME',
+        '04': 'ETE',
+        '05': 'CSE',
+        '06': 'IPE',
+        '07': 'MTE',
+        '08': 'MSE',
+        '09': 'CHE',
+        '10': 'CME',
+        '11': 'URP',
+        '12': 'BECM',
+        '13': 'ARCH'
+      };
+      const code = deptCodeMap[deptDigits];
+      if (code) {
+        const foundDept = await Department.findOne({ code });
+        if (foundDept) {
+          studentDeptId = foundDept._id;
+          student.department = foundDept._id;
+          if (!student.series && s2) student.series = s2;
+          await student.save();
+        }
+      }
+    }
 
-    res.json(assignments);
+    let assignments = [];
+    if (studentDeptId) {
+      // Primary query: courses for student's department and series
+      assignments = await CourseAssignment.find({
+        isActive: true,
+        department: studentDeptId,
+        ...seriesQuery
+      })
+      .populate('department', 'name code')
+      .populate('teacherDepartment', 'name code')
+      .populate({
+        path: 'teacher',
+        select: 'name designation email courses department',
+        populate: { path: 'department', select: 'name code' }
+      })
+      .sort({ courseCode: 1, courseName: 1 });
+    }
+
+    // Fallback: Only if student has no registered department set,
+    // look up any active courses matching this student's series
+    if (!studentDeptId && s2) {
+      assignments = await CourseAssignment.find({
+        isActive: true,
+        ...seriesQuery
+      })
+      .populate('department', 'name code')
+      .populate('teacherDepartment', 'name code')
+      .populate({
+        path: 'teacher',
+        select: 'name designation email courses department',
+        populate: { path: 'department', select: 'name code' }
+      })
+      .sort({ courseCode: 1, courseName: 1 });
+    }
+
+    const feedbackLogs = await FeedbackLog.find({ student: req.studentId }).select('assignment');
+    const reviewedAssignmentIds = new Set(
+      feedbackLogs
+        .filter(log => log && log.assignment)
+        .map(log => log.assignment.toString())
+    );
+
+    const assignmentsWithStatus = assignments.map(a => {
+      const obj = a.toObject();
+      return {
+        ...obj,
+        isReviewSessionOpen: obj.isReviewSessionOpen !== false,
+        alreadyReviewed: reviewedAssignmentIds.has(a._id.toString())
+      };
+    });
+
+    res.json(assignmentsWithStatus);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -96,6 +171,15 @@ exports.getMyAssignments = async (req, res) => {
 // Submit feedback (student auth required, but feedback itself is anonymous)
 exports.submitFeedback = async (req, res) => {
   try {
+    // Global Review Session check
+    const globalSession = await ReviewSession.getCurrentSession();
+    if (!globalSession.isOpen) {
+      return res.status(403).json({
+        message: globalSession.closedMessage || 'The feedback evaluation period is currently closed.',
+        isClosed: true
+      });
+    }
+
     const { 
       assignmentId, teacher, department, courseName, 
       courseContentOrg, coFeedback, teachingLearning, academicFacilities
@@ -140,28 +224,34 @@ exports.submitFeedback = async (req, res) => {
       }
     }
 
-    // Eligibility check: Ensure assignment exists for this course/teacher, department, and series
+    // Eligibility check: Ensure assignment exists and is active
     let targetAssignment = null;
     if (req.studentId) {
       const student = await Student.findById(req.studentId);
       if (student) {
-        const derivedSeries = student.roll ? student.roll.substring(0, 2) : '';
-        targetAssignment = await CourseAssignment.findOne({
-          _id: assignmentId,
-          isActive: true,
-          teacher,
-          department, // use the department submitted in the form
-          $or: [
-            { series: derivedSeries },
-            { series: 'all' },
-            { series: '*' },
-            { series: '' }
-          ]
-        });
-        if (!targetAssignment) {
-          return res.status(403).json({ message: 'You are not eligible to review this course/teacher because it is not assigned to your enrolled series/department.' });
+        const rawSeries = String(student.series || (student.roll && student.roll.length >= 2 ? student.roll.substring(0, 2) : '')).trim();
+        const digits = rawSeries.replace(/\D/g, '');
+        const s2 = digits.length >= 2 ? digits.slice(-2) : rawSeries;
+        const seriesVariants = getSeriesMatchVariants(s2 || rawSeries);
+
+        if (assignmentId) {
+          targetAssignment = await CourseAssignment.findById(assignmentId);
+        } else {
+          targetAssignment = await CourseAssignment.findOne({
+            isActive: true,
+            teacher,
+            courseName,
+            $or: [
+              { series: { $in: seriesVariants } },
+              ...(s2 ? [{ series: new RegExp(`(^|\\b|20)?${s2}(\\b|$)`, 'i') }] : [])
+            ]
+          });
         }
-        if (!targetAssignment.isReviewSessionOpen) {
+
+        if (!targetAssignment || !targetAssignment.isActive) {
+          return res.status(403).json({ message: 'You are not eligible to review this course/teacher because it is not currently active.' });
+        }
+        if (targetAssignment.isReviewSessionOpen === false) {
           return res.status(403).json({ message: 'The feedback session for this course is currently closed.', isClosed: true });
         }
       }
@@ -178,16 +268,13 @@ exports.submitFeedback = async (req, res) => {
       await FeedbackLog.create({ student: req.studentId, assignment: targetAssignment._id });
     }
 
-    const allComments = collectAllComments(req.body);
-    const sentiment = (allComments && allComments.trim().length > 0) ? analyzeSentiment(allComments) : null;
-
     const feedback = await Feedback.create({
       teacher, department, courseName,
       courseContentOrg,
       coFeedback: coFeedback || [],
       teachingLearning,
       academicFacilities,
-      sentiment: sentiment || null,
+      sentiment: null,
     });
 
     // Update teacher averages

@@ -361,13 +361,15 @@ router.get('/dashboard', teacherAuth, async (req, res) => {
           avgCourseContent: 0,
           avgTeachingLearning: 0,
           avgFacilities: 0,
+          avgOverall: 0,
+          avgCourseContent: 0,
+          avgTeachingLearning: 0,
+          avgFacilities: 0,
           avgCOAttainment: 0,
-          sentimentCounts: { positive: 0, neutral: 0, negative: 0 },
         };
       }
       courseMap[key].feedbacks.push(fb);
       courseMap[key].totalFeedbacks++;
-      courseMap[key].sentimentCounts[fb.sentiment || 'neutral']++;
     });
 
     // Compute averages per course
@@ -410,8 +412,6 @@ router.get('/dashboard', teacherAuth, async (req, res) => {
     const overallAvg = totalFeedbacks > 0
       ? +(feedbacks.reduce((s, f) => s + computeFeedbackOverall(f), 0) / totalFeedbacks).toFixed(2)
       : 0;
-    const sentimentCounts = { positive: 0, neutral: 0, negative: 0 };
-    feedbacks.forEach(f => sentimentCounts[f.sentiment || 'neutral']++);
 
     // Get assigned courses from admin assignments
     const assignedCourses = await CourseAssignment.find({ teacher: req.teacherId, isActive: true })
@@ -428,7 +428,6 @@ router.get('/dashboard', teacherAuth, async (req, res) => {
         avgTeachingLearning: teacher?.avgTeachingLearning || 0,
         avgFacilities: teacher?.avgFacilities || 0,
         avgCOAttainment: teacher?.avgCOAttainment || 0,
-        sentimentCounts,
       },
       courses,
       assignedCourses,
@@ -544,6 +543,56 @@ router.get('/course-feedback/:courseName/export', teacherAuth, async (req, res) 
   } catch (error) {
     console.error('Excel export error:', error);
     res.status(500).json({ message: 'Failed to export feedback' });
+  }
+});
+
+// ══════════════════════════════════════════
+//  PUT /assignments/:id/course-outcomes — Teacher can add/edit COs for their assigned courses
+// ══════════════════════════════════════════
+router.put('/assignments/:id/course-outcomes', teacherAuth, async (req, res) => {
+  try {
+    if (!req.teacherId) {
+      return res.status(400).json({ message: 'No teacher profile linked' });
+    }
+
+    const assignment = await CourseAssignment.findById(req.params.id);
+    if (!assignment) {
+      return res.status(404).json({ message: 'Assignment not found' });
+    }
+
+    // Verify the teacher is assigned to this course
+    if (assignment.teacher.toString() !== req.teacherId.toString()) {
+      return res.status(403).json({ message: 'You are not assigned to this course' });
+    }
+
+    const { courseOutcomes } = req.body;
+    if (!Array.isArray(courseOutcomes)) {
+      return res.status(400).json({ message: 'courseOutcomes must be an array' });
+    }
+
+    // Validate each CO has at least a title
+    const validCOs = courseOutcomes
+      .filter(co => co.title && co.title.trim())
+      .map((co, idx) => ({
+        coNumber: co.coNumber || idx + 1,
+        title: co.title.trim(),
+        description: (co.description || '').trim()
+      }));
+
+    assignment.courseOutcomes = validCOs;
+    await assignment.save();
+
+    const populated = await CourseAssignment.findById(assignment._id)
+      .populate('department', 'name code')
+      .populate('teacher', 'name designation email');
+
+    res.json({ 
+      message: `Course Outcomes updated successfully (${validCOs.length} COs)`, 
+      assignment: populated 
+    });
+  } catch (error) {
+    console.error('Teacher CO update error:', error);
+    res.status(500).json({ message: 'Failed to update Course Outcomes' });
   }
 });
 

@@ -180,8 +180,60 @@
   font-weight: 500 !important;
 }
 
+.forgot-password-link {
+  font-size: var(--fs-xs);
+  color: var(--ruet-gold);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color var(--transition-fast);
+}
+
+.forgot-password-link:hover {
+  text-decoration: underline;
+}
+
 @media (max-width: 480px) {
   .login-card {
     padding: 28px 20px;
   }
+}
+
+/* Light Theme Overrides (Modern Academic Style) */
+[data-theme="light"] .login-card {
+  background: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  box-shadow: 0 10px 25px -3px rgba(15, 23, 42, 0.08) !important;
+}
+
+[data-theme="light"] .login-icon-wrap {
+  background: #EFF6FF !important;
+  border-color: #BFDBFE !important;
+  color: #1D4ED8 !important;
+}
+
+[data-theme="light"] .forgot-password-link {
+  color: #1D4ED8 !important;
+}
+
+[data-theme="light"] .login-footer a {
+  color: #1D4ED8 !important;
+}
+
+[data-theme="light"] .login-alt-link a {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .login-alt-link a:hover {
+  color: #1D4ED8 !important;
+}
+
+[data-theme="light"] .login-form .form-group input {
+  background: #FFFFFF !important;
+  border: 1.5px solid #CBD5E1 !important;
+  color: #0F172A !important;
+}
+
+[data-theme="light"] .login-form .form-group input:focus {
+  border-color: #1D4ED8 !important;
+  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.15) !important;
 }

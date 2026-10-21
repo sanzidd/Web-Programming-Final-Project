@@ -11,7 +11,7 @@ import './TeacherRegister.css';
 
 export default function TeacherRegister() {
   const { teacherVerify, isAuthenticated, isTeacher } = useAuth();
-  const { showToast } = useToast();
+  const toast = useToast();
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
@@ -43,12 +43,20 @@ export default function TeacherRegister() {
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    if (!form.departmentId) {
+      toast.error('Please select your department');
+      return;
+    }
+    if (!form.designation) {
+      toast.error('Please select your designation');
+      return;
+    }
     if (form.password !== form.confirmPassword) {
-      showToast('Passwords do not match', 'error');
+      toast.error('Passwords do not match');
       return;
     }
     if (form.password.length < 6) {
-      showToast('Password must be at least 6 characters', 'error');
+      toast.error('Password must be at least 6 characters');
       return;
     }
 
@@ -58,14 +66,14 @@ export default function TeacherRegister() {
         name: form.name,
         email: form.email,
         password: form.password,
-        departmentId: form.departmentId || undefined,
+        departmentId: form.departmentId,
         designation: form.designation,
       });
       
-      showToast('Registration successful! You can now log in.', 'success');
+      toast.success('Registration successful! You can now log in.');
       navigate('/teacher/login');
     } catch (err) {
-      showToast(err.response?.data?.message || 'Registration failed', 'error');
+      toast.error(err.response?.data?.message || 'Registration failed');
     } finally {
       setLoading(false);
     }
@@ -85,109 +93,113 @@ export default function TeacherRegister() {
             </p>
           </div>
 
-              <form onSubmit={handleRegister} className="register-form">
-                <div className="form-group">
-                  <label htmlFor="tr-name"><User size={14} /> Full Name</label>
+          <form onSubmit={handleRegister} className="register-form">
+            <div className="form-group">
+              <label htmlFor="tr-name"><User size={14} /> Full Name</label>
+              <input
+                id="tr-name"
+                name="name"
+                type="text"
+                value={form.name}
+                onChange={handleChange}
+                placeholder="Dr. John Doe"
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="tr-email"><Mail size={14} /> Email Address</label>
+              <input
+                id="tr-email"
+                name="email"
+                type="email"
+                value={form.email}
+                onChange={handleChange}
+                placeholder="teacher@ruet.ac.bd"
+                required
+              />
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="tr-dept"><Building2 size={14} /> Department</label>
+                <select
+                  id="tr-dept"
+                  name="departmentId"
+                  value={form.departmentId}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="">Select Department</option>
+                  {departments.map(d => (
+                    <option key={d._id} value={d._id}>{d.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="tr-desig"><BadgeCheck size={14} /> Designation</label>
+                <select
+                  id="tr-desig"
+                  name="designation"
+                  value={form.designation}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="">Select Designation</option>
+                  <option value="Lecturer">Lecturer</option>
+                  <option value="Assistant Professor">Assistant Professor</option>
+                  <option value="Associate Professor">Associate Professor</option>
+                  <option value="Professor">Professor</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="tr-pass"><Lock size={14} /> Password</label>
+                <div className="input-with-icon">
                   <input
-                    id="tr-name"
-                    name="name"
-                    type="text"
-                    value={form.name}
+                    id="tr-pass"
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={form.password}
                     onChange={handleChange}
-                    placeholder="Dr. John Doe"
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="tr-email"><Mail size={14} /> Email Address</label>
-                  <input
-                    id="tr-email"
-                    name="email"
-                    type="email"
-                    value={form.email}
-                    onChange={handleChange}
-                    placeholder="teacher@ruet.ac.bd"
-                    required
-                  />
-                </div>
-
-                <div className="form-row">
-                  <div className="form-group">
-                    <label htmlFor="tr-dept"><Building2 size={14} /> Department</label>
-                    <select
-                      id="tr-dept"
-                      name="departmentId"
-                      value={form.departmentId}
-                      onChange={handleChange}
-                    >
-                      <option value="">Select Department</option>
-                      {departments.map(d => (
-                        <option key={d._id} value={d._id}>{d.name}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="tr-desig"><BadgeCheck size={14} /> Designation</label>
-                    <select
-                      id="tr-desig"
-                      name="designation"
-                      value={form.designation}
-                      onChange={handleChange}
-                    >
-                      <option value="">Select Designation</option>
-                      <option value="Lecturer">Lecturer</option>
-                      <option value="Assistant Professor">Assistant Professor</option>
-                      <option value="Associate Professor">Associate Professor</option>
-                      <option value="Professor">Professor</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="tr-pass"><Lock size={14} /> Password</label>
-                  <div className="input-with-icon">
-                    <input
-                      id="tr-pass"
-                      name="password"
-                      type={showPassword ? 'text' : 'password'}
-                      value={form.password}
-                      onChange={handleChange}
-                      placeholder="Min 6 characters"
-                      required
-                      minLength={6}
-                    />
-                    <button
-                      type="button"
-                      className="input-icon-btn"
-                      onClick={() => setShowPassword(!showPassword)}
-                      tabIndex={-1}
-                    >
-                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="tr-confirm"><Lock size={14} /> Confirm Password</label>
-                  <input
-                    id="tr-confirm"
-                    name="confirmPassword"
-                    type="password"
-                    value={form.confirmPassword}
-                    onChange={handleChange}
-                    placeholder="Re-enter password"
+                    placeholder="Min 6 characters"
                     required
                     minLength={6}
                   />
+                  <button
+                    type="button"
+                    className="input-icon-btn"
+                    onClick={() => setShowPassword(!showPassword)}
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
                 </div>
+              </div>
 
-                <button type="submit" className="btn btn-primary btn-lg register-submit" disabled={loading}>
-                  {loading ? <Loader2 size={18} className="spin" /> : <ArrowRight size={18} />}
-                  {loading ? 'Registering...' : 'Register'}
-                </button>
-              </form>
+              <div className="form-group">
+                <label htmlFor="tr-confirm"><Lock size={14} /> Confirm Password</label>
+                <input
+                  id="tr-confirm"
+                  name="confirmPassword"
+                  type="password"
+                  value={form.confirmPassword}
+                  onChange={handleChange}
+                  placeholder="Re-enter password"
+                  required
+                  minLength={6}
+                />
+              </div>
+            </div>
+
+            <button type="submit" className="btn btn-primary btn-lg register-submit" disabled={loading}>
+              {loading ? <Loader2 size={18} className="spin" /> : <ArrowRight size={18} />}
+              {loading ? 'Registering...' : 'Register as Faculty'}
+            </button>
+          </form>
 
           <div className="register-footer">
             <p>Already have an account? <Link to="/teacher/login">Login here</Link></p>
