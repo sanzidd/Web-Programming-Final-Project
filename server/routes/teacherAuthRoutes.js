@@ -30,18 +30,42 @@ function achievementToLabel(score) {
   return map[score] || '';
 }
 
+function safeNum(val) {
+  const n = Number(val);
+  return (!isNaN(n) && isFinite(n) && n > 0) ? n : null;
+}
+
 // Helper: compute overall avg for a single feedback
 function computeFeedbackOverall(f) {
   const scores = [];
-  if (f.courseContentOrg) {
-    scores.push((f.courseContentOrg.q1_objectives + f.courseContentOrg.q2_workload + f.courseContentOrg.q3_organized) / 3);
+
+  // 1. Course Content & Organisation (support modern & legacy fields)
+  const c = f.courseContentOrg || f.courseContent;
+  if (c) {
+    const vals = [safeNum(c.q1_objectives || c.q1), safeNum(c.q2_workload || c.q2), safeNum(c.q3_organized || c.q3)].filter(v => v !== null);
+    if (vals.length > 0) scores.push(vals.reduce((a, b) => a + b, 0) / vals.length);
   }
-  if (f.teachingLearning) {
-    scores.push((f.teachingLearning.q1_structured + f.teachingLearning.q2_participation + f.teachingLearning.q3_materials + f.teachingLearning.q4_assessment) / 4);
+
+  // 2. Teaching-Learning & Assessment (support modern & legacy fields)
+  const tl = f.teachingLearning || f.learningEnvironment;
+  if (tl) {
+    const vals = [safeNum(tl.q1_structured || tl.q8), safeNum(tl.q2_participation || tl.q9), safeNum(tl.q3_materials || f.learningResources?.q13), safeNum(tl.q4_assessment || f.courseTeacher?.q18)].filter(v => v !== null);
+    if (vals.length > 0) scores.push(vals.reduce((a, b) => a + b, 0) / vals.length);
   }
-  if (f.academicFacilities) {
-    scores.push((f.academicFacilities.q1_environment + f.academicFacilities.q2_classrooms + f.academicFacilities.q3_laboratory) / 3);
+
+  // 3. Academic & Lab Facilities (support modern & legacy fields)
+  const af = f.academicFacilities || f.learningResources;
+  if (af) {
+    const vals = [safeNum(af.q1_environment || f.learningEnvironment?.q10), safeNum(af.q2_classrooms || f.learningEnvironment?.q11), safeNum(af.q3_laboratory || af.q15)].filter(v => v !== null);
+    if (vals.length > 0) scores.push(vals.reduce((a, b) => a + b, 0) / vals.length);
   }
+
+  // 4. Course Outcomes (CO) Attainment
+  if (Array.isArray(f.coFeedback) && f.coFeedback.length > 0) {
+    const coVals = f.coFeedback.map(co => safeNum(co.q1_achievement)).filter(v => v !== null);
+    if (coVals.length > 0) scores.push(coVals.reduce((a, b) => a + b, 0) / coVals.length);
+  }
+
   return scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
 }
 
@@ -234,7 +258,34 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Email and password are required' });
     }
 
-    const user = await TeacherUser.findOne({ email: email.toLowerCase() });
+    const cleanEmail = String(email).trim().toLowerCase();
+
+    let user = await TeacherUser.findOne({ 
+      email: { $regex: new RegExp(`^${cleanEmail.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}$`, 'i') }
+    });
+
+    // If no TeacherUser exists yet, check if teacher is listed in Teacher directory!
+    // All listed teachers can log in initially with default password '12345678'
+    if (!user) {
+      const teacherDoc = await Teacher.findOne({
+        email: { $regex: new RegExp(`^${cleanEmail.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}$`, 'i') }
+      }).populate('department');
+
+      if (teacherDoc && password === '12345678') {
+        user = await TeacherUser.create({
+          name: teacherDoc.name,
+          email: teacherDoc.email || cleanEmail,
+          password: '12345678',
+          department: teacherDoc.department?._id,
+          designation: teacherDoc.designation || 'Lecturer',
+          teacher: teacherDoc._id,
+          isVerified: true,
+          forcePasswordChange: true
+        });
+        console.log(`[Teacher Auth] Auto-provisioned TeacherUser account for ${teacherDoc.name} (${cleanEmail})`);
+      }
+    }
+
     if (!user) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
@@ -246,6 +297,16 @@ router.post('/login', async (req, res) => {
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid email or password' });
+    }
+
+    // Auto-link teacher profile if missing
+    if (!user.teacher) {
+      const teacherProfile = await Teacher.findOne({ email: user.email.toLowerCase() })
+        || await Teacher.findOne({ name: user.name });
+      if (teacherProfile) {
+        user.teacher = teacherProfile._id;
+        await user.save();
+      }
     }
 
     const token = jwt.sign(
@@ -374,34 +435,59 @@ router.get('/dashboard', teacherAuth, async (req, res) => {
 
     // Compute averages per course
     const courses = Object.values(courseMap).map(c => {
-      const n = c.totalFeedbacks || 1;
-      
-      c.avgCourseContent = +(c.feedbacks.reduce((s, f) => {
-        if (!f.courseContentOrg) return s;
-        return s + (f.courseContentOrg.q1_objectives + f.courseContentOrg.q2_workload + f.courseContentOrg.q3_organized) / 3;
-      }, 0) / n).toFixed(2);
-
-      c.avgTeachingLearning = +(c.feedbacks.reduce((s, f) => {
-        if (!f.teachingLearning) return s;
-        return s + (f.teachingLearning.q1_structured + f.teachingLearning.q2_participation + f.teachingLearning.q3_materials + f.teachingLearning.q4_assessment) / 4;
-      }, 0) / n).toFixed(2);
-
-      c.avgFacilities = +(c.feedbacks.reduce((s, f) => {
-        if (!f.academicFacilities) return s;
-        return s + (f.academicFacilities.q1_environment + f.academicFacilities.q2_classrooms + f.academicFacilities.q3_laboratory) / 3;
-      }, 0) / n).toFixed(2);
-
-      // CO Attainment
+      let totalContent = 0, contentCount = 0;
+      let totalTL = 0, tlCount = 0;
+      let totalFac = 0, facCount = 0;
       let coTotal = 0, coCount = 0;
+
       c.feedbacks.forEach(f => {
+        const cont = f.courseContentOrg || f.courseContent;
+        if (cont) {
+          const vals = [safeNum(cont.q1_objectives || cont.q1), safeNum(cont.q2_workload || cont.q2), safeNum(cont.q3_organized || cont.q3)].filter(v => v !== null);
+          if (vals.length > 0) {
+            totalContent += vals.reduce((a, b) => a + b, 0) / vals.length;
+            contentCount++;
+          }
+        }
+
+        const tl = f.teachingLearning || f.learningEnvironment;
+        if (tl) {
+          const vals = [safeNum(tl.q1_structured || tl.q8), safeNum(tl.q2_participation || tl.q9), safeNum(tl.q3_materials || f.learningResources?.q13), safeNum(tl.q4_assessment || f.courseTeacher?.q18)].filter(v => v !== null);
+          if (vals.length > 0) {
+            totalTL += vals.reduce((a, b) => a + b, 0) / vals.length;
+            tlCount++;
+          }
+        }
+
+        const af = f.academicFacilities || f.learningResources;
+        if (af) {
+          const vals = [safeNum(af.q1_environment || f.learningEnvironment?.q10), safeNum(af.q2_classrooms || f.learningEnvironment?.q11), safeNum(af.q3_laboratory || af.q15)].filter(v => v !== null);
+          if (vals.length > 0) {
+            totalFac += vals.reduce((a, b) => a + b, 0) / vals.length;
+            facCount++;
+          }
+        }
+
         (f.coFeedback || []).forEach(co => {
-          coTotal += co.q1_achievement;
-          coCount++;
+          const q1 = safeNum(co.q1_achievement);
+          if (q1 !== null) {
+            coTotal += q1;
+            coCount++;
+          }
         });
       });
+
+      c.avgCourseContent = contentCount > 0 ? +(totalContent / contentCount).toFixed(2) : 0;
+      c.avgTeachingLearning = tlCount > 0 ? +(totalTL / tlCount).toFixed(2) : 0;
+      c.avgFacilities = facCount > 0 ? +(totalFac / facCount).toFixed(2) : 0;
       c.avgCOAttainment = coCount > 0 ? +(coTotal / coCount).toFixed(2) : 0;
 
-      c.avgOverall = +((c.avgCourseContent + c.avgTeachingLearning + c.avgFacilities + (c.avgCOAttainment || c.avgCourseContent)) / (c.avgCOAttainment > 0 ? 4 : 3)).toFixed(2);
+      const validCourseSections = [c.avgCourseContent, c.avgTeachingLearning, c.avgFacilities].filter(v => v > 0);
+      if (c.avgCOAttainment > 0) validCourseSections.push(c.avgCOAttainment);
+
+      c.avgOverall = validCourseSections.length > 0
+        ? +(validCourseSections.reduce((a, b) => a + b, 0) / validCourseSections.length).toFixed(2)
+        : 0;
 
       delete c.feedbacks; // Don't send all feedbacks in dashboard overview
       return c;
@@ -409,9 +495,15 @@ router.get('/dashboard', teacherAuth, async (req, res) => {
 
     // Overall summary
     const totalFeedbacks = feedbacks.length;
-    const overallAvg = totalFeedbacks > 0
-      ? +(feedbacks.reduce((s, f) => s + computeFeedbackOverall(f), 0) / totalFeedbacks).toFixed(2)
-      : 0;
+    let computedAvg = 0;
+    if (totalFeedbacks > 0) {
+      const validAverages = feedbacks.map(f => computeFeedbackOverall(f)).filter(v => v > 0);
+      computedAvg = validAverages.length > 0
+        ? +(validAverages.reduce((a, b) => a + b, 0) / validAverages.length).toFixed(2)
+        : 0;
+    }
+
+    const overallAvg = teacher?.avgRating || computedAvg;
 
     // Get assigned courses from admin assignments
     const assignedCourses = await CourseAssignment.find({ teacher: req.teacherId, isActive: true })
@@ -453,33 +545,59 @@ router.get('/course-feedback/:courseName', teacherAuth, async (req, res) => {
       .sort({ createdAt: 1 });
 
     // Compute course averages
-    const n = feedbacks.length || 1;
-
-    const avgCourseContent = +(feedbacks.reduce((s, f) => {
-      if (!f.courseContentOrg) return s;
-      return s + (f.courseContentOrg.q1_objectives + f.courseContentOrg.q2_workload + f.courseContentOrg.q3_organized) / 3;
-    }, 0) / n).toFixed(2);
-
-    const avgTeachingLearning = +(feedbacks.reduce((s, f) => {
-      if (!f.teachingLearning) return s;
-      return s + (f.teachingLearning.q1_structured + f.teachingLearning.q2_participation + f.teachingLearning.q3_materials + f.teachingLearning.q4_assessment) / 4;
-    }, 0) / n).toFixed(2);
-
-    const avgFacilities = +(feedbacks.reduce((s, f) => {
-      if (!f.academicFacilities) return s;
-      return s + (f.academicFacilities.q1_environment + f.academicFacilities.q2_classrooms + f.academicFacilities.q3_laboratory) / 3;
-    }, 0) / n).toFixed(2);
-
+    let totalContent = 0, contentCount = 0;
+    let totalTL = 0, tlCount = 0;
+    let totalFac = 0, facCount = 0;
     let coTotal = 0, coCount = 0;
+
     feedbacks.forEach(f => {
+      const cont = f.courseContentOrg || f.courseContent;
+      if (cont) {
+        const vals = [safeNum(cont.q1_objectives || cont.q1), safeNum(cont.q2_workload || cont.q2), safeNum(cont.q3_organized || cont.q3)].filter(v => v !== null);
+        if (vals.length > 0) {
+          totalContent += vals.reduce((a, b) => a + b, 0) / vals.length;
+          contentCount++;
+        }
+      }
+
+      const tl = f.teachingLearning || f.learningEnvironment;
+      if (tl) {
+        const vals = [safeNum(tl.q1_structured || tl.q8), safeNum(tl.q2_participation || tl.q9), safeNum(tl.q3_materials || f.learningResources?.q13), safeNum(tl.q4_assessment || f.courseTeacher?.q18)].filter(v => v !== null);
+        if (vals.length > 0) {
+          totalTL += vals.reduce((a, b) => a + b, 0) / vals.length;
+          tlCount++;
+        }
+      }
+
+      const af = f.academicFacilities || f.learningResources;
+      if (af) {
+        const vals = [safeNum(af.q1_environment || f.learningEnvironment?.q10), safeNum(af.q2_classrooms || f.learningEnvironment?.q11), safeNum(af.q3_laboratory || af.q15)].filter(v => v !== null);
+        if (vals.length > 0) {
+          totalFac += vals.reduce((a, b) => a + b, 0) / vals.length;
+          facCount++;
+        }
+      }
+
       (f.coFeedback || []).forEach(co => {
-        coTotal += co.q1_achievement;
-        coCount++;
+        const q1 = safeNum(co.q1_achievement);
+        if (q1 !== null) {
+          coTotal += q1;
+          coCount++;
+        }
       });
     });
+
+    const avgCourseContent = contentCount > 0 ? +(totalContent / contentCount).toFixed(2) : 0;
+    const avgTeachingLearning = tlCount > 0 ? +(totalTL / tlCount).toFixed(2) : 0;
+    const avgFacilities = facCount > 0 ? +(totalFac / facCount).toFixed(2) : 0;
     const avgCOAttainment = coCount > 0 ? +(coTotal / coCount).toFixed(2) : 0;
 
-    const avgOverall = +((avgCourseContent + avgTeachingLearning + avgFacilities + (avgCOAttainment || avgCourseContent)) / (avgCOAttainment > 0 ? 4 : 3)).toFixed(2);
+    const validSections = [avgCourseContent, avgTeachingLearning, avgFacilities].filter(v => v > 0);
+    if (avgCOAttainment > 0) validSections.push(avgCOAttainment);
+
+    const avgOverall = validSections.length > 0
+      ? +(validSections.reduce((a, b) => a + b, 0) / validSections.length).toFixed(2)
+      : 0;
 
     const summary = {
       courseName,

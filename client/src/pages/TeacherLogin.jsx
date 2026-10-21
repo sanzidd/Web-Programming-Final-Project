@@ -30,7 +30,8 @@ export default function TeacherLogin() {
 
     setLoading(true);
     try {
-      await teacherLogin(email, password);
+      const cleanEmail = email.trim();
+      await teacherLogin(cleanEmail, password);
       showToast('Welcome back!', 'success');
       navigate('/teacher/dashboard');
     } catch (err) {

@@ -105,7 +105,7 @@ async function runExhaustiveWebsiteVerification() {
   // Teacher login
   const teacherLogin = await request('/api/teacher-auth/login', {
     method: 'POST',
-    body: { email: 'demo.teacher@ruet.ac.bd', password: 'demo1234' }
+    body: { email: 'demo.teacher@ruet.ac.bd', password: '12345678' }
   });
   assert(teacherLogin.status === 200 && teacherLogin.data.token, 
     'Teacher login with credentials succeeds and yields JWT token', `Teacher: ${teacherLogin.data.teacherUser?.name}`);
