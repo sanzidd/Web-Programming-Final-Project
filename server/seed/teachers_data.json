@@ -108,61 +108,61 @@
       "name": "Dr. Md. Kamal Hosain",
       "designation": "Professor",
       "courses": [],
-      "email": "kamal@ete.ruet.ac.bd"
+      "email": "khosain@ete.ruet.ac.bd"
     },
     {
       "name": "Dr Md Munjure Mowla",
       "designation": "Professor",
       "courses": [],
-      "email": "mowla@ete.ruet.ac.bd"
+      "email": "munjuremowla@ete.ruet.ac.bd"
     },
     {
       "name": "Dr. Mst. Fateha Samad",
       "designation": "Professor",
       "courses": [],
-      "email": "fateha@ete.ruet.ac.bd"
+      "email": "fatehasamad@ete.ruet.ac.bd"
     },
     {
       "name": "Dr. Shah Ariful Hoque Chowdhury",
       "designation": "Professor",
       "courses": [],
-      "email": "ariful@ete.ruet.ac.bd"
+      "email": "arif.1968.ruet@gmail.com"
     },
     {
       "name": "Dr. Tushar Kanti Roy",
       "designation": "Associate Professor",
       "courses": [],
-      "email": "tushar@ete.ruet.ac.bd"
+      "email": "tkroy@ete.ruet.ac.bd"
     },
     {
       "name": "Dr. Md Rabiul Hasan",
       "designation": "Associate Professor",
       "courses": [],
-      "email": "rabiul@ete.ruet.ac.bd"
+      "email": "rabiul.hasan@ete.ruet.ac.bd"
     },
     {
       "name": "JANNATUL ROBAIAT MOU",
       "designation": "Assistant Professor",
       "courses": [],
-      "email": "mou@ete.ruet.ac.bd"
+      "email": "jannatulruet@gmail.com"
     },
     {
       "name": "Sham Datto",
       "designation": "Assistant Professor",
       "courses": [],
-      "email": "sham@ete.ruet.ac.bd"
+      "email": "shamdatto@ete.ruet.ac.bd"
     },
     {
       "name": "Md. Aslam Mollah",
       "designation": "Assistant Professor",
       "courses": [],
-      "email": "aslam@ete.ruet.ac.bd"
+      "email": "ruet10aslam@gmail.com"
     },
     {
       "name": "A. S. M. Badrudduza",
       "designation": "Assistant Professor",
       "courses": [],
-      "email": "badrudduza@ete.ruet.ac.bd"
+      "email": "asmb.kanon@ete.ruet.ac.bd"
     },
     {
       "name": "Md. Yeakub Ali",
@@ -174,19 +174,19 @@
       "name": "Md. Rakib Hossain",
       "designation": "Assistant Professor",
       "courses": [],
-      "email": "rakib@ete.ruet.ac.bd"
+      "email": "rakib.hossain@ete.ruet.ac.bd"
     },
     {
       "name": "Shuvra Prokash Biswas",
       "designation": "Assistant Professor",
       "courses": [],
-      "email": "shuvra@ete.ruet.ac.bd"
+      "email": "spbiswas@ete.ruet.ac.bd"
     },
     {
       "name": "Hasan Sarker",
       "designation": "Assistant Professor",
       "courses": [],
-      "email": "hasan@ete.ruet.ac.bd"
+      "email": "hasan_sarker@ete.ruet.ac.bd"
     },
     {
       "name": "Farzana Akter",
@@ -198,40 +198,51 @@
       "name": "Md Abu Ismail Siddique",
       "designation": "Assistant Professor",
       "courses": [],
-      "email": "ismail@ete.ruet.ac.bd"
+      "email": "maisiddique@ete.ruet.ac.bd"
     },
     {
       "name": "Sharaf Tasnim",
       "designation": "Assistant Professor",
       "courses": [],
-      "email": "sharaf@ete.ruet.ac.bd"
+      "email": "sharaftasnim@ete.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Mahmudul Hasan",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "mahmudul@ete.ruet.ac.bd"
+    },
+    {
+      "name": "Md. Rakibul Islam",
+      "designation": "Lecturer",
+      "courses": [],
+      "email": "rakibulislam@ete.ruet.ac.bd"
     },
     {
       "name": "Md. Tarek Hassan",
       "designation": "Lecturer",
       "courses": [],
-      "email": "tarek@ete.ruet.ac.bd"
+      "email": "mthassan@ete.ruet.ac.bd"
     },
     {
       "name": "Mohammed Nazmul Islam Nahin",
       "designation": "Lecturer",
       "courses": [],
-      "email": "nahin@ete.ruet.ac.bd"
+      "email": "nazmul.nahin@ete.ruet.ac.bd"
     },
     {
       "name": "Rubaeat Ahammed",
       "designation": "Lecturer",
       "courses": [],
-      "email": "rubaeat@ete.ruet.ac.bd"
+      "email": "rubaeat.ahammed@ete.ruet.ac.bd"
     },
     {
       "name": "Rifa Tabassum Mim",
       "designation": "Lecturer",
       "courses": [],
-      "email": "mim@ete.ruet.ac.bd"
+      "email": "rifa.mim@ete.ruet.ac.bd"
     }
   ],
-
   "EEE": [
     {
       "name": "Dr. Md. Masud Rana",

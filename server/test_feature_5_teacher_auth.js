@@ -24,7 +24,7 @@ async function runTests() {
     console.log(`✅ Test server running on port ${port}`);
 
     // Ensure we have a teacher user to test with
-    const testEmail = 'kamal@ete.ruet.ac.bd';
+    const testEmail = 'khosain@ete.ruet.ac.bd';
     let authUser = await TeacherUser.findOne({ email: testEmail });
     if (!authUser) {
       throw new Error(`Test account ${testEmail} not found! Run Feature 4 migration first.`);
