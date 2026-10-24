@@ -72,9 +72,7 @@ router.post('/request', async (req, res) => {
 
     if (!emailSent) {
       return res.status(200).json({
-        message: emailErrorMessage 
-          ? `Could not deliver email: ${emailErrorMessage}. (Code for testing: ${code})` 
-          : 'Verification code generated. (Email delivery skipped due to SMTP setup)',
+        message: `Verification code generated: ${code}`,
         email: user.email,
         role: detectedRole,
         codePreview: code
