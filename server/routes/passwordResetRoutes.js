@@ -60,17 +60,21 @@ router.post('/request', async (req, res) => {
 
     // Send email with OTP code
     let emailSent = false;
+    let emailErrorMessage = null;
     try {
       const emailResult = await sendPasswordResetEmail(user.email, code, title);
-      emailSent = emailResult && emailResult.success !== false;
+      emailSent = emailResult && Array.isArray(emailResult.accepted) && emailResult.accepted.length > 0;
     } catch (emailErr) {
       console.error('Failed to send reset email:', emailErr.message);
+      emailErrorMessage = emailErr.message;
       emailSent = false;
     }
 
     if (!emailSent) {
       return res.status(200).json({
-        message: 'Verification code generated. (Email delivery skipped due to SMTP setup)',
+        message: emailErrorMessage 
+          ? `Could not deliver email: ${emailErrorMessage}. (Code for testing: ${code})` 
+          : 'Verification code generated. (Email delivery skipped due to SMTP setup)',
         email: user.email,
         role: detectedRole,
         codePreview: code
