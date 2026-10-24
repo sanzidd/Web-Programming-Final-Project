@@ -19,6 +19,48 @@ function getTransporter() {
 }
 
 /**
+ * Send email via Brevo HTTPS REST API (allows sending to ANY recipient on free tier without custom domain)
+ */
+async function sendViaBrevo(mailOptions) {
+  const apiKey = (process.env.BREVO_API_KEY || '').trim();
+  if (!apiKey) return null;
+
+  const senderEmail = (process.env.EMAIL_USER || 'sanzidis99@gmail.com').trim();
+  const payload = {
+    sender: {
+      name: 'RUET Feedback System',
+      email: senderEmail
+    },
+    to: (Array.isArray(mailOptions.to) ? mailOptions.to : [mailOptions.to]).map(e => ({ email: e })),
+    subject: mailOptions.subject,
+    htmlContent: mailOptions.html,
+  };
+
+  if (mailOptions.attachments && mailOptions.attachments.length > 0) {
+    payload.attachment = mailOptions.attachments.map(att => ({
+      name: att.filename,
+      content: Buffer.isBuffer(att.content) ? att.content.toString('base64') : att.content,
+    }));
+  }
+
+  const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {
+      'api-key': apiKey,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.message || 'Brevo HTTPS delivery failed');
+  }
+  return { accepted: mailOptions.to, rejected: [], messageId: data.messageId };
+}
+
+/**
  * Send email via Resend HTTPS API (bypasses Render free tier SMTP port block)
  */
 async function sendViaResend(mailOptions) {
@@ -59,7 +101,17 @@ async function sendViaResend(mailOptions) {
  * Helper to execute sendMail with clear, actionable diagnostics
  */
 async function safeSendMail(mailOptions) {
-  // 1. If RESEND_API_KEY is configured, prioritize HTTPS API (works on Render Free Tier)
+  // 1. If BREVO_API_KEY is configured, prioritize Brevo HTTPS API (sends to any recipient on free tier)
+  if (process.env.BREVO_API_KEY) {
+    try {
+      const brevoResult = await sendViaBrevo(mailOptions);
+      if (brevoResult) return brevoResult;
+    } catch (brevoErr) {
+      console.warn('[Email] Brevo HTTPS failed, falling back:', brevoErr.message);
+    }
+  }
+
+  // 2. If RESEND_API_KEY is configured, use Resend HTTPS API (works on Render Free Tier)
   if (process.env.RESEND_API_KEY) {
     try {
       const resendResult = await sendViaResend(mailOptions);
@@ -69,7 +121,7 @@ async function safeSendMail(mailOptions) {
     }
   }
 
-  // 2. Otherwise use Nodemailer SMTP
+  // 3. Otherwise use Nodemailer SMTP
   try {
     const transporter = getTransporter();
     return await transporter.sendMail(mailOptions);
