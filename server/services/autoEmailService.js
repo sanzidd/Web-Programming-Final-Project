@@ -64,13 +64,17 @@ async function sendReportForAssignment(assignmentId) {
     };
   } catch (err) {
     console.error(`Email delivery failed for ${teacherEmail}:`, err.message);
+    let reason = err.message;
+    if (err.message && (err.message.includes('timeout') || err.message.includes('ENETUNREACH') || err.message.includes('ETIMEDOUT') || err.message.includes('ESOCKETTIMEDOUT'))) {
+      reason = `Cannot email ${teacherEmail} on Render Free Tier (outbound SMTP is blocked). In Resend Sandbox, emails can only be sent to sanzidis99@gmail.com. Please use the "Export" button to download this XLSX report directly!`;
+    }
     return {
       success: false,
       assignmentId,
       courseName: assignment.courseName,
       teacherName: assignment.teacher?.name,
       teacherEmail,
-      reason: err.message
+      reason
     };
   }
 }
