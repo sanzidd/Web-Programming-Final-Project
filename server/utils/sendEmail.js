@@ -19,9 +19,57 @@ function getTransporter() {
 }
 
 /**
+ * Send email via Resend HTTPS API (bypasses Render free tier SMTP port block)
+ */
+async function sendViaResend(mailOptions) {
+  const apiKey = (process.env.RESEND_API_KEY || '').trim();
+  if (!apiKey) return null;
+
+  const payload = {
+    from: mailOptions.from || 'RUET Feedback <onboarding@resend.dev>',
+    to: Array.isArray(mailOptions.to) ? mailOptions.to : [mailOptions.to],
+    subject: mailOptions.subject,
+    html: mailOptions.html,
+  };
+
+  if (mailOptions.attachments && mailOptions.attachments.length > 0) {
+    payload.attachments = mailOptions.attachments.map(att => ({
+      filename: att.filename,
+      content: Buffer.isBuffer(att.content) ? att.content.toString('base64') : att.content,
+    }));
+  }
+
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.message || 'Resend HTTPS delivery failed');
+  }
+  return { accepted: payload.to, rejected: [], messageId: data.id };
+}
+
+/**
  * Helper to execute sendMail with clear, actionable diagnostics
  */
 async function safeSendMail(mailOptions) {
+  // 1. If RESEND_API_KEY is configured, prioritize HTTPS API (works on Render Free Tier)
+  if (process.env.RESEND_API_KEY) {
+    try {
+      const resendResult = await sendViaResend(mailOptions);
+      if (resendResult) return resendResult;
+    } catch (resendErr) {
+      console.warn('[Email] Resend HTTPS failed, falling back to SMTP:', resendErr.message);
+    }
+  }
+
+  // 2. Otherwise use Nodemailer SMTP
   try {
     const transporter = getTransporter();
     return await transporter.sendMail(mailOptions);
@@ -30,10 +78,17 @@ async function safeSendMail(mailOptions) {
     const msg = error.message || '';
     if (error.responseCode === 535 || msg.includes('535') || msg.includes('BadCredentials') || msg.includes('Username and Password not accepted')) {
       const authError = new Error(
-        'Gmail authentication failed (535 Bad Credentials). Google requires a 16-character App Password when using Gmail SMTP. Please generate an App Password in your Google Account (Security > 2-Step Verification > App Passwords) and set EMAIL_PASS in server/.env.'
+        'Gmail authentication failed (535 Bad Credentials). Please ensure EMAIL_USER is your Gmail address and EMAIL_PASS is a 16-character Google App Password (without spaces).'
       );
       authError.code = 'GMAIL_AUTH_FAILED';
       throw authError;
+    }
+    if (msg.includes('timeout') || msg.includes('ETIMEDOUT') || msg.includes('ESOCKETTIMEDOUT')) {
+      const timeoutError = new Error(
+        'SMTP Connection timeout. Note: Render Free Tier blocks outbound SMTP ports (25, 465, 587). To send emails from Render Free Tier, please add a free RESEND_API_KEY in Render Environment.'
+      );
+      timeoutError.code = 'SMTP_TIMEOUT_RENDER_BLOCK';
+      throw timeoutError;
     }
     throw error;
   }
