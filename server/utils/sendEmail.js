@@ -1,18 +1,21 @@
 const nodemailer = require('nodemailer');
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+function getTransporter() {
+  return nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+}
 
 /**
  * Helper to execute sendMail with clear, actionable diagnostics
  */
 async function safeSendMail(mailOptions) {
   try {
+    const transporter = getTransporter();
     return await transporter.sendMail(mailOptions);
   } catch (error) {
     console.error('Mail delivery error:', error.message);
