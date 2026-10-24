@@ -214,13 +214,37 @@
 
 .input-with-icon {
   position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.input-with-icon .input-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-tertiary);
+  pointer-events: none;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+}
+
+.input-with-icon .input-icon ~ input,
+.input-with-icon .form-input {
+  padding-left: 44px !important;
 }
 
 .input-with-icon input {
-  padding-right: 44px;
+  padding-right: 44px !important;
 }
 
-.input-icon-btn {
+.input-icon-btn,
+.password-toggle {
   position: absolute;
   right: 12px;
   top: 50%;
@@ -231,9 +255,13 @@
   cursor: pointer;
   padding: 4px;
   display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
 }
 
-.input-icon-btn:hover {
+.input-icon-btn:hover,
+.password-toggle:hover {
   color: var(--text-primary);
 }
 

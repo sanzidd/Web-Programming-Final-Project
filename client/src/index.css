@@ -507,6 +507,96 @@ select option {
   color: #94A3B8 !important;
 }
 
+/* ── Universal Inputs With Icons Design System ── */
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.input-with-icon .input-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-tertiary);
+  pointer-events: none;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+}
+
+/* Any input or select with an icon on the left */
+.input-with-icon .input-icon ~ input,
+.input-with-icon .input-icon ~ select,
+.input-with-icon .input-icon ~ .form-input,
+.input-with-icon input.form-input,
+.input-with-icon.has-left-icon input,
+.input-with-icon.has-left-icon select {
+  width: 100%;
+  padding-left: 44px !important;
+  box-sizing: border-box;
+}
+
+/* Select dropdowns inside input-with-icon */
+.input-with-icon select,
+.input-with-icon select.form-input,
+.input-with-icon select.form-select {
+  padding-left: 44px !important;
+  padding-right: 40px !important;
+}
+
+/* Right toggle buttons (eye show/hide password, etc.) */
+.input-with-icon .password-toggle,
+.input-with-icon .input-icon-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-tertiary);
+  background: transparent;
+  border: none;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 3;
+  transition: color var(--transition-fast);
+  border-radius: var(--radius-sm);
+}
+
+.input-with-icon .password-toggle:hover,
+.input-with-icon .input-icon-btn:hover {
+  color: var(--text-primary);
+}
+
+/* Ensure any input with a right toggle icon gets sufficient right padding */
+.input-with-icon:has(.password-toggle) input,
+.input-with-icon:has(.input-icon-btn) input,
+.input-with-icon input:has(~ .password-toggle),
+.input-with-icon input:has(~ .input-icon-btn),
+.input-with-icon input[type="password"] {
+  padding-right: 44px !important;
+}
+
+/* Light theme overrides for icons */
+[data-theme="light"] .input-with-icon .input-icon {
+  color: #64748B !important;
+}
+[data-theme="light"] .input-with-icon .password-toggle,
+[data-theme="light"] .input-with-icon .input-icon-btn {
+  color: #64748B !important;
+}
+[data-theme="light"] .input-with-icon .password-toggle:hover,
+[data-theme="light"] .input-with-icon .input-icon-btn:hover {
+  color: #0F172A !important;
+}
+
 /* ── Badge ── */
 .badge {
   display: inline-flex;

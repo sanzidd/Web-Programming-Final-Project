@@ -57,35 +57,43 @@ export default function TeacherLogin() {
 
           <form onSubmit={handleSubmit} className="login-form">
             <div className="form-group">
-              <label htmlFor="tl-email"><Mail size={14} /> Email Address</label>
-              <input
-                id="tl-email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="teacher@ruet.ac.bd"
-                required
-              />
+              <label className="form-label" htmlFor="tl-email">Email Address</label>
+              <div className="input-with-icon">
+                <Mail size={18} className="input-icon" />
+                <input
+                  id="tl-email"
+                  type="email"
+                  className="form-input"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="teacher@ruet.ac.bd"
+                  autoComplete="username"
+                  required
+                />
+              </div>
             </div>
 
             <div className="form-group">
-              <label htmlFor="tl-pass"><Lock size={14} /> Password</label>
+              <label className="form-label" htmlFor="tl-pass">Password</label>
               <div className="input-with-icon">
+                <Lock size={18} className="input-icon" />
                 <input
                   id="tl-pass"
                   type={showPassword ? 'text' : 'password'}
+                  className="form-input"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
+                  autoComplete="current-password"
                   required
                 />
                 <button
                   type="button"
-                  className="input-icon-btn"
+                  className="password-toggle"
                   onClick={() => setShowPassword(!showPassword)}
                   tabIndex={-1}
                 >
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
             </div>

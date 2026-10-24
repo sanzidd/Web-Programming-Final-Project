@@ -165,7 +165,7 @@ export default function StudentRegister() {
             <div className="form-group">
               <label className="form-label">Series *</label>
               <div className="input-with-icon">
-                <Hash size={18} className="input-icon" style={{ zIndex: 2, color: '#334155' }} />
+                <Hash size={18} className="input-icon" />
                 <select
                   name="series"
                   className="form-input form-select"
@@ -201,7 +201,7 @@ export default function StudentRegister() {
         <div className="form-group">
           <label className="form-label">Department *</label>
           <div className="input-with-icon">
-            <BookOpen size={18} className="input-icon" style={{ zIndex: 2, color: '#334155' }} />
+            <BookOpen size={18} className="input-icon" />
             <select
               name="departmentId"
               className="form-input form-select"

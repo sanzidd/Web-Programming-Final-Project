@@ -92,6 +92,7 @@
   color: var(--text-primary);
   font-size: var(--fs-sm);
   transition: all var(--transition-base);
+  box-sizing: border-box;
 }
 
 .login-form .form-group input:focus {
@@ -106,13 +107,37 @@
 
 .login-form .input-with-icon {
   position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.login-form .input-with-icon .input-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-tertiary);
+  pointer-events: none;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+}
+
+.login-form .input-with-icon .input-icon ~ input,
+.login-form .input-with-icon .form-input {
+  padding-left: 44px !important;
 }
 
 .login-form .input-with-icon input {
-  padding-right: 44px;
+  padding-right: 44px !important;
 }
 
-.login-form .input-icon-btn {
+.login-form .input-icon-btn,
+.login-form .password-toggle {
   position: absolute;
   right: 12px;
   top: 50%;
@@ -123,9 +148,13 @@
   cursor: pointer;
   padding: 4px;
   display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
 }
 
-.login-form .input-icon-btn:hover {
+.login-form .input-icon-btn:hover,
+.login-form .password-toggle:hover {
   color: var(--text-primary);
 }
 
