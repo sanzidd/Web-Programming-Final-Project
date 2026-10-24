@@ -67,8 +67,11 @@ async function sendViaResend(mailOptions) {
   const apiKey = (process.env.RESEND_API_KEY || '').trim();
   if (!apiKey) return null;
 
+  // Resend requires using onboarding@resend.dev unless a custom verified domain is provided
+  const resendFrom = (process.env.RESEND_FROM_EMAIL || '').trim() || 'RUET Feedback <onboarding@resend.dev>';
+
   const payload = {
-    from: mailOptions.from || 'RUET Feedback <onboarding@resend.dev>',
+    from: resendFrom,
     to: Array.isArray(mailOptions.to) ? mailOptions.to : [mailOptions.to],
     subject: mailOptions.subject,
     html: mailOptions.html,
