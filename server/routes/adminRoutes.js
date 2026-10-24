@@ -4,7 +4,8 @@ const {
   login, getAssignments, createAssignment, updateAssignment, deleteAssignment, 
   getReviewSession, toggleReviewSession, changePassword,
   exportAssignmentExcel, getAssignmentStatus, toggleAssignmentSession,
-  sendAssignmentReportEmail, sendBulkReportsEmail
+  sendAssignmentReportEmail, sendBulkReportsEmail,
+  getPendingTeachers, approvePendingTeacher, rejectPendingTeacher
 } = require('../controllers/adminController');
 const { auth } = require('../middleware/auth');
 
@@ -25,6 +26,11 @@ router.post('/assignments/send-bulk-reports', auth, sendBulkReportsEmail);
 // Review session routes
 router.get('/session', auth, getReviewSession);
 router.post('/session/toggle', auth, toggleReviewSession);
+
+// Teacher registration approval routes
+router.get('/pending-teachers', auth, getPendingTeachers);
+router.post('/pending-teachers/:id/approve', auth, approvePendingTeacher);
+router.delete('/pending-teachers/:id/reject', auth, rejectPendingTeacher);
 
 module.exports = router;
 

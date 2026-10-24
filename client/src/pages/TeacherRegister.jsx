@@ -62,7 +62,7 @@ export default function TeacherRegister() {
 
     setLoading(true);
     try {
-      await api.post('/teacher-auth/register', {
+      const res = await api.post('/teacher-auth/register', {
         name: form.name,
         email: form.email,
         password: form.password,
@@ -70,7 +70,11 @@ export default function TeacherRegister() {
         designation: form.designation,
       });
       
-      toast.success('Registration successful! You can now log in.');
+      if (res.data?.isPendingApproval) {
+        toast.info(res.data.message || 'Registration submitted! Awaiting administrator approval.', { duration: 6000 });
+      } else {
+        toast.success(res.data?.message || 'Registration successful! You can now log in.');
+      }
       navigate('/teacher/login');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Registration failed');
@@ -91,6 +95,19 @@ export default function TeacherRegister() {
             <p className="register-subtitle">
               Create your teacher account to access your personal feedback dashboard.
             </p>
+            <div style={{
+              marginTop: '12px',
+              padding: '10px 14px',
+              borderRadius: '8px',
+              background: 'rgba(59, 130, 246, 0.1)',
+              border: '1px solid rgba(59, 130, 246, 0.25)',
+              color: 'var(--text-secondary)',
+              fontSize: '0.82rem',
+              lineHeight: 1.4,
+              textAlign: 'left'
+            }}>
+              💡 <strong>Note:</strong> Faculty members with emails already listed in the RUET directory can log in immediately. If registering with a new/unlisted email, admin verification and approval will be required before you can log in.
+            </div>
           </div>
 
           <form onSubmit={handleRegister} className="register-form">

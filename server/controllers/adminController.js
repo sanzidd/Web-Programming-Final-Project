@@ -6,6 +6,8 @@ const ReviewSession = require('../models/ReviewSession');
 const Feedback = require('../models/Feedback');
 const FeedbackLog = require('../models/FeedbackLog');
 const Student = require('../models/Student');
+const TeacherUser = require('../models/TeacherUser');
+const Department = require('../models/Department');
 const XlsxPopulate = require('xlsx-populate');
 const path = require('path');
 const { JWT_SECRET } = require('../middleware/auth');
@@ -360,4 +362,107 @@ exports.sendBulkReportsEmail = async (req, res) => {
     res.status(500).json({ message: error.message || 'Failed to send bulk reports' });
   }
 };
+
+// ══════════════════════════════════════════════════════════════
+//  Teacher Registration Approval Management (Admin Only)
+// ══════════════════════════════════════════════════════════════
+
+// GET /api/admin/pending-teachers
+exports.getPendingTeachers = async (req, res) => {
+  try {
+    const pendingList = await TeacherUser.find({
+      $or: [
+        { isApproved: false },
+        { isVerified: false, teacher: { $exists: false } },
+        { isVerified: false, teacher: null }
+      ]
+    })
+      .populate('department', 'name code')
+      .sort({ createdAt: -1 });
+
+    res.json(pendingList);
+  } catch (error) {
+    console.error('Get pending teachers error:', error);
+    res.status(500).json({ message: 'Failed to fetch pending teacher registrations' });
+  }
+};
+
+// POST /api/admin/pending-teachers/:id/approve
+exports.approvePendingTeacher = async (req, res) => {
+  try {
+    const teacherUser = await TeacherUser.findById(req.params.id).populate('department');
+    if (!teacherUser) {
+      return res.status(404).json({ message: 'Pending teacher registration not found' });
+    }
+
+    const cleanEmail = teacherUser.email.trim().toLowerCase();
+
+    // Check if Teacher already exists in directory
+    let teacherDoc = await Teacher.findOne({ email: cleanEmail });
+    if (!teacherDoc && teacherUser.department) {
+      teacherDoc = await Teacher.findOne({
+        name: { $regex: new RegExp(`^${teacherUser.name.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}$`, 'i') },
+        department: teacherUser.department._id
+      });
+    }
+
+    if (!teacherDoc) {
+      let deptId = teacherUser.department?._id;
+      if (!deptId) {
+        const defaultDept = await Department.findOne({});
+        deptId = defaultDept?._id;
+      }
+
+      teacherDoc = await Teacher.create({
+        name: teacherUser.name,
+        designation: teacherUser.designation || 'Lecturer',
+        department: deptId,
+        email: cleanEmail,
+        courses: []
+      });
+    } else {
+      teacherDoc.email = cleanEmail;
+      if (teacherUser.designation) teacherDoc.designation = teacherUser.designation;
+      await teacherDoc.save();
+    }
+
+    teacherUser.teacher = teacherDoc._id;
+    teacherUser.isApproved = true;
+    teacherUser.isVerified = true;
+    await teacherUser.save();
+
+    const populatedTeacher = await Teacher.findById(teacherDoc._id).populate('department', 'name code');
+
+    res.json({
+      message: `Faculty member "${teacherDoc.name}" (${cleanEmail}) has been approved and added to the main server faculty directory!`,
+      teacher: populatedTeacher,
+      teacherUser
+    });
+  } catch (error) {
+    console.error('Approve teacher error:', error);
+    res.status(500).json({ message: error.message || 'Failed to approve teacher registration' });
+  }
+};
+
+// DELETE /api/admin/pending-teachers/:id/reject
+exports.rejectPendingTeacher = async (req, res) => {
+  try {
+    const teacherUser = await TeacherUser.findById(req.params.id);
+    if (!teacherUser) {
+      return res.status(404).json({ message: 'Pending teacher registration not found' });
+    }
+
+    const teacherName = teacherUser.name;
+    const teacherEmail = teacherUser.email;
+    await TeacherUser.findByIdAndDelete(req.params.id);
+
+    res.json({
+      message: `Registration for "${teacherName}" (${teacherEmail}) has been rejected and removed.`
+    });
+  } catch (error) {
+    console.error('Reject teacher error:', error);
+    res.status(500).json({ message: error.message || 'Failed to reject teacher registration' });
+  }
+};
+
 

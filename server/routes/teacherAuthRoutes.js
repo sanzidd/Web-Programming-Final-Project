@@ -83,69 +83,95 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ message: 'Password must be at least 6 characters' });
     }
 
+    const cleanEmail = email.toLowerCase().trim();
+
     // Check duplicate email
-    const existing = await TeacherUser.findOne({ email: email.toLowerCase() });
-    if (existing && existing.isVerified) {
-      return res.status(400).json({ message: 'This email is already registered' });
+    const existing = await TeacherUser.findOne({ email: cleanEmail });
+    if (existing && existing.isApproved !== false && existing.isVerified) {
+      return res.status(400).json({ message: 'This email is already registered. Please log in.' });
     }
 
-    // Direct registration (Verification disabled)
-    let user = existing;
-    if (existing && !existing.isVerified) {
-      existing.name = name;
+    if (existing && existing.isApproved === false) {
+      // Re-updating details while pending approval
+      existing.name = name.trim();
       existing.password = password;
-      existing.department = departmentId || undefined;
-      existing.designation = designation || '';
-      existing.isVerified = true;
-      existing.verificationCode = undefined;
-      existing.verificationExpires = undefined;
+      existing.department = departmentId || existing.department;
+      existing.designation = designation || existing.designation;
       await existing.save();
-    } else {
-      user = await TeacherUser.create({
-        name,
-        email: email.toLowerCase(),
-        password,
-        department: departmentId || undefined,
-        designation: designation || '',
-        isVerified: true,
+      return res.status(200).json({
+        message: 'Your registration was already submitted and is currently pending admin approval. You will be able to log in once the admin verifies and approves your account.',
+        isPendingApproval: true
       });
     }
 
-    // Find or create matching Teacher profile document
-    let teacher = await Teacher.findOne({ email: user.email });
-    if (!teacher) {
-      // Also try matching by name + department
-      const query = { name: user.name };
-      if (user.department) query.department = user.department;
-      teacher = await Teacher.findOne(query);
-    }
+    // Check if the teacher is already listed in the admin's faculty directory!
+    let teacher = await Teacher.findOne({ 
+      email: { $regex: new RegExp(`^${cleanEmail.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}$`, 'i') } 
+    }).populate('department');
 
-    if (!teacher) {
-      let deptId = user.department;
-      if (!deptId) {
-        const defaultDept = await Department.findOne({});
-        deptId = defaultDept?._id;
-      }
-      if (!deptId) {
-        return res.status(400).json({ message: 'No department available. Please provide a departmentId.' });
-      }
-
-      teacher = await Teacher.create({
-        name: user.name,
-        email: user.email,
-        department: deptId,
-        designation: user.designation || 'Lecturer'
+    if (!teacher && departmentId) {
+      teacher = await Teacher.findOne({
+        name: { $regex: new RegExp(`^${name.trim().replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}$`, 'i') },
+        department: departmentId
       });
     }
 
-    user.teacher = teacher._id;
-    await user.save();
+    if (teacher) {
+      // 1. RECOGNIZED FACULTY: Already listed in the admin's faculty directory!
+      let user = existing;
+      if (user) {
+        user.name = name.trim();
+        user.password = password;
+        user.department = teacher.department?._id || departmentId;
+        user.designation = teacher.designation || designation || '';
+        user.teacher = teacher._id;
+        user.isVerified = true;
+        user.isApproved = true;
+        user.forcePasswordChange = false;
+        await user.save();
+      } else {
+        user = await TeacherUser.create({
+          name: name.trim(),
+          email: cleanEmail,
+          password,
+          department: teacher.department?._id || departmentId,
+          designation: teacher.designation || designation || '',
+          teacher: teacher._id,
+          isVerified: true,
+          isApproved: true,
+          forcePasswordChange: false
+        });
+      }
+
+      if (!teacher.email || teacher.email.toLowerCase() !== cleanEmail) {
+        teacher.email = cleanEmail;
+        await teacher.save();
+      }
+
+      return res.status(201).json({ 
+        message: 'Registration successful! Your faculty profile was recognized. You can now log in.', 
+        email: cleanEmail,
+        isPendingApproval: false
+      });
+    }
+
+    // 2. UNKNOWN EMAIL: Not listed in the admin's faculty list!
+    // Requires Admin's manual approval and verification before adding to main server.
+    const user = await TeacherUser.create({
+      name: name.trim(),
+      email: cleanEmail,
+      password,
+      department: departmentId || undefined,
+      designation: designation || 'Lecturer',
+      isVerified: false,
+      isApproved: false,
+      forcePasswordChange: false
+    });
 
     res.status(201).json({ 
-      message: 'Registration successful! You can now log in.', 
-      email: email.toLowerCase(),
-      emailSent: false, // Verification is bypassed
-      bypassedVerification: true
+      message: 'Registration submitted! Since your email is not pre-listed in the faculty directory, admin approval is required before you can log in.', 
+      email: cleanEmail,
+      isPendingApproval: true
     });
   } catch (error) {
     console.error('Teacher register error:', error);
@@ -290,8 +316,14 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
+    if (user.isApproved === false) {
+      return res.status(403).json({ 
+        message: 'Your registration is pending administrator approval. Please wait for the admin to verify and approve your account.' 
+      });
+    }
+
     if (!user.isVerified) {
-      return res.status(403).json({ message: 'Please verify your email first' });
+      return res.status(403).json({ message: 'Your account is pending administrator verification. Please wait for approval.' });
     }
 
     const isMatch = await user.comparePassword(password);
