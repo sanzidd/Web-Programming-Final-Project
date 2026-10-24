@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   MessageSquare, Star, Users, Building2, TrendingUp, TrendingDown,
-  ArrowUpRight, Clock, ChevronRight, Download, BookOpen, UserCheck, Key
+  ArrowUpRight, Clock, ChevronRight, Download, BookOpen, UserCheck, Key, Trash2
 } from 'lucide-react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import api from '../services/api';
@@ -138,6 +138,27 @@ export default function Dashboard() {
     toast.success('CSV exported successfully!');
   };
 
+  const handleResetTestData = async () => {
+    const confirmed = window.confirm(
+      "⚠️ RESET ALL TEST DATA?\n\n" +
+      "This will permanently:\n" +
+      "• Delete all student accounts\n" +
+      "• Delete all feedback records and submission logs\n" +
+      "• Reset all faculty ratings and feedback counters to 0\n\n" +
+      "Teachers, departments, and course assignments will remain preserved for real students to register and evaluate.\n\n" +
+      "Proceed with reset?"
+    );
+    if (!confirmed) return;
+
+    try {
+      const res = await api.post('/admin/reset-test-data');
+      toast.success(res.data.message || 'All test students and feedbacks cleared!');
+      fetchData();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to reset test data');
+    }
+  };
+
   if (loading) {
     return (
       <div className="dashboard-page page-transition">
@@ -177,6 +198,15 @@ export default function Dashboard() {
             <p className="dashboard-subtitle">Overview of teacher feedback analytics</p>
           </div>
           <div className="dashboard-actions" style={{ flexWrap: 'wrap', gap: '10px' }}>
+            <button 
+              onClick={handleResetTestData} 
+              className="btn btn-secondary btn-sm"
+              style={{ borderColor: 'rgba(239, 68, 68, 0.4)', color: '#EF4444', display: 'flex', alignItems: 'center', gap: '6px' }}
+              title="Delete all test students, test feedbacks, and reset ratings to 0"
+            >
+              <Trash2 size={14} />
+              Reset Test Data
+            </button>
             <button onClick={() => setShowPasswordModal(true)} className="btn btn-secondary btn-sm">
               <Key size={14} />
               Change Password

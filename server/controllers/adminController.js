@@ -465,4 +465,38 @@ exports.rejectPendingTeacher = async (req, res) => {
   }
 };
 
+// POST /api/admin/reset-test-data
+// Cleans all test student registrations, feedback submissions, and logs, and resets teacher ratings to 0
+exports.resetTestData = async (req, res) => {
+  try {
+    const studentResult = await Student.deleteMany({});
+    const feedbackResult = await Feedback.deleteMany({});
+    const logResult = await FeedbackLog.deleteMany({});
+
+    // Reset all teacher rating averages and feedback counts to 0
+    const teacherResult = await Teacher.updateMany({}, {
+      $set: {
+        totalFeedbacks: 0,
+        avgRating: 0,
+        avgCourseContent: 0,
+        avgTeachingLearning: 0,
+        avgFacilities: 0,
+        avgCOAttainment: 0
+      }
+    });
+
+    res.json({
+      success: true,
+      message: 'All test student profiles, feedbacks, and submission logs have been cleared. All teacher ratings have been reset to 0.',
+      deletedStudents: studentResult.deletedCount,
+      deletedFeedbacks: feedbackResult.deletedCount,
+      deletedFeedbackLogs: logResult.deletedCount,
+      teachersReset: teacherResult.modifiedCount
+    });
+  } catch (error) {
+    console.error('Reset test data error:', error);
+    res.status(500).json({ message: error.message || 'Failed to reset test data' });
+  }
+};
+
 

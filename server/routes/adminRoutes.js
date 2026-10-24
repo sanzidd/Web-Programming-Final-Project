@@ -5,12 +5,16 @@ const {
   getReviewSession, toggleReviewSession, changePassword,
   exportAssignmentExcel, getAssignmentStatus, toggleAssignmentSession,
   sendAssignmentReportEmail, sendBulkReportsEmail,
-  getPendingTeachers, approvePendingTeacher, rejectPendingTeacher
+  getPendingTeachers, approvePendingTeacher, rejectPendingTeacher,
+  resetTestData
 } = require('../controllers/adminController');
 const { auth } = require('../middleware/auth');
 
 router.post('/login', login);
 router.post('/change-password', auth, changePassword);
+
+// Reset test data route (clears students, feedbacks, logs, resets teacher ratings to 0)
+router.post('/reset-test-data', auth, resetTestData);
 
 // Course assignment routes
 router.get('/assignments', auth, getAssignments);
