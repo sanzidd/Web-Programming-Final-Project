@@ -33,6 +33,7 @@ export default function FeedbackForm() {
     coFeedback: [], // will be populated dynamically based on assignment COs
     teachingLearning: { q1_structured: 0, q2_participation: 0, q3_materials: 0, q4_assessment: 0, comment: '' },
     academicFacilities: { q1_environment: 0, q2_classrooms: 0, q3_laboratory: 0, comment: '' },
+    overallComment: '',
   });
 
   const [selectedDeptName, setSelectedDeptName] = useState('');
@@ -224,6 +225,9 @@ export default function FeedbackForm() {
     if (info.type === 'facilities') {
       return form.academicFacilities.q1_environment && form.academicFacilities.q2_classrooms && form.academicFacilities.q3_laboratory;
     }
+    if (info.type === 'submit') {
+      return Boolean(form.overallComment && form.overallComment.trim().length > 0);
+    }
     return true;
   };
 
@@ -246,6 +250,17 @@ export default function FeedbackForm() {
   };
 
   const handleSubmit = async () => {
+    const trimmedComment = (form.overallComment || '').trim();
+    if (!trimmedComment) {
+      toast.error('Please provide your comments and suggestions in section C before submitting.');
+      const commentInput = document.getElementById('overall-comment-input');
+      if (commentInput) {
+        commentInput.focus();
+        commentInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
+
     setLoading(true);
     try {
       const matchedAssignment = myAssignments.find(a => 
@@ -275,6 +290,7 @@ export default function FeedbackForm() {
       coFeedback: [],
       teachingLearning: { q1_structured: 0, q2_participation: 0, q3_materials: 0, q4_assessment: 0, comment: '' },
       academicFacilities: { q1_environment: 0, q2_classrooms: 0, q3_laboratory: 0, comment: '' },
+      overallComment: '',
     });
     setStep(0);
     setSubmitted(false);
@@ -719,6 +735,46 @@ export default function FeedbackForm() {
                         <span className="review-label">Academic & Lab Facilities</span>
                         <span className="review-value" style={{ color: 'var(--ruet-emerald)' }}>✓ Completed</span>
                       </div>
+                    </div>
+
+                    {/* Section C: Mandatory Comments & Suggestions */}
+                    <div className="review-section-box mt-6" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '20px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+                        <MessageSquare size={20} style={{ color: 'var(--ruet-gold)' }} />
+                        <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '700', color: 'var(--text-primary)' }}>
+                          C. ALL STUDENT COMMENTS & SUGGESTIONS <span style={{ color: '#EF4444' }}>* (Mandatory)</span>
+                        </h3>
+                      </div>
+                      <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginBottom: '14px' }}>
+                        Please provide your constructive feedback, comments, and suggestions to improve the course and teaching quality.
+                      </p>
+                      <textarea
+                        id="overall-comment-input"
+                        className="form-textarea"
+                        rows={4}
+                        placeholder="Write your comments and suggestions here (Mandatory before submitting)..."
+                        value={form.overallComment}
+                        onChange={(e) => setForm(prev => ({ ...prev, overallComment: e.target.value }))}
+                        style={{
+                          width: '100%',
+                          borderColor: !form.overallComment?.trim() ? 'rgba(239, 68, 68, 0.6)' : undefined,
+                          background: 'rgba(0, 0, 0, 0.2)',
+                          borderRadius: '8px',
+                          padding: '12px',
+                          fontSize: '14px',
+                          lineHeight: '1.5'
+                        }}
+                        required
+                      />
+                      {!form.overallComment?.trim() ? (
+                        <span style={{ color: '#EF4444', fontSize: '12px', marginTop: '6px', display: 'block', fontWeight: '500' }}>
+                          * Comments and suggestions are required before submitting this evaluation.
+                        </span>
+                      ) : (
+                        <span style={{ color: 'var(--ruet-emerald)', fontSize: '12px', marginTop: '6px', display: 'block' }}>
+                          ✓ Comments provided
+                        </span>
+                      )}
                     </div>
 
                     <div className="anonymity-notice mt-6">

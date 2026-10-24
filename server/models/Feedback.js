@@ -48,6 +48,10 @@ const feedbackSchema = new mongoose.Schema({
     comment: { type: String, default: '' }
   },
 
+  // Section C: Overall Student Comments & Suggestions (Mandatory review)
+  overallComment: { type: String, default: '', trim: true },
+  commentsAndSuggestions: { type: String, default: '', trim: true },
+
   sentiment: { type: String, enum: ['positive', 'neutral', 'negative', null, ''], default: null },
 }, { timestamps: true });
 

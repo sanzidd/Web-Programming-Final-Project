@@ -526,7 +526,16 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
   wsInput.range(`${colToLetter(s4ColStart)}1:${colToLetter(s4ColEnd)}1`).merged(true);
   wsInput.range(`${colToLetter(s4CommentCol)}1:${colToLetter(s4CommentCol)}2`).merged(true);
 
-  const lastCol = s4CommentCol;
+  // Section C: All Student Comments & Suggestions (Mandatory feedback)
+  const overallCommentCol = col;
+  wsInput.cell(1, col).value('C. ALL STUDENT COMMENTS & SUGGESTIONS');
+  wsInput.cell(2, col).value('Provide feedback, comments and suggestions to improve the course');
+  wsInput.cell(3, col).value(`Q. ${qNum++}`); col++;
+
+  // Merge headers for Section C
+  wsInput.range(`${colToLetter(overallCommentCol)}1:${colToLetter(overallCommentCol)}2`).merged(true);
+
+  const lastCol = overallCommentCol;
   const lastColLetter = colToLetter(lastCol);
 
   // Set standard column widths for Input sheet
@@ -537,6 +546,7 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
   coCols.forEach(({ commentCol }) => wsInput.column(commentCol).width(24));
   wsInput.column(s3CommentCol).width(24);
   wsInput.column(s4CommentCol).width(24);
+  wsInput.column(overallCommentCol).width(35);
 
   // Style Header Cells (Rows 1-3)
   for (let r = 1; r <= 3; r++) {
@@ -600,6 +610,9 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
     wsInput.cell(r, s4ColStart + 1).value(ratingToText(fb.academicFacilities?.q2_classrooms));
     wsInput.cell(r, s4ColStart + 2).value(ratingToText(fb.academicFacilities?.q3_laboratory));
     wsInput.cell(r, s4CommentCol).value(fb.academicFacilities?.comment || '');
+
+    // Section C
+    wsInput.cell(r, overallCommentCol).value(fb.overallComment || fb.commentsAndSuggestions || fb.generalComment || '');
 
     // Style data row cells
     for (let c = 2; c <= lastCol; c++) {
@@ -1100,11 +1113,12 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
   ffRow++;
 
   const allComments = [
+    ...feedbacks.map(f => f.overallComment || f.commentsAndSuggestions || f.generalComment),
     ...s1Comments,
     ...feedbacks.flatMap(f => (f.coFeedback || []).map(c => c.comment).filter(c => c && c.trim() && c.trim().toLowerCase() !== 'no comments')),
     ...s3Comments,
     ...s4Comments
-  ].filter(Boolean);
+  ].map(c => (c || '').trim()).filter(c => c && c.toLowerCase() !== 'no comments' && c.toLowerCase() !== 'no specific comments provided.');
 
   const uniqueComments = [...new Set(allComments)];
   if (uniqueComments.length === 0) {

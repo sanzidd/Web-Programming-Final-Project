@@ -182,8 +182,15 @@ exports.submitFeedback = async (req, res) => {
 
     const { 
       assignmentId, teacher, department, courseName, 
-      courseContentOrg, coFeedback, teachingLearning, academicFacilities
+      courseContentOrg, coFeedback, teachingLearning, academicFacilities,
+      overallComment, commentsAndSuggestions, generalComment
     } = req.body;
+
+    // Validate Section C: All Student Comments & Suggestions (Mandatory)
+    const studentComment = (overallComment || commentsAndSuggestions || generalComment || '').trim();
+    if (!studentComment) {
+      return res.status(400).json({ message: 'All Student Comments & Suggestions (Section C) is mandatory before submitting.' });
+    }
 
     // Validate main nested objects
     const missing = [];
@@ -274,6 +281,8 @@ exports.submitFeedback = async (req, res) => {
       coFeedback: coFeedback || [],
       teachingLearning,
       academicFacilities,
+      overallComment: studentComment,
+      commentsAndSuggestions: studentComment,
       sentiment: null,
     });
 
