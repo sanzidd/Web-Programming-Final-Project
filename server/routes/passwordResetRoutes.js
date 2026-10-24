@@ -71,11 +71,8 @@ router.post('/request', async (req, res) => {
     }
 
     if (!emailSent) {
-      return res.status(200).json({
-        message: `Verification code generated: ${code}`,
-        email: user.email,
-        role: detectedRole,
-        codePreview: code
+      return res.status(500).json({
+        message: 'Unable to deliver the verification code to your email address. Please check your email or try again.'
       });
     }
 

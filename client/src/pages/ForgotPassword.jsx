@@ -21,7 +21,6 @@ export default function ForgotPassword() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [resetToken, setResetToken] = useState('');
-  const [codePreview, setCodePreview] = useState('');
 
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -41,9 +40,6 @@ export default function ForgotPassword() {
     try {
       const res = await api.post('/password-reset/request', { email, role });
       toast.success(res.data.message || 'Verification code sent!');
-      if (res.data.codePreview) {
-        setCodePreview(res.data.codePreview);
-      }
       setStep(2);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to send reset code');
@@ -203,12 +199,6 @@ export default function ForgotPassword() {
                   autoFocus
                 />
               </div>
-
-              {codePreview && (
-                <div className="code-preview-banner">
-                  Development Code Preview: <strong>{codePreview}</strong>
-                </div>
-              )}
 
               <button type="submit" className="btn btn-primary btn-lg" disabled={loading}>
                 {loading ? <Loader2 size={18} className="spin" /> : <ShieldCheck size={18} />}
