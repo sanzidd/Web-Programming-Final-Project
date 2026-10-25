@@ -340,6 +340,169 @@
   box-shadow: 0 4px 14px rgba(185, 28, 58, 0.4);
 }
 
+/* ── Hero Actions ── */
+.student-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.btn-student-change-pwd {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: var(--radius-lg);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.btn-student-change-pwd:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: var(--ruet-gold);
+  color: var(--ruet-gold);
+  transform: translateY(-1px);
+}
+
+.btn-student-feedback {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  white-space: nowrap;
+}
+
+/* ── Modal Overlay & Card ── */
+.student-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 7, 20, 0.82);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.student-password-modal {
+  width: 100%;
+  max-width: 440px;
+  background: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-2xl);
+  padding: 28px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+  position: relative;
+}
+
+.student-modal-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 22px;
+  position: relative;
+}
+
+.student-modal-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-lg);
+  background: rgba(200, 146, 42, 0.15);
+  color: var(--ruet-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid rgba(200, 146, 42, 0.3);
+}
+
+.student-modal-title {
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.student-modal-subtitle {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.student-modal-close-btn {
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+}
+
+.student-modal-close-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+}
+
+.student-password-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.student-password-form .password-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.student-password-form .password-input-wrap .form-input {
+  padding-right: 42px;
+  width: 100%;
+}
+
+.student-password-form .password-toggle-btn {
+  position: absolute;
+  right: 12px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--transition-fast);
+}
+
+.student-password-form .password-toggle-btn:hover {
+  color: var(--text-primary);
+}
+
+.student-modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-subtle);
+}
+
 /* ── Empty State ── */
 .student-empty-state {
   text-align: center;
@@ -374,6 +537,29 @@
     align-items: flex-start;
     gap: 20px;
     padding: 24px;
+  }
+  .student-hero-actions {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .student-hero-actions .btn,
+  .student-hero-actions .btn-student-change-pwd,
+  .student-hero-actions .btn-student-feedback {
+    width: 100%;
+    justify-content: center;
+  }
+  .student-password-modal {
+    padding: 22px 18px;
+  }
+  .student-modal-actions {
+    flex-direction: column-reverse;
+    gap: 10px;
+  }
+  .student-modal-actions .btn {
+    width: 100%;
+    justify-content: center;
   }
   .student-stats-grid {
     grid-template-columns: 1fr;
@@ -505,4 +691,28 @@
 [data-theme="light"] .student-empty-icon {
   background: #F1F5F9 !important;
   color: #64748B !important;
+}
+
+[data-theme="light"] .btn-student-change-pwd {
+  background: #f1f5f9 !important;
+  color: #1e293b !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+[data-theme="light"] .btn-student-change-pwd:hover {
+  background: #e2e8f0 !important;
+  border-color: #3b82f6 !important;
+  color: #1d4ed8 !important;
+}
+
+[data-theme="light"] .student-password-modal {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.15) !important;
+}
+
+[data-theme="light"] .student-modal-icon {
+  background: #eff6ff !important;
+  color: #1d4ed8 !important;
+  border-color: #bfdbfe !important;
 }

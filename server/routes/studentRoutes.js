@@ -202,4 +202,40 @@ router.put('/profile', studentAuth, async (req, res) => {
   }
 });
 
+// POST /api/students/change-password — Student change password
+router.post('/change-password', studentAuth, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: 'Current password and new password are required' });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: 'New password must be at least 6 characters long' });
+    }
+
+    const student = await Student.findById(req.studentId);
+    if (!student) {
+      return res.status(404).json({ message: 'Student account not found' });
+    }
+
+    const isMatch = await student.comparePassword(currentPassword);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Incorrect current password' });
+    }
+
+    if (currentPassword === newPassword) {
+      return res.status(400).json({ message: 'New password must be different from current password' });
+    }
+
+    student.password = newPassword;
+    await student.save();
+
+    res.json({ message: 'Password changed successfully!' });
+  } catch (error) {
+    console.error('Student change password error:', error);
+    res.status(500).json({ message: 'Failed to change password. Please try again.' });
+  }
+});
+
 module.exports = router;

@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { 
   GraduationCap, BookOpen, User, CheckCircle2, Clock, 
   Search, ArrowRight, ShieldAlert, Target, Building2,
-  Calendar, Layers, Sparkles
+  Calendar, Layers, Sparkles, Key, Lock, Eye, EyeOff, X, Loader2
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -20,6 +20,15 @@ export default function StudentDashboard() {
   const [loading, setLoading] = useState(true);
   const [filterTab, setFilterTab] = useState('all'); // 'all' | 'pending' | 'reviewed'
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Change Password Modal State
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [changingPass, setChangingPass] = useState(false);
 
   useEffect(() => {
     if (authLoading) return;
@@ -76,6 +85,43 @@ export default function StudentDashboard() {
     navigate('/feedback', { state: { assignmentId } });
   };
 
+  const handlePasswordChange = async (e) => {
+    e.preventDefault();
+    if (!currentPassword) {
+      toast.error('Please enter your current password');
+      return;
+    }
+    if (!newPassword || newPassword.length < 6) {
+      toast.error('New password must be at least 6 characters');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error('New passwords do not match');
+      return;
+    }
+    if (currentPassword === newPassword) {
+      toast.error('New password must be different from current password');
+      return;
+    }
+
+    setChangingPass(true);
+    try {
+      const res = await api.post('/students/change-password', {
+        currentPassword,
+        newPassword
+      });
+      toast.success(res.data.message || 'Password changed successfully!');
+      setShowPasswordModal(false);
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to change password');
+    } finally {
+      setChangingPass(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="student-dashboard-page" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -122,14 +168,23 @@ export default function StudentDashboard() {
               </div>
             </div>
           </div>
-          <button 
-            onClick={() => navigate('/feedback')}
-            className="btn btn-primary"
-            style={{ padding: '12px 24px', display: 'flex', alignItems: 'center', gap: '8px' }}
-          >
-            <span>Submit Feedback</span>
-            <ArrowRight size={16} />
-          </button>
+          <div className="student-hero-actions">
+            <button 
+              onClick={() => setShowPasswordModal(true)}
+              className="btn btn-student-change-pwd"
+              title="Change Password"
+            >
+              <Key size={16} />
+              <span>Change Password</span>
+            </button>
+            <button 
+              onClick={() => navigate('/feedback')}
+              className="btn btn-primary btn-student-feedback"
+            >
+              <span>Submit Feedback</span>
+              <ArrowRight size={16} />
+            </button>
+          </div>
         </motion.div>
 
         {/* Stats Grid */}
@@ -345,6 +400,132 @@ export default function StudentDashboard() {
         )}
 
       </div>
+
+      {/* Change Password Modal */}
+      {showPasswordModal && (
+        <div 
+          className="student-modal-overlay"
+          onClick={(e) => {
+            if (e.target === e.currentTarget && !changingPass) {
+              setShowPasswordModal(false);
+            }
+          }}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 15 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 15 }}
+            className="student-password-modal glass-card"
+          >
+            <div className="student-modal-header">
+              <div className="student-modal-icon">
+                <Lock size={22} />
+              </div>
+              <div>
+                <h3 className="student-modal-title font-display">Change Password</h3>
+                <p className="student-modal-subtitle">Update your student account security credentials</p>
+              </div>
+              <button 
+                type="button" 
+                onClick={() => !changingPass && setShowPasswordModal(false)}
+                className="student-modal-close-btn"
+                aria-label="Close"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handlePasswordChange} className="student-password-form">
+              <div className="form-group">
+                <label className="form-label">Current Password *</label>
+                <div className="password-input-wrap">
+                  <input
+                    type={showCurrentPassword ? 'text' : 'password'}
+                    className="form-input"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    placeholder="Enter current password"
+                    required
+                    autoFocus
+                  />
+                  <button
+                    type="button"
+                    className="password-toggle-btn"
+                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                    tabIndex={-1}
+                    aria-label={showCurrentPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showCurrentPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">New Password *</label>
+                <div className="password-input-wrap">
+                  <input
+                    type={showNewPassword ? 'text' : 'password'}
+                    className="form-input"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="At least 6 characters"
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="password-toggle-btn"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                    tabIndex={-1}
+                    aria-label={showNewPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Confirm New Password *</label>
+                <input
+                  type={showNewPassword ? 'text' : 'password'}
+                  className="form-input"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Re-enter new password"
+                  required
+                />
+              </div>
+
+              <div className="student-modal-actions">
+                <button
+                  type="button"
+                  onClick={() => setShowPasswordModal(false)}
+                  className="btn btn-outline"
+                  disabled={changingPass}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={changingPass}
+                >
+                  {changingPass ? (
+                    <>
+                      <Loader2 size={16} className="spin" />
+                      <span>Updating...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Key size={16} />
+                      <span>Update Password</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }
