@@ -333,6 +333,91 @@ exports.exportAssignmentExcel = async (req, res) => {
 };
 
 // ══════════════════════════════════════════════════════════════
+//  Export an individual teacher's feedback report to Excel (.xlsx)
+// ══════════════════════════════════════════════════════════════
+exports.exportTeacherExcel = async (req, res) => {
+  try {
+    const teacher = await Teacher.findById(req.params.id).populate('department', 'name code');
+    if (!teacher) return res.status(404).json({ message: 'Teacher not found' });
+
+    const fbFilter = { teacher: teacher._id };
+    if (req.query.courseName) {
+      fbFilter.courseName = req.query.courseName;
+    }
+
+    const feedbacks = await Feedback.find(fbFilter)
+      .populate('department', 'name code')
+      .sort({ createdAt: 1 });
+
+    const assignFilter = { teacher: teacher._id };
+    if (req.query.courseName) {
+      assignFilter.courseName = req.query.courseName;
+    }
+    const assignments = await CourseAssignment.find(assignFilter)
+      .populate('department', 'name code')
+      .sort({ isActive: -1, createdAt: -1 });
+
+    const uniq = (arr) => [...new Set(arr.map(v => (v || '').trim()).filter(Boolean))];
+    const courseNames = uniq([
+      ...assignments.map(a => a.courseName),
+      ...feedbacks.map(f => f.courseName),
+      ...(Array.isArray(teacher.courses) ? teacher.courses : []),
+    ]);
+    const courseCodes = uniq(assignments.map(a => a.courseCode));
+    const semesters = uniq(assignments.map(a => a.semester));
+    const seriesList = uniq(assignments.map(a => a.series));
+
+    // Resolve Course Outcomes from assignments (prefer one matching feedbacks) or reconstruct from feedbacks
+    let courseOutcomes = [];
+    const primaryAssignWithCOs = assignments.find(a =>
+      a.courseOutcomes?.length > 0 && feedbacks.some(f => f.courseName === a.courseName)
+    ) || assignments.find(a => a.courseOutcomes?.length > 0);
+
+    if (primaryAssignWithCOs) {
+      courseOutcomes = primaryAssignWithCOs.courseOutcomes;
+    } else {
+      const coMap = new Map();
+      feedbacks.forEach(f => {
+        (f.coFeedback || []).forEach(c => {
+          if (c.coNumber && !coMap.has(c.coNumber)) {
+            coMap.set(c.coNumber, {
+              coNumber: c.coNumber,
+              title: c.coTitle || `CO${c.coNumber}`,
+              description: c.coDescription || '',
+            });
+          }
+        });
+      });
+      courseOutcomes = Array.from(coMap.values()).sort((a, b) => a.coNumber - b.coNumber);
+    }
+
+    const assignment = {
+      courseName: courseNames.join(' / ') || 'Course Feedback',
+      courseCode: courseCodes.join(', '),
+      semester: semesters.join(', ') || 'N/A',
+      series: seriesList.join(', ') || 'All',
+      courseOutcomes,
+      teacher: {
+        name: teacher.name,
+        designation: teacher.designation || '',
+      },
+      department: teacher.department || assignments[0]?.department || feedbacks[0]?.department || { name: 'Unknown', code: '' },
+    };
+
+    const buffer = await generateFeedbackExcel({ assignment, feedbacks });
+    const safeName = teacher.name.replace(/[^a-zA-Z0-9]/g, '_');
+    const filename = `Feedback_Report_${safeName}.xlsx`;
+
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(buffer);
+  } catch (error) {
+    console.error('Teacher Excel export error:', error);
+    res.status(500).json({ message: 'Failed to export teacher Excel report' });
+  }
+};
+
+// ══════════════════════════════════════════════════════════════
 //  Email XLSX reports to teachers
 // ══════════════════════════════════════════════════════════════
 const { sendReportForAssignment, sendAllApprovedReports } = require('../services/autoEmailService');

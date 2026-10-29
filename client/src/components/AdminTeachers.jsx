@@ -1,8 +1,9 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Users, Plus, Trash2, Edit2, Building2, Mail, BookOpen, Search, 
-  Filter, CheckCircle, XCircle, Key, ShieldCheck, Clock, AlertCircle, Loader2 
+  Users, Plus, Trash2, Edit2, Mail, Search, 
+  Filter, CheckCircle, XCircle, Key, ShieldCheck, Clock, AlertCircle, Loader2, FileSpreadsheet 
 } from 'lucide-react';
 import api from '../services/api';
 import { useToast } from '../context/ToastContext';
@@ -41,7 +42,7 @@ export default function AdminTeachers() {
       setTeachers(teacherRes.data || []);
       setDepartments(deptRes.data || []);
       setPendingTeachers(pendingRes.data || []);
-    } catch (err) {
+    } catch {
       toast.error('Failed to load teachers data');
     } finally {
       setLoading(false);
@@ -113,7 +114,7 @@ export default function AdminTeachers() {
       await api.delete(`/teachers/${id}`);
       toast.success('Teacher deleted successfully');
       setTeachers(teachers.filter(t => t._id !== id));
-    } catch (err) {
+    } catch {
       toast.error('Failed to delete teacher');
     }
   };
@@ -126,6 +127,28 @@ export default function AdminTeachers() {
       toast.success(res.data.message || `Password for ${name} reset to 12345678`);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to reset password');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleDownloadExcel = async (teacher) => {
+    setActionLoading(`excel-${teacher._id}`);
+    try {
+      toast.info(`Generating Excel report for ${teacher.name}...`);
+      const response = await api.get(`/admin/teachers/${teacher._id}/export`, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      const safeName = (teacher.name || 'Teacher').replace(/[^a-zA-Z0-9]/g, '_');
+      link.setAttribute('download', `Feedback_Report_${safeName}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      toast.success('Excel report downloaded!');
+    } catch {
+      toast.error('Failed to download Excel report');
     } finally {
       setActionLoading(null);
     }
@@ -444,7 +467,17 @@ export default function AdminTeachers() {
                           </div>
                         </td>
                         <td style={{ padding: '16px 20px', textAlign: 'right' }}>
-                          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', flexWrap: 'wrap' }}>
+                            <button
+                              onClick={() => handleDownloadExcel(t)}
+                              disabled={actionLoading === `excel-${t._id}`}
+                              className="btn btn-outline btn-sm"
+                              style={{ padding: '6px 12px', display: 'flex', alignItems: 'center', gap: '4px', borderColor: 'rgba(16, 185, 129, 0.35)', color: '#10b981' }}
+                              title="Download Excel Feedback Report"
+                            >
+                              {actionLoading === `excel-${t._id}` ? <Loader2 size={14} className="spin" /> : <FileSpreadsheet size={14} />}
+                              Excel Report
+                            </button>
                             <button
                               onClick={() => openEditModal(t)}
                               className="btn btn-outline btn-sm"

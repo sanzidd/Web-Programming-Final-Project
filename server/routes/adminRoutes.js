@@ -3,7 +3,7 @@ const router = express.Router();
 const { 
   login, getAssignments, createAssignment, updateAssignment, deleteAssignment, 
   getReviewSession, toggleReviewSession, changePassword,
-  exportAssignmentExcel, getAssignmentStatus, toggleAssignmentSession,
+  exportAssignmentExcel, exportTeacherExcel, getAssignmentStatus, toggleAssignmentSession,
   sendAssignmentReportEmail, sendBulkReportsEmail,
   getPendingTeachers, approvePendingTeacher, rejectPendingTeacher,
   resetTestData
@@ -22,6 +22,7 @@ router.post('/assignments', auth, createAssignment);
 router.put('/assignments/:id', auth, updateAssignment);
 router.delete('/assignments/:id', auth, deleteAssignment);
 router.get('/assignments/:id/export', auth, exportAssignmentExcel);
+router.get('/teachers/:id/export', auth, exportTeacherExcel);
 router.get('/assignments/:id/status', auth, getAssignmentStatus);
 router.post('/assignments/:id/toggle-session', auth, toggleAssignmentSession);
 router.post('/assignments/:id/send-report', auth, sendAssignmentReportEmail);

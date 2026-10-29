@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { User, Star, ArrowLeft, MessageSquare, BookOpen, Mail, TrendingUp, Download } from 'lucide-react';
+import { User, Star, ArrowLeft, MessageSquare, BookOpen, Mail, TrendingUp, FileSpreadsheet, Loader2 } from 'lucide-react';
 import { LineChart, Line, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, BarChart, Bar } from 'recharts';
 import api from '../services/api';
 import { useToast } from '../context/ToastContext';
@@ -28,95 +28,33 @@ export default function TeacherProfile() {
   const { isAdmin } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     api.get(`/analytics/teacher/${id}`).then(r => setData(r.data)).catch(() => toast.error('Failed to load')).finally(() => setLoading(false));
   }, [id]);
 
-  const handleExportCSV = () => {
-    if (!data) return;
-    
-    const { teacher, feedbacks } = data;
-    
-    // Construct CSV content
-    const csvRows = [];
-    
-    // 1. Title/Header
-    csvRows.push(`"RUET Teacher Feedback Analytics Report - ${teacher.name.replace(/"/g, '""')}"`);
-    csvRows.push(`"Generated On:","${new Date().toLocaleString()}"`);
-    csvRows.push('');
-    
-    // 2. Teacher Summary Stats
-    csvRows.push('"Teacher Profile Summary"');
-    csvRows.push(`"Name","${teacher.name.replace(/"/g, '""')}"`);
-    csvRows.push(`"Designation","${teacher.designation.replace(/"/g, '""')}"`);
-    csvRows.push(`"Department","${(teacher.department?.name || '').replace(/"/g, '""')}"`);
-    csvRows.push(`"Email","${(teacher.email || '').replace(/"/g, '""')}"`);
-    csvRows.push(`"Total Feedbacks","${teacher.totalFeedbacks}"`);
-    csvRows.push(`"Average Overall Rating","${(teacher.avgRating || 0).toFixed(2)}"`);
-    csvRows.push(`"Average Course Content & Organisation","${(teacher.avgCourseContent || 0).toFixed(2)}"`);
-    csvRows.push(`"Average CO Attainment","${(teacher.avgCOAttainment || 0).toFixed(2)}"`);
-    csvRows.push(`"Average Academic & Lab Facilities","${(teacher.avgFacilities || 0).toFixed(2)}"`);
-    csvRows.push(`"Average Course Teacher Rating","${(teacher.avgCourseTeacher || 0).toFixed(2)}"`);
-    csvRows.push('');
-    
-    // 3. Detailed Feedback Headings
-    csvRows.push('"Detailed Feedback Records"');
-    const headers = [
-      'Date',
-      'Course Name',
-      'Overall Rating',
-      'Course Content',
-      'CO Avg',
-      'Facilities',
-      'Course Teacher',
-      'Comments'
-    ];
-    csvRows.push(headers.map(h => `"${h}"`).join(','));
-    
-    // 4. Detailed Feedback Rows
-    const avgVals = (arr) => {
-      const valid = arr.map(Number).filter(v => v > 0);
-      return valid.length ? (valid.reduce((a, b) => a + b, 0) / valid.length).toFixed(2) : '';
-    };
-    feedbacks.forEach(f => {
-      const date = new Date(f.createdAt).toLocaleDateString();
-      const course = f.courseName || '';
-      const overall = f.rating ?? '';
-      const content = f.courseContentOrg?.q1_upToDate || avgVals([f.courseContentOrg?.q1_objectives, f.courseContentOrg?.q2_workload, f.courseContentOrg?.q3_organized]);
-      const coAvg = avgVals((f.coFeedback || []).flatMap(c => c.q1_contentAligned ? [c.q1_contentAligned, c.q2_methodsEffective, c.q3_assessmentAppropriate] : [c.q1_achievement]));
-      const facilities = f.academicFacilities?.q1_infrastructure || avgVals([f.academicFacilities?.q1_environment, f.academicFacilities?.q2_classrooms, f.academicFacilities?.q3_laboratory]);
-      const teacherScore = f.courseTeacherEval?.rating || '';
-      const comment = f.comment || '';
-      
-      const row = [
-        date,
-        course,
-        overall,
-        content,
-        coAvg,
-        facilities,
-        teacherScore,
-        comment
-      ];
-      
-      csvRows.push(row.map(val => `"${String(val).replace(/"/g, '""')}"`).join(','));
-    });
-    
-    // Create Blob and download
-    const csvContent = '\uFEFF' + csvRows.join('\n'); // Add UTF-8 BOM for Excel formatting
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    const fileName = `${teacher.name.replace(/\s+/g, '_')}_Analytics_Report.csv`;
-    link.setAttribute('download', fileName);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    toast.success('CSV exported successfully!');
+  const handleExportExcel = async () => {
+    if (!data?.teacher || exporting) return;
+    setExporting(true);
+    try {
+      toast.info(`Generating Excel report for ${data.teacher.name}...`);
+      const response = await api.get(`/admin/teachers/${id}/export`, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      const safeName = (data.teacher.name || 'Teacher').replace(/[^a-zA-Z0-9]/g, '_');
+      link.setAttribute('download', `Feedback_Report_${safeName}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      toast.success('Excel report downloaded successfully!');
+    } catch {
+      toast.error('Failed to download Excel report');
+    } finally {
+      setExporting(false);
+    }
   };
 
   if (loading || !data) return <div className="teacher-profile-page page-transition"><div className="container container-sm"><div className="skeleton skeleton-heading" /><div className="skeleton" style={{ height: 200 }} /></div></div>;
@@ -129,8 +67,14 @@ export default function TeacherProfile() {
         <div className="profile-header-actions">
           <Link to="/dashboard" className="back-link" style={{ marginBottom: 0 }}><ArrowLeft size={18} /> Back to Dashboard</Link>
           {isAdmin && (
-            <button className="btn btn-outline" onClick={handleExportCSV}>
-              <Download size={16} /> Export CSV
+            <button
+              className="btn btn-outline"
+              onClick={handleExportExcel}
+              disabled={exporting}
+              style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+            >
+              {exporting ? <Loader2 size={16} className="spin" /> : <FileSpreadsheet size={16} />}
+              {exporting ? 'Generating Excel...' : 'Download Excel Report'}
             </button>
           )}
         </div>

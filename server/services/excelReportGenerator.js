@@ -444,99 +444,213 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
   let wsInput = wb.sheet('Input');
   if (!wsInput) wsInput = wb.addSheet('Input');
 
-  // Completely wipe out stale merged cells from template
+  // Completely wipe out stale merged cells, values, styles, and row heights from template
   resetSheetMerges(wsInput);
 
-  // Clear top rows
-  for (let r = 1; r <= Math.max(80, lastInputRow + 10); r++) {
-    for (let c = 1; c <= 40; c++) {
+  const clearInputRows = Math.max(120, lastInputRow + 20);
+  for (let r = 1; r <= clearInputRows; r++) {
+    const row = wsInput.row(r);
+    row.height(undefined);
+    if (row._node && row._node.attributes) {
+      delete row._node.attributes.ht;
+      delete row._node.attributes.customHeight;
+    }
+    for (let c = 1; c <= 45; c++) {
       wsInput.cell(r, c).clear();
     }
   }
+  for (let c = 1; c <= 45; c++) {
+    wsInput.column(c).width(12);
+  }
 
-  // Column A: Student No.
-  wsInput.cell(2, 1).value('Student No.');
-  wsInput.range('A2:A3').merged(true);
-  wsInput.column(1).width(12);
+  // Helper to build a clean CO title string without "CO1: CO1" duplication
+  function formatCOTitle(co, coNum) {
+    const rawTitle = (co?.title || '').trim();
+    const rawDesc = (co?.description || '').trim();
+    const isGeneric = !rawTitle || rawTitle.toUpperCase() === `CO${coNum}`;
+    const body = isGeneric
+      ? rawDesc
+      : (rawDesc && rawDesc !== rawTitle ? `${rawTitle} — ${rawDesc}` : rawTitle);
+    return body ? `CO${coNum}: ${body}` : `CO${coNum}`;
+  }
+
+  // Column A: Student No. (merged across all 3 header rows)
+  wsInput.cell(1, 1).value('Student No.');
+  wsInput.range('A1:A3').merged(true);
+  wsInput.column(1).width(14);
 
   let col = 2;
+  const colWidths = { 1: 14 };
+  const row1HeaderSpecs = []; // { text, totalWidth }
+  const row2QuestionSpecs = []; // { text, width }
+  const mergedCommentSpecs = []; // { text, width }
 
   // Question numbering follows the student form: Q1 (content), Q2.. (COs), then Facilities and Course Teacher.
   // Comment columns are not numbered.
 
   // Section 1: Course Content and Organization (1 question + comment)
   const s1ColStart = col;
-  wsInput.cell(1, col).value('Course Content and Organization');
-  wsInput.cell(2, col).value('The course contents are up-to-date and well organized'); wsInput.cell(3, col).value('Q. 1'); col++;
+  const s1Title = 'Course Content and Organization';
+  const s1Q1 = 'The course contents are up-to-date and well organized';
+  wsInput.cell(1, col).value(s1Title);
+  wsInput.cell(2, col).value(s1Q1);
+  wsInput.cell(3, col).value('Q. 1');
+  colWidths[col] = 34;
+  row1HeaderSpecs.push({ text: s1Title, totalWidth: 34 });
+  row2QuestionSpecs.push({ text: s1Q1, width: 34 });
+  col++;
   const s1ColEnd = col - 1;
-  const s1CommentCol = col;
-  wsInput.cell(1, col).value('Comments on Course Content and Organization (if any)');
-  wsInput.cell(3, col).value('Comment'); col++;
 
-  // Merge headers for Section 1
+  const s1CommentCol = col;
+  const s1CommentTitle = 'Comments on Course Content and Organization (if any)';
+  wsInput.cell(1, col).value(s1CommentTitle);
+  wsInput.cell(3, col).value('Comment');
+  colWidths[col] = 30;
+  mergedCommentSpecs.push({ text: s1CommentTitle, width: 30 });
+  col++;
+
   wsInput.range(`${colToLetter(s1CommentCol)}1:${colToLetter(s1CommentCol)}2`).merged(true);
 
   let qNum = 2;
   const coCols = [];
+  const CO_Q_WIDTH = 28;
   cos.forEach((co) => {
     const coNum = co.coNumber || (coCols.length + 1);
+    const coLabel = formatCOTitle(co, coNum);
+    const coHeaderText = `Questions Related to ${coLabel}`;
     const coStart = col;
-    wsInput.cell(1, col).value(`Questions Related to CO${coNum}: ${co.title}`);
-    wsInput.cell(2, col).value(`The course contents are aligned with CO${coNum}`);
-    wsInput.cell(3, col).value(`Q. ${qNum++}`); col++;
+    wsInput.cell(1, col).value(coHeaderText);
 
-    wsInput.cell(2, col).value(`The teaching-learning methods are effective to achieve CO${coNum}`);
-    wsInput.cell(3, col).value(`Q. ${qNum++}`); col++;
+    const coQ1 = `The course contents are aligned with CO${coNum}`;
+    wsInput.cell(2, col).value(coQ1);
+    wsInput.cell(3, col).value(`Q. ${qNum++}`);
+    colWidths[col] = CO_Q_WIDTH;
+    row2QuestionSpecs.push({ text: coQ1, width: CO_Q_WIDTH });
+    col++;
 
-    wsInput.cell(2, col).value(`The used assessment tools are appropriate for CO${coNum}`);
-    wsInput.cell(3, col).value(`Q. ${qNum++}`); col++;
+    const coQ2 = `The teaching-learning methods are effective to achieve CO${coNum}`;
+    wsInput.cell(2, col).value(coQ2);
+    wsInput.cell(3, col).value(`Q. ${qNum++}`);
+    colWidths[col] = CO_Q_WIDTH;
+    row2QuestionSpecs.push({ text: coQ2, width: CO_Q_WIDTH });
+    col++;
+
+    const coQ3 = `The used assessment tools are appropriate for CO${coNum}`;
+    wsInput.cell(2, col).value(coQ3);
+    wsInput.cell(3, col).value(`Q. ${qNum++}`);
+    colWidths[col] = CO_Q_WIDTH;
+    row2QuestionSpecs.push({ text: coQ3, width: CO_Q_WIDTH });
+    col++;
     const coEnd = col - 1;
 
+    row1HeaderSpecs.push({ text: coHeaderText, totalWidth: CO_Q_WIDTH * 3 });
+
     const commentCol = col;
-    wsInput.cell(1, col).value(`Comments on CO${coNum} (if any)`);
-    wsInput.cell(3, col).value('Comment'); col++;
+    const coCommentTitle = `Comments on CO${coNum} (if any)`;
+    wsInput.cell(1, col).value(coCommentTitle);
+    wsInput.cell(3, col).value('Comment');
+    colWidths[col] = 30;
+    mergedCommentSpecs.push({ text: coCommentTitle, width: 30 });
+    col++;
 
     // Merge headers for this CO
     wsInput.range(`${colToLetter(coStart)}1:${colToLetter(coEnd)}1`).merged(true);
     wsInput.range(`${colToLetter(commentCol)}1:${colToLetter(commentCol)}2`).merged(true);
 
-    coCols.push({ co, coNum, startCol: coStart, endCol: coEnd, commentCol });
+    coCols.push({ co, coNum, coLabel, startCol: coStart, endCol: coEnd, commentCol });
   });
 
   // Section: Academic and Laboratory Facilities (1 question + comment)
   const s4ColStart = col;
-  wsInput.cell(1, col).value('Academic and Laboratory Facilities');
-  wsInput.cell(2, col).value('Infrastructure and academic facilities are adequate to achieve the COs'); wsInput.cell(3, col).value(`Q. ${qNum++}`); col++;
+  const s4Title = 'Academic and Laboratory Facilities';
+  const s4Q1 = 'Infrastructure and academic facilities are adequate to achieve the COs';
+  wsInput.cell(1, col).value(s4Title);
+  wsInput.cell(2, col).value(s4Q1);
+  wsInput.cell(3, col).value(`Q. ${qNum++}`);
+  colWidths[col] = 34;
+  row1HeaderSpecs.push({ text: s4Title, totalWidth: 34 });
+  row2QuestionSpecs.push({ text: s4Q1, width: 34 });
+  col++;
   const s4ColEnd = col - 1;
+
   const s4CommentCol = col;
-  wsInput.cell(1, col).value('Comments on Facilities (if any)');
-  wsInput.cell(3, col).value('Comment'); col++;
+  const s4CommentTitle = 'Comments on Facilities (if any)';
+  wsInput.cell(1, col).value(s4CommentTitle);
+  wsInput.cell(3, col).value('Comment');
+  colWidths[col] = 30;
+  mergedCommentSpecs.push({ text: s4CommentTitle, width: 30 });
+  col++;
 
   wsInput.range(`${colToLetter(s4CommentCol)}1:${colToLetter(s4CommentCol)}2`).merged(true);
 
   // Section: Course Teacher (1-5 rating + comment)
   const s5ColStart = col;
-  wsInput.cell(1, col).value('Course Teacher');
-  wsInput.cell(2, col).value('Evaluate the course teacher based on class preparation, lecture delivery, and way of teaching'); wsInput.cell(3, col).value(`Q. ${qNum++}`); col++;
+  const s5Title = 'Course Teacher';
+  const s5Q1 = 'Evaluate the course teacher based on class preparation, lecture delivery, and way of teaching';
+  wsInput.cell(1, col).value(s5Title);
+  wsInput.cell(2, col).value(s5Q1);
+  wsInput.cell(3, col).value(`Q. ${qNum++}`);
+  colWidths[col] = 36;
+  row1HeaderSpecs.push({ text: s5Title, totalWidth: 36 });
+  row2QuestionSpecs.push({ text: s5Q1, width: 36 });
+  col++;
   const s5ColEnd = col - 1;
+
   const s5CommentCol = col;
-  wsInput.cell(1, col).value('Comments on Course Teacher (if any)');
-  wsInput.cell(3, col).value('Comment'); col++;
+  const s5CommentTitle = 'Comments on Course Teacher (if any)';
+  wsInput.cell(1, col).value(s5CommentTitle);
+  wsInput.cell(3, col).value('Comment');
+  colWidths[col] = 30;
+  mergedCommentSpecs.push({ text: s5CommentTitle, width: 30 });
+  col++;
 
   wsInput.range(`${colToLetter(s5CommentCol)}1:${colToLetter(s5CommentCol)}2`).merged(true);
 
-  const overallCommentCol = s5CommentCol;
-  const lastCol = overallCommentCol;
-  const lastColLetter = colToLetter(lastCol);
+  const lastCol = s5CommentCol;
 
-  // Set standard column widths for Input sheet
-  for (let c = 2; c <= lastCol; c++) {
-    wsInput.column(c).width(16);
+  // Apply generous column widths across the Input sheet
+  for (let c = 1; c <= lastCol; c++) {
+    wsInput.column(c).width(colWidths[c] || 28);
   }
-  wsInput.column(s1CommentCol).width(24);
-  coCols.forEach(({ commentCol }) => wsInput.column(commentCol).width(24));
-  wsInput.column(s4CommentCol).width(24);
-  wsInput.column(s5CommentCol).width(24);
+
+  // Compute spacious header row heights so CO titles and questions never look compact or clipped
+  const computedRow1Height = Math.max(
+    52,
+    ...row1HeaderSpecs.map(h => estimateRowHeight(h.text, {
+      colWidth: h.totalWidth,
+      isBold: true,
+      fontSize: 11,
+      minHeight: 52,
+      linePadding: 20
+    }))
+  );
+  let computedRow2Height = Math.max(
+    68,
+    ...row2QuestionSpecs.map(q => estimateRowHeight(q.text, {
+      colWidth: q.width,
+      isBold: true,
+      fontSize: 10,
+      minHeight: 68,
+      linePadding: 22
+    }))
+  );
+  const maxMergedCommentHeight = Math.max(
+    0,
+    ...mergedCommentSpecs.map(m => estimateRowHeight(m.text, {
+      colWidth: m.width,
+      isBold: true,
+      fontSize: 10,
+      minHeight: 52,
+      linePadding: 20
+    }))
+  );
+  if (computedRow1Height + computedRow2Height < maxMergedCommentHeight) {
+    computedRow2Height = maxMergedCommentHeight - computedRow1Height;
+  }
+
+  wsInput.row(1).height(computedRow1Height);
+  wsInput.row(2).height(computedRow2Height);
+  wsInput.row(3).height(30);
 
   // Style Header Cells (Rows 1-3)
   for (let r = 1; r <= 3; r++) {
@@ -545,6 +659,7 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
       cell.style({
         fill: 'FFF2CC',
         bold: true,
+        fontSize: r === 1 ? 11 : 10,
         horizontalAlignment: 'center',
         verticalAlignment: 'center',
         wrapText: true,
@@ -557,8 +672,12 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
   for (let c = 2; c <= lastCol; c++) {
     const qCell = wsInput.cell(3, c);
     if (qCell.value()) {
-      qCell.style({ fontColor: 'FF0000', bold: true });
+      qCell.style({ fontColor: 'FF0000', bold: true, fontSize: 10 });
     }
+  }
+
+  if (feedbacks.length === 0) {
+    wsInput.row(4).height(28);
   }
 
   // Populate Student Data Rows
@@ -573,37 +692,61 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
       border: true
     });
 
+    const rowComments = [];
+
     // S1: Course Content & Organisation (legacy rows fall back to the old "well organized" question)
+    const s1CommentVal = fb.courseContentOrg?.comment || '';
     wsInput.cell(r, s1ColStart).value(ratingToText(fb.courseContentOrg?.q1_upToDate || fb.courseContentOrg?.q3_organized));
-    wsInput.cell(r, s1CommentCol).value(fb.courseContentOrg?.comment || '');
+    wsInput.cell(r, s1CommentCol).value(s1CommentVal);
+    rowComments.push(s1CommentVal);
 
     // COs
     coCols.forEach(({ coNum, startCol, commentCol }) => {
       const cd = (fb.coFeedback || []).find(c => c.coNumber === coNum);
+      const coCommentVal = cd?.comment || '';
       wsInput.cell(r, startCol).value(ratingToText(cd?.q1_contentAligned));
       wsInput.cell(r, startCol + 1).value(ratingToText(cd?.q2_methodsEffective || cd?.q2_alignment));
       wsInput.cell(r, startCol + 2).value(ratingToText(cd?.q3_assessmentAppropriate || cd?.q3_assessment));
-      wsInput.cell(r, commentCol).value(cd?.comment || '');
+      wsInput.cell(r, commentCol).value(coCommentVal);
+      rowComments.push(coCommentVal);
     });
 
     // Facilities (legacy rows fall back to the old laboratory question)
+    const s4CommentVal = fb.academicFacilities?.comment || '';
     wsInput.cell(r, s4ColStart).value(ratingToText(fb.academicFacilities?.q1_infrastructure || fb.academicFacilities?.q3_laboratory));
-    wsInput.cell(r, s4CommentCol).value(fb.academicFacilities?.comment || '');
+    wsInput.cell(r, s4CommentCol).value(s4CommentVal);
+    rowComments.push(s4CommentVal);
 
     // Course Teacher
+    const s5CommentVal = fb.courseTeacherEval?.comment || '';
     wsInput.cell(r, s5ColStart).value(teacherRatingToText(fb.courseTeacherEval?.rating));
-    wsInput.cell(r, s5CommentCol).value(fb.courseTeacherEval?.comment || '');
+    wsInput.cell(r, s5CommentCol).value(s5CommentVal);
+    rowComments.push(s5CommentVal);
 
-    // Style data row cells
+    // Style data row cells with wrapping and comfortable box height
     for (let c = 2; c <= lastCol; c++) {
       wsInput.cell(r, c).style({
         fill: 'E2EFDA',
         italic: true,
+        fontSize: 10,
         horizontalAlignment: 'center',
         verticalAlignment: 'center',
+        wrapText: true,
         border: true
       });
     }
+
+    const dataRowHeight = Math.max(
+      30,
+      ...rowComments.map(txt => estimateRowHeight(txt, {
+        colWidth: 30,
+        isBold: false,
+        fontSize: 10,
+        minHeight: 30,
+        linePadding: 14
+      }))
+    );
+    wsInput.row(r).height(dataRowHeight);
   });
 
   // ══════════════════════════════════════════════════════════════
@@ -612,10 +755,16 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
   let wsGraphs = wb.sheet('Graphs');
   if (!wsGraphs) wsGraphs = wb.addSheet('Graphs');
 
-  // Completely wipe out stale merged cells from template
+  // Completely wipe out stale merged cells and row heights from template
   resetSheetMerges(wsGraphs);
 
   for (let r = 1; r <= 150; r++) {
+    const row = wsGraphs.row(r);
+    row.height(undefined);
+    if (row._node && row._node.attributes) {
+      delete row._node.attributes.ht;
+      delete row._node.attributes.customHeight;
+    }
     for (let c = 1; c <= 20; c++) {
       wsGraphs.cell(r, c).value(undefined);
     }
@@ -623,10 +772,13 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
 
   // Set column widths for Graphs sheet
   wsGraphs.column(1).width(5);
-  wsGraphs.column(2).width(28);
+  wsGraphs.column(2).width(30);
   for (let c = 3; c <= 15; c++) {
-    wsGraphs.column(c).width(12);
+    wsGraphs.column(c).width(14);
   }
+  wsGraphs.row(2).height(22);
+  wsGraphs.row(3).height(22);
+  wsGraphs.row(5).height(26);
 
   // Total Participants Banner
   wsGraphs.cell('C2').value('Total Participants :');
@@ -684,9 +836,17 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
     wsGraphs.range(`B${tRow}:${colEndLetter}${tRow}`).merged(true).style({
       bold: true,
       underline: true,
+      wrapText: true,
       horizontalAlignment: 'center',
       verticalAlignment: 'center'
     });
+    wsGraphs.row(tRow).height(estimateRowHeight(titleText, {
+      colWidth: 30 + qCount * 14,
+      isBold: true,
+      minHeight: 28,
+      linePadding: 10
+    }));
+    wsGraphs.row(tRow + 1).height(24);
 
     // Question numbers row
     const catLabels = [];
@@ -711,6 +871,7 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
     const seriesList = [];
     labels.forEach((label, lIdx) => {
       const rRow = tRow + 2 + lIdx;
+      wsGraphs.row(rRow).height(22);
       wsGraphs.cell(rRow, 2).value(label).style({
         bold: true,
         horizontalAlignment: 'center',
@@ -762,14 +923,14 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
   chartDefinitions.push({ ...s1Graph, sectionName: 'Course Content and Organization' });
 
   // Tables for COs
-  coCols.forEach(({ co, coNum, startCol, endCol }) => {
+  coCols.forEach(({ coLabel, startCol, endCol }) => {
     const coGraph = addGraphTable({
       titleFormula: `Input!${colToLetter(startCol)}1`,
-      titleText: `CO${coNum}: ${co.title}`,
+      titleText: coLabel,
       startCol,
       endCol
     });
-    chartDefinitions.push({ ...coGraph, sectionName: `CO${coNum}: ${co.title}` });
+    chartDefinitions.push({ ...coGraph, sectionName: coLabel });
   });
 
   // Table for Facilities
@@ -826,7 +987,7 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
   wsFF.range('A2:C2').merged(true).style({ italic: true, fontSize: 12, horizontalAlignment: 'center', verticalAlignment: 'center' });
   wsFF.row(2).height(20);
 
-  wsFF.cell('A3').value(`Students' Feedback on ${courseName} (${courseCode})`);
+  wsFF.cell('A3').value(courseCode ? `Students' Feedback on ${courseName} (${courseCode})` : `Students' Feedback on ${courseName}`);
   wsFF.range('A3:C3').merged(true).style({ bold: true, fontSize: 13, horizontalAlignment: 'center', verticalAlignment: 'center' });
   wsFF.row(3).height(22);
 
@@ -859,35 +1020,58 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
 
   function renderFFSection({ title, questions, comments, chartDef }) {
     const startRow = ffRow;
+    const chartRowEntries = [];
 
     // Header Row
     wsFF.cell(ffRow, 1).value('Sl.').style({ bold: true, horizontalAlignment: 'center', verticalAlignment: 'center', border: true });
     wsFF.cell(ffRow, 2).value(title).style({ bold: true, verticalAlignment: 'center', border: true, wrapText: true });
-    const hHeader = estimateRowHeight(title, { colWidth: 32, isBold: true, minHeight: 26, linePadding: 6 });
-    wsFF.row(ffRow).height(hHeader);
+    const hHeader = estimateRowHeight(title, { colWidth: 32, isBold: true, minHeight: 28, linePadding: 8 });
+    chartRowEntries.push({ r: ffRow, h: hHeader });
     ffRow++;
 
     // Question Rows
     questions.forEach((q, idx) => {
       wsFF.cell(ffRow, 1).value(idx + 1).style({ horizontalAlignment: 'center', verticalAlignment: 'center', border: true });
       wsFF.cell(ffRow, 2).value(q).style({ verticalAlignment: 'center', border: true, wrapText: true });
-      const hQ = estimateRowHeight(q, { colWidth: 32, isBold: false, minHeight: 22, linePadding: 6 });
-      wsFF.row(ffRow).height(hQ);
+      const hQ = estimateRowHeight(q, { colWidth: 32, isBold: false, minHeight: 26, linePadding: 8 });
+      chartRowEntries.push({ r: ffRow, h: hQ });
       ffRow++;
     });
 
-    // Comments Row
+    const lastChartRow = ffRow - 1;
+
+    // Ensure chart box rows span enough vertical height (~138pt min) so 1-question charts in Col C are never cramped
+    const totalChartH = chartRowEntries.reduce((sum, e) => sum + e.h, 0);
+    const minChartBoxHeight = 138;
+    if (totalChartH < minChartBoxHeight) {
+      const extraPerRow = Math.ceil((minChartBoxHeight - totalChartH) / chartRowEntries.length);
+      chartRowEntries.forEach(e => { e.h += extraPerRow; });
+    }
+    chartRowEntries.forEach(e => wsFF.row(e.r).height(e.h));
+
+    // Merge and border the chart container box in Column C
+    wsFF.range(`C${startRow}:C${lastChartRow}`).merged(true).style({ border: true });
+
+    // Comments Row (spans B:C underneath the chart box, matching template layout)
     const cSl = questions.length + 1;
     wsFF.cell(ffRow, 1).value(cSl).style({ horizontalAlignment: 'center', verticalAlignment: 'center', border: true });
     const commentSummary = comments.length > 0 ? comments.slice(0, 4).join('; ') : 'No comments';
-    wsFF.cell(ffRow, 2).value(`Comments (if any): ${commentSummary}`).style({ italic: true, verticalAlignment: 'center', border: true, wrapText: true });
-    wsFF.row(ffRow).height(24);
+    const commentText = `Comments (if any): ${commentSummary}`;
+    wsFF.cell(ffRow, 2).value(commentText);
+    wsFF.range(`B${ffRow}:C${ffRow}`).merged(true).style({
+      italic: true,
+      verticalAlignment: 'center',
+      border: true,
+      wrapText: true
+    });
+    const hComment = estimateRowHeight(commentText, { colWidth: 90, isBold: false, minHeight: 26, linePadding: 8 });
+    wsFF.row(ffRow).height(hComment);
     ffRow++;
 
-    const endRow = ffRow - 1;
-
+    const lastChartRowHeight = chartRowEntries[chartRowEntries.length - 1].h;
     const anchorFromRow = startRow - 1;
-    const anchorToRow = endRow;
+    const anchorToRow = lastChartRow - 1;
+    const anchorToRowOff = Math.max(0, Math.round((lastChartRowHeight - 3.6) * 12700));
 
     chartAnchors.push({
       chartIndex,
@@ -895,7 +1079,7 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
       rId: `rId${chartIndex}`,
       fromRow: anchorFromRow,
       toRow: anchorToRow,
-      toRowOff: 0,
+      toRowOff: anchorToRowOff,
       chartDef
     });
     chartIndex++;
@@ -917,10 +1101,10 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
   });
 
   // Dynamic CO Sections
-  coCols.forEach(({ co, coNum }, idx) => {
+  coCols.forEach(({ coLabel, coNum }, idx) => {
     const coComments = feedbacks.map(f => (f.coFeedback || []).find(c => c.coNumber === coNum)?.comment).filter(isRealComment);
     renderFFSection({
-      title: `CO${coNum}: ${co.title}`,
+      title: coLabel,
       questions: [
         `The course contents are aligned with CO${coNum}`,
         `The teaching-learning methods are effective to achieve CO${coNum}`,
@@ -1012,11 +1196,11 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
   addMetricRow('Course Content & Organisation', feedbacks.map(f => contentScore(f)).filter(v => v !== null));
 
   // 2. Dynamic COs
-  coCols.forEach(({ co, coNum }) => {
+  coCols.forEach(({ coLabel, coNum }) => {
     const coVals = feedbacks
       .map(f => coEntryScore((f.coFeedback || []).find(c => c.coNumber === coNum)))
       .filter(v => v !== null);
-    addMetricRow(`CO${coNum}: ${co.title}`, coVals);
+    addMetricRow(coLabel, coVals);
   });
 
   // 3. Academic & Lab Facilities
@@ -1037,55 +1221,7 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
     border: true
   });
   wsFF.row(ffRow).height(26);
-  wsFF.row(ffRow + 1).height(12); // spacing row
-  ffRow += 2;
-
-  // ══════════════════════════════════════════════════════════════
-  // Section C: All Student Comments & Suggestions
-  // ══════════════════════════════════════════════════════════════
-  wsFF.cell(ffRow, 1).value('C. ALL STUDENT COMMENTS & SUGGESTIONS');
-  wsFF.range(`A${ffRow}:C${ffRow}`).merged(true).style({
-    bold: true,
-    fontSize: 12,
-    fill: 'F2F2F2',
-    horizontalAlignment: 'center',
-    verticalAlignment: 'center',
-    border: true
-  });
-  wsFF.row(ffRow).height(24);
   ffRow++;
-
-  const allComments = [
-    ...feedbacks.map(f => f.overallComment || f.commentsAndSuggestions || f.generalComment),
-    ...s1Comments,
-    ...feedbacks.flatMap(f => (f.coFeedback || []).map(c => c.comment).filter(c => c && c.trim() && c.trim().toLowerCase() !== 'no comments')),
-    ...s4Comments,
-    ...s5Comments
-  ].map(c => (c || '').trim()).filter(c => c && c.toLowerCase() !== 'no comments' && c.toLowerCase() !== 'no specific comments provided.');
-
-  const uniqueComments = [...new Set(allComments)];
-  if (uniqueComments.length === 0) {
-    wsFF.cell(ffRow, 1).value('• No specific comments provided.');
-    wsFF.range(`A${ffRow}:C${ffRow}`).merged(true).style({
-      italic: true,
-      verticalAlignment: 'center',
-      border: true,
-      wrapText: true
-    });
-    wsFF.row(ffRow).height(22);
-    ffRow++;
-  } else {
-    uniqueComments.forEach(c => {
-      wsFF.cell(ffRow, 1).value(`• ${c}`);
-      wsFF.range(`A${ffRow}:C${ffRow}`).merged(true).style({
-        verticalAlignment: 'center',
-        border: true,
-        wrapText: true
-      });
-      wsFF.row(ffRow).height(estimateRowHeight(`• ${c}`, { colWidth: 90, minHeight: 22 }));
-      ffRow++;
-    });
-  }
 
   // ══════════════════════════════════════════════════════════════
   // UPDATE CHARTS & DRAWINGS IN ZIP (if template loaded)
