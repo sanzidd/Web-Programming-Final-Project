@@ -116,15 +116,13 @@ export default function Dashboard() {
 
   const exportCSV = () => {
     if (!overview?.recentFeedbacks) return;
-    const headers = ['Date', 'Teacher', 'Department', 'Rating', 'Teaching', 'Communication', 'Helpfulness', 'Comment'];
+    const headers = ['Date', 'Teacher', 'Department', 'Course', 'Rating', 'Comment'];
     const rows = overview.recentFeedbacks.map(f => [
       new Date(f.createdAt).toLocaleDateString(),
-      f.teacher?.name || '',
-      f.department?.name || '',
-      f.rating,
-      f.teachingQuality,
-      f.communication,
-      f.helpfulness,
+      `"${(f.teacher?.name || '').replace(/"/g, '""')}"`,
+      `"${(f.department?.name || '').replace(/"/g, '""')}"`,
+      `"${(f.courseName || '').replace(/"/g, '""')}"`,
+      f.rating ?? '',
       `"${(f.comment || '').replace(/"/g, '""')}"`,
     ]);
     const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');

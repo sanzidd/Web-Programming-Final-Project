@@ -53,12 +53,11 @@ export default function TeacherProfile() {
     csvRows.push(`"Department","${(teacher.department?.name || '').replace(/"/g, '""')}"`);
     csvRows.push(`"Email","${(teacher.email || '').replace(/"/g, '""')}"`);
     csvRows.push(`"Total Feedbacks","${teacher.totalFeedbacks}"`);
-    csvRows.push(`"Average Overall Rating","${teacher.avgRating.toFixed(2)}"`);
-    csvRows.push(`"Average Structure Rating","${(teacher.avgStructure || 0).toFixed(2)}"`);
-    csvRows.push(`"Average Delivery Rating","${(teacher.avgDelivery || 0).toFixed(2)}"`);
-    csvRows.push(`"Average Duration Rating","${(teacher.avgDuration || 0).toFixed(2)}"`);
-    csvRows.push(`"Average Environment Rating","${(teacher.avgEnvironment || 0).toFixed(2)}"`);
-    csvRows.push(`"Average Skill Rating","${(teacher.avgSkill || 0).toFixed(2)}"`);
+    csvRows.push(`"Average Overall Rating","${(teacher.avgRating || 0).toFixed(2)}"`);
+    csvRows.push(`"Average Course Content & Organisation","${(teacher.avgCourseContent || 0).toFixed(2)}"`);
+    csvRows.push(`"Average CO Attainment","${(teacher.avgCOAttainment || 0).toFixed(2)}"`);
+    csvRows.push(`"Average Academic & Lab Facilities","${(teacher.avgFacilities || 0).toFixed(2)}"`);
+    csvRows.push(`"Average Course Teacher Rating","${(teacher.avgCourseTeacher || 0).toFixed(2)}"`);
     csvRows.push('');
     
     // 3. Detailed Feedback Headings
@@ -67,40 +66,38 @@ export default function TeacherProfile() {
       'Date',
       'Course Name',
       'Overall Rating',
-      'Structure',
-      'Delivery',
-      'Duration',
-      'Environment',
-      'Skill',
-      'General Comment',
-      'Overall Feedback Comment'
+      'Course Content',
+      'CO Avg',
+      'Facilities',
+      'Course Teacher',
+      'Comments'
     ];
     csvRows.push(headers.map(h => `"${h}"`).join(','));
     
     // 4. Detailed Feedback Rows
+    const avgVals = (arr) => {
+      const valid = arr.map(Number).filter(v => v > 0);
+      return valid.length ? (valid.reduce((a, b) => a + b, 0) / valid.length).toFixed(2) : '';
+    };
     feedbacks.forEach(f => {
       const date = new Date(f.createdAt).toLocaleDateString();
       const course = f.courseName || '';
-      const overall = f.courseRating?.overall || '';
-      const structure = f.courseRating?.structure || '';
-      const delivery = f.courseRating?.delivery || '';
-      const duration = f.courseRating?.duration || '';
-      const environment = f.courseRating?.environment || '';
-      const skill = f.courseRating?.skill || '';
-      const ratingComment = f.courseRating?.comment || '';
-      const overallComment = f.overallFeedback || '';
+      const overall = f.rating ?? '';
+      const content = f.courseContentOrg?.q1_upToDate || avgVals([f.courseContentOrg?.q1_objectives, f.courseContentOrg?.q2_workload, f.courseContentOrg?.q3_organized]);
+      const coAvg = avgVals((f.coFeedback || []).flatMap(c => c.q1_contentAligned ? [c.q1_contentAligned, c.q2_methodsEffective, c.q3_assessmentAppropriate] : [c.q1_achievement]));
+      const facilities = f.academicFacilities?.q1_infrastructure || avgVals([f.academicFacilities?.q1_environment, f.academicFacilities?.q2_classrooms, f.academicFacilities?.q3_laboratory]);
+      const teacherScore = f.courseTeacherEval?.rating || '';
+      const comment = f.comment || '';
       
       const row = [
         date,
         course,
         overall,
-        structure,
-        delivery,
-        duration,
-        environment,
-        skill,
-        ratingComment,
-        overallComment
+        content,
+        coAvg,
+        facilities,
+        teacherScore,
+        comment
       ];
       
       csvRows.push(row.map(val => `"${String(val).replace(/"/g, '""')}"`).join(','));
@@ -162,9 +159,9 @@ export default function TeacherProfile() {
               {[
                 { label: 'Overall', value: teacher.avgRating || 0, emoji: '⭐' },
                 { label: 'Course Content', value: teacher.avgCourseContent || 0, emoji: '📚' },
-                { label: 'Teaching-Learning', value: teacher.avgTeachingLearning || 0, emoji: '🗣️' },
+                { label: 'CO Attainment', value: teacher.avgCOAttainment || 0, emoji: '🎯' },
                 { label: 'Facilities', value: teacher.avgFacilities || 0, emoji: '🏫' },
-                { label: 'CO Attainment', value: teacher.avgCOAttainment || 0, emoji: '🎯' }
+                { label: 'Course Teacher', value: teacher.avgCourseTeacher || 0, emoji: '👨‍🏫' }
               ].map((c, i) => (
                 <div key={i} className="criteria-row">
                   <span className="criteria-emoji">{c.emoji}</span>

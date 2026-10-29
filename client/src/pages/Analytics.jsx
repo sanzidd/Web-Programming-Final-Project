@@ -73,9 +73,9 @@ export default function Analytics() {
   const radarData = [
     { criteria: 'Overall', ...Object.fromEntries(topForRadar.map(t => [t.name.split(' ').pop(), t.avgRating])) },
     { criteria: 'Course Content', ...Object.fromEntries(topForRadar.map(t => [t.name.split(' ').pop(), t.avgCourseContent])) },
-    { criteria: 'Teaching-Learning', ...Object.fromEntries(topForRadar.map(t => [t.name.split(' ').pop(), t.avgTeachingLearning])) },
-    { criteria: 'Facilities', ...Object.fromEntries(topForRadar.map(t => [t.name.split(' ').pop(), t.avgFacilities])) },
     { criteria: 'CO Attainment', ...Object.fromEntries(topForRadar.map(t => [t.name.split(' ').pop(), t.avgCOAttainment])) },
+    { criteria: 'Facilities', ...Object.fromEntries(topForRadar.map(t => [t.name.split(' ').pop(), t.avgFacilities])) },
+    { criteria: 'Course Teacher', ...Object.fromEntries(topForRadar.map(t => [t.name.split(' ').pop(), t.avgCourseTeacher || 0])) },
   ];
 
   const radarColors = ['#2563EB', '#059669', '#F59E0B', '#DC2626', '#8B5CF6'];

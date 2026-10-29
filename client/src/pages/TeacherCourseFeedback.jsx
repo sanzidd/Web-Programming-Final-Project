@@ -20,6 +20,30 @@ function achievementToLabel(score) {
   return map[score] || '-';
 }
 
+function teacherRatingToLabel(score) {
+  const map = { 1: '1 - Poor', 2: '2 - Fair', 3: '3 - Good', 4: '4 - Very Good', 5: '5 - Excellent' };
+  return map[score] || '-';
+}
+
+const avgOf = (vals) => {
+  const valid = vals.map(Number).filter(v => v > 0);
+  return valid.length ? valid.reduce((a, b) => a + b, 0) / valid.length : null;
+};
+
+// Per-feedback overall score (current form fields, with fallback for older submissions)
+function computeFeedbackOverall(fb) {
+  const c = fb.courseContentOrg || {};
+  const content = c.q1_upToDate ? Number(c.q1_upToDate) : avgOf([c.q1_objectives, c.q2_workload, c.q3_organized]);
+  const co = avgOf((fb.coFeedback || []).map(e => (
+    avgOf([e.q1_contentAligned, e.q2_methodsEffective, e.q3_assessmentAppropriate]) ?? avgOf([e.q1_achievement])
+  )));
+  const af = fb.academicFacilities || {};
+  const facilities = af.q1_infrastructure ? Number(af.q1_infrastructure) : avgOf([af.q1_environment, af.q2_classrooms, af.q3_laboratory]);
+  const teacher = fb.courseTeacherEval?.rating ? Number(fb.courseTeacherEval.rating) : null;
+  const overall = avgOf([content, co, facilities, teacher]);
+  return overall ? +overall.toFixed(1) : 0;
+}
+
 function RatingBadge({ value, max = 5 }) {
   let cls = 'rating-badge';
   if (value >= 4) cls += ' high';
@@ -139,9 +163,9 @@ export default function TeacherCourseFeedback() {
         <div className="tcf-stats">
           {[
             { label: 'Course Content', value: summary.avgCourseContent },
-            { label: 'Teaching-Learning', value: summary.avgTeachingLearning },
-            { label: 'Facilities', value: summary.avgFacilities },
             { label: 'CO Attainment', value: summary.avgCOAttainment },
+            { label: 'Facilities', value: summary.avgFacilities },
+            { label: 'Course Teacher', value: summary.avgCourseTeacher || 0 },
             { label: 'Overall', value: summary.avgOverall },
           ].map(item => (
             <div key={item.label} className="tcf-stat-item">
@@ -167,18 +191,8 @@ export default function TeacherCourseFeedback() {
           ) : (
             <div className="tcf-feedback-list">
               {feedbacks.map((fb, idx) => {
-                // Compute overall for this feedback
-                const scores = [];
-                if (fb.courseContentOrg) {
-                  scores.push((fb.courseContentOrg.q1_objectives + fb.courseContentOrg.q2_workload + fb.courseContentOrg.q3_organized) / 3);
-                }
-                if (fb.teachingLearning) {
-                  scores.push((fb.teachingLearning.q1_structured + fb.teachingLearning.q2_participation + fb.teachingLearning.q3_materials + fb.teachingLearning.q4_assessment) / 4);
-                }
-                if (fb.academicFacilities) {
-                  scores.push((fb.academicFacilities.q1_environment + fb.academicFacilities.q2_classrooms + fb.academicFacilities.q3_laboratory) / 3);
-                }
-                const overall = scores.length > 0 ? +(scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1) : 0;
+                const overall = computeFeedbackOverall(fb);
+                const isLegacy = !fb.courseContentOrg?.q1_upToDate;
 
                 return (
                   <div key={fb._id} className="tcf-fb-card glass-card">
@@ -195,9 +209,15 @@ export default function TeacherCourseFeedback() {
                       <div className="tcf-fb-section">
                         <h4><BookOpen size={14} style={{ marginRight: '6px' }} />Course Content & Organisation</h4>
                         <div className="tcf-fb-answers">
-                          <span>Objectives: {scoreToLabel(fb.courseContentOrg?.q1_objectives)}</span>
-                          <span>Workload: {scoreToLabel(fb.courseContentOrg?.q2_workload)}</span>
-                          <span>Organized: {scoreToLabel(fb.courseContentOrg?.q3_organized)}</span>
+                          {isLegacy ? (
+                            <>
+                              <span>Objectives: {scoreToLabel(fb.courseContentOrg?.q1_objectives)}</span>
+                              <span>Workload: {scoreToLabel(fb.courseContentOrg?.q2_workload)}</span>
+                              <span>Organized: {scoreToLabel(fb.courseContentOrg?.q3_organized)}</span>
+                            </>
+                          ) : (
+                            <span>Up-to-date & well organized: {scoreToLabel(fb.courseContentOrg?.q1_upToDate)}</span>
+                          )}
                         </div>
                         {fb.courseContentOrg?.comment && (
                           <p className="tcf-fb-comment">"{fb.courseContentOrg.comment}"</p>
@@ -212,9 +232,19 @@ export default function TeacherCourseFeedback() {
                             CO{co.coNumber}: {co.coTitle}
                           </h4>
                           <div className="tcf-fb-answers">
-                            <span>Achievement: {achievementToLabel(co.q1_achievement)}</span>
-                            <span>TL Alignment: {scoreToLabel(co.q2_alignment)}</span>
-                            <span>Assessment: {scoreToLabel(co.q3_assessment)}</span>
+                            {co.q1_contentAligned ? (
+                              <>
+                                <span>Contents aligned: {scoreToLabel(co.q1_contentAligned)}</span>
+                                <span>T-L methods effective: {scoreToLabel(co.q2_methodsEffective)}</span>
+                                <span>Assessment appropriate: {scoreToLabel(co.q3_assessmentAppropriate)}</span>
+                              </>
+                            ) : (
+                              <>
+                                <span>Achievement: {achievementToLabel(co.q1_achievement)}</span>
+                                <span>TL Alignment: {scoreToLabel(co.q2_alignment)}</span>
+                                <span>Assessment: {scoreToLabel(co.q3_assessment)}</span>
+                              </>
+                            )}
                           </div>
                           {co.comment && (
                             <p className="tcf-fb-comment">"{co.comment}"</p>
@@ -222,32 +252,61 @@ export default function TeacherCourseFeedback() {
                         </div>
                       ))}
 
-                      {/* Section 3: Teaching-Learning */}
-                      <div className="tcf-fb-section">
-                        <h4><Presentation size={14} style={{ marginRight: '6px' }} />Teaching-Learning & Assessment</h4>
-                        <div className="tcf-fb-answers">
-                          <span>Structured: {scoreToLabel(fb.teachingLearning?.q1_structured)}</span>
-                          <span>Participation: {scoreToLabel(fb.teachingLearning?.q2_participation)}</span>
-                          <span>Materials: {scoreToLabel(fb.teachingLearning?.q3_materials)}</span>
-                          <span>Assessment: {scoreToLabel(fb.teachingLearning?.q4_assessment)}</span>
+                      {/* Legacy: Teaching-Learning (older submissions only) */}
+                      {fb.teachingLearning?.q1_structured && (
+                        <div className="tcf-fb-section">
+                          <h4><Presentation size={14} style={{ marginRight: '6px' }} />Teaching-Learning & Assessment</h4>
+                          <div className="tcf-fb-answers">
+                            <span>Structured: {scoreToLabel(fb.teachingLearning?.q1_structured)}</span>
+                            <span>Participation: {scoreToLabel(fb.teachingLearning?.q2_participation)}</span>
+                            <span>Materials: {scoreToLabel(fb.teachingLearning?.q3_materials)}</span>
+                            <span>Assessment: {scoreToLabel(fb.teachingLearning?.q4_assessment)}</span>
+                          </div>
+                          {fb.teachingLearning?.comment && (
+                            <p className="tcf-fb-comment">"{fb.teachingLearning.comment}"</p>
+                          )}
                         </div>
-                        {fb.teachingLearning?.comment && (
-                          <p className="tcf-fb-comment">"{fb.teachingLearning.comment}"</p>
-                        )}
-                      </div>
+                      )}
 
                       {/* Section 4: Facilities */}
                       <div className="tcf-fb-section">
                         <h4><FlaskConical size={14} style={{ marginRight: '6px' }} />Academic & Lab Facilities</h4>
                         <div className="tcf-fb-answers">
-                          <span>Environment: {scoreToLabel(fb.academicFacilities?.q1_environment)}</span>
-                          <span>Classrooms: {scoreToLabel(fb.academicFacilities?.q2_classrooms)}</span>
-                          <span>Lab: {scoreToLabel(fb.academicFacilities?.q3_laboratory)}</span>
+                          {fb.academicFacilities?.q1_infrastructure ? (
+                            <span>Infrastructure adequate: {scoreToLabel(fb.academicFacilities?.q1_infrastructure)}</span>
+                          ) : (
+                            <>
+                              <span>Environment: {scoreToLabel(fb.academicFacilities?.q1_environment)}</span>
+                              <span>Classrooms: {scoreToLabel(fb.academicFacilities?.q2_classrooms)}</span>
+                              <span>Lab: {scoreToLabel(fb.academicFacilities?.q3_laboratory)}</span>
+                            </>
+                          )}
                         </div>
                         {fb.academicFacilities?.comment && (
                           <p className="tcf-fb-comment">"{fb.academicFacilities.comment}"</p>
                         )}
                       </div>
+
+                      {/* Course Teacher */}
+                      {fb.courseTeacherEval?.rating && (
+                        <div className="tcf-fb-section">
+                          <h4><User size={14} style={{ marginRight: '6px' }} />Course Teacher</h4>
+                          <div className="tcf-fb-answers">
+                            <span>Rating: {teacherRatingToLabel(fb.courseTeacherEval.rating)}</span>
+                          </div>
+                          {fb.courseTeacherEval?.comment && (
+                            <p className="tcf-fb-comment">"{fb.courseTeacherEval.comment}"</p>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Legacy: Overall Comment (older submissions only) */}
+                      {(fb.overallComment || fb.commentsAndSuggestions) && (
+                        <div className="tcf-fb-section">
+                          <h4><MessageSquare size={14} style={{ marginRight: '6px' }} />Additional Comments</h4>
+                          <p className="tcf-fb-comment">"{fb.overallComment || fb.commentsAndSuggestions}"</p>
+                        </div>
+                      )}
                     </div>
 
                     <div className="tcf-fb-footer">

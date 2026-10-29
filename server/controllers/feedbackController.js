@@ -6,6 +6,7 @@ const CourseAssignment = require('../models/CourseAssignment');
 const Student = require('../models/Student');
 const Department = require('../models/Department');
 const ReviewSession = require('../models/ReviewSession');
+const { aggregateScores } = require('../utils/feedbackScores');
 
 /**
  * Helper to generate all common variants of a series string
@@ -182,53 +183,45 @@ exports.submitFeedback = async (req, res) => {
 
     const { 
       assignmentId, teacher, department, courseName, 
-      courseContentOrg, coFeedback, teachingLearning, academicFacilities,
-      overallComment, commentsAndSuggestions, generalComment
+      courseContentOrg, coFeedback, academicFacilities, courseTeacherEval
     } = req.body;
-
-    // Validate Section C: All Student Comments & Suggestions (Mandatory)
-    const studentComment = (overallComment || commentsAndSuggestions || generalComment || '').trim();
-    if (!studentComment) {
-      return res.status(400).json({ message: 'All Student Comments & Suggestions (Section C) is mandatory before submitting.' });
-    }
 
     // Validate main nested objects
     const missing = [];
     if (!teacher) missing.push('teacher');
     if (!department) missing.push('department');
     if (!courseContentOrg) missing.push('courseContentOrg');
-    if (!teachingLearning) missing.push('teachingLearning');
     if (!academicFacilities) missing.push('academicFacilities');
+    if (!courseTeacherEval) missing.push('courseTeacherEval');
 
     if (missing.length > 0) {
-      console.error("VALIDATION FAILED. Missing:", missing);
-      console.error("Payload:", JSON.stringify(req.body, null, 2));
       return res.status(400).json({ message: 'All feedback sections are required. Missing: ' + missing.join(', ') });
     }
 
-    // Validate courseContentOrg fields
-    if (!courseContentOrg.q1_objectives || !courseContentOrg.q2_workload || !courseContentOrg.q3_organized) {
-      return res.status(400).json({ message: 'All Course Content & Organisation questions are required' });
+    const isRating = (v) => Number.isInteger(Number(v)) && Number(v) >= 1 && Number(v) <= 5;
+
+    // Course Content & Organisation
+    if (!isRating(courseContentOrg.q1_upToDate)) {
+      return res.status(400).json({ message: 'Please answer the Course Content & Organisation question' });
     }
 
-    // Validate teachingLearning fields
-    if (!teachingLearning.q1_structured || !teachingLearning.q2_participation || 
-        !teachingLearning.q3_materials || !teachingLearning.q4_assessment) {
-      return res.status(400).json({ message: 'All Teaching-Learning & Assessment questions are required' });
-    }
-
-    // Validate academicFacilities fields
-    if (!academicFacilities.q1_environment || !academicFacilities.q2_classrooms || !academicFacilities.q3_laboratory) {
-      return res.status(400).json({ message: 'All Academic & Laboratory Facilities questions are required' });
-    }
-
-    // Validate CO feedback if provided
+    // CO feedback
     if (Array.isArray(coFeedback)) {
       for (const co of coFeedback) {
-        if (!co.q1_achievement || !co.q2_alignment || !co.q3_assessment) {
+        if (!isRating(co.q1_contentAligned) || !isRating(co.q2_methodsEffective) || !isRating(co.q3_assessmentAppropriate)) {
           return res.status(400).json({ message: `All questions for CO${co.coNumber} are required` });
         }
       }
+    }
+
+    // Academic & Laboratory Facilities
+    if (!isRating(academicFacilities.q1_infrastructure)) {
+      return res.status(400).json({ message: 'Please answer the Academic & Laboratory Facilities question' });
+    }
+
+    // Course Teacher
+    if (!isRating(courseTeacherEval.rating)) {
+      return res.status(400).json({ message: 'Please rate the Course Teacher (1-5)' });
     }
 
     // Eligibility check: Ensure assignment exists and is active
@@ -275,100 +268,44 @@ exports.submitFeedback = async (req, res) => {
       await FeedbackLog.create({ student: req.studentId, assignment: targetAssignment._id });
     }
 
+    const clean = (v) => (typeof v === 'string' ? v.trim() : '');
+
     const feedback = await Feedback.create({
       teacher, department, courseName,
-      courseContentOrg,
-      coFeedback: coFeedback || [],
-      teachingLearning,
-      academicFacilities,
-      overallComment: studentComment,
-      commentsAndSuggestions: studentComment,
+      courseContentOrg: {
+        q1_upToDate: Number(courseContentOrg.q1_upToDate),
+        comment: clean(courseContentOrg.comment),
+      },
+      coFeedback: (Array.isArray(coFeedback) ? coFeedback : []).map(co => ({
+        coNumber: co.coNumber,
+        coTitle: co.coTitle || '',
+        coDescription: co.coDescription || '',
+        q1_contentAligned: Number(co.q1_contentAligned),
+        q2_methodsEffective: Number(co.q2_methodsEffective),
+        q3_assessmentAppropriate: Number(co.q3_assessmentAppropriate),
+        comment: clean(co.comment),
+      })),
+      academicFacilities: {
+        q1_infrastructure: Number(academicFacilities.q1_infrastructure),
+        comment: clean(academicFacilities.comment),
+      },
+      courseTeacherEval: {
+        rating: Number(courseTeacherEval.rating),
+        comment: clean(courseTeacherEval.comment),
+      },
       sentiment: null,
     });
 
-    // Update teacher averages
+    // Update teacher averages (supports both current and legacy feedback fields)
     const allFeedbacks = await Feedback.find({ teacher }).lean();
-
-    function safeNum(val) {
-      const n = Number(val);
-      return (!isNaN(n) && isFinite(n) && n > 0) ? n : null;
-    }
-
-    let totalContentScore = 0, contentCount = 0;
-    let totalTLScore = 0, tlCount = 0;
-    let totalFacScore = 0, facCount = 0;
-    let totalCOScore = 0, coCount = 0;
-
-    allFeedbacks.forEach(f => {
-      // Course Content & Organisation (support new and legacy fields)
-      const c = f.courseContentOrg || f.courseContent;
-      if (c) {
-        const q1 = safeNum(c.q1_objectives || c.q1);
-        const q2 = safeNum(c.q2_workload || c.q2);
-        const q3 = safeNum(c.q3_organized || c.q3);
-        const valid = [q1, q2, q3].filter(v => v !== null);
-        if (valid.length > 0) {
-          totalContentScore += valid.reduce((a, b) => a + b, 0) / valid.length;
-          contentCount++;
-        }
-      }
-
-      // Teaching-Learning & Assessment (support new and legacy fields)
-      const tl = f.teachingLearning || f.learningEnvironment;
-      if (tl) {
-        const q1 = safeNum(tl.q1_structured || tl.q8);
-        const q2 = safeNum(tl.q2_participation || tl.q9);
-        const q3 = safeNum(tl.q3_materials || f.learningResources?.q13);
-        const q4 = safeNum(tl.q4_assessment || f.courseTeacher?.q18);
-        const valid = [q1, q2, q3, q4].filter(v => v !== null);
-        if (valid.length > 0) {
-          totalTLScore += valid.reduce((a, b) => a + b, 0) / valid.length;
-          tlCount++;
-        }
-      }
-
-      // Academic and Lab Facilities (support new and legacy fields)
-      const af = f.academicFacilities || f.learningResources;
-      if (af) {
-        const q1 = safeNum(af.q1_environment || f.learningEnvironment?.q10);
-        const q2 = safeNum(af.q2_classrooms || f.learningEnvironment?.q11);
-        const q3 = safeNum(af.q3_laboratory || af.q15);
-        const valid = [q1, q2, q3].filter(v => v !== null);
-        if (valid.length > 0) {
-          totalFacScore += valid.reduce((a, b) => a + b, 0) / valid.length;
-          facCount++;
-        }
-      }
-
-      // CO feedback
-      if (Array.isArray(f.coFeedback) && f.coFeedback.length > 0) {
-        f.coFeedback.forEach(co => {
-          const q1 = safeNum(co.q1_achievement);
-          if (q1 !== null) {
-            totalCOScore += q1;
-            coCount++;
-          }
-        });
-      }
-    });
-
-    const avgCourseContent = contentCount > 0 ? totalContentScore / contentCount : 0;
-    const avgTeachingLearning = tlCount > 0 ? totalTLScore / tlCount : 0;
-    const avgFacilities = facCount > 0 ? totalFacScore / facCount : 0;
-    const avgCOAttainment = coCount > 0 ? totalCOScore / coCount : 0;
-
-    const sections = [avgCourseContent, avgTeachingLearning, avgFacilities].filter(v => v > 0);
-    if (avgCOAttainment > 0) sections.push(avgCOAttainment);
-
-    const rawAvg = sections.length > 0 ? sections.reduce((a, b) => a + b, 0) / sections.length : 0;
-    const avgRating = (!isNaN(rawAvg) && isFinite(rawAvg)) ? Math.round(rawAvg * 100) / 100 : 0;
+    const agg = aggregateScores(allFeedbacks);
 
     await Teacher.findByIdAndUpdate(teacher, {
-      avgRating,
-      avgCourseContent: (!isNaN(avgCourseContent) && isFinite(avgCourseContent)) ? Math.round(avgCourseContent * 100) / 100 : 0,
-      avgTeachingLearning: (!isNaN(avgTeachingLearning) && isFinite(avgTeachingLearning)) ? Math.round(avgTeachingLearning * 100) / 100 : 0,
-      avgFacilities: (!isNaN(avgFacilities) && isFinite(avgFacilities)) ? Math.round(avgFacilities * 100) / 100 : 0,
-      avgCOAttainment: (!isNaN(avgCOAttainment) && isFinite(avgCOAttainment)) ? Math.round(avgCOAttainment * 100) / 100 : 0,
+      avgRating: agg.avgRating,
+      avgCourseContent: agg.avgCourseContent,
+      avgFacilities: agg.avgFacilities,
+      avgCOAttainment: agg.avgCOAttainment,
+      avgCourseTeacher: agg.avgCourseTeacher,
       totalFeedbacks: allFeedbacks.length,
     });
 

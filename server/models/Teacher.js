@@ -12,6 +12,7 @@ const teacherSchema = new mongoose.Schema({
   avgTeachingLearning: { type: Number, default: 0 },
   avgFacilities: { type: Number, default: 0 },
   avgCOAttainment: { type: Number, default: 0 },
+  avgCourseTeacher: { type: Number, default: 0 },
   totalFeedbacks: { type: Number, default: 0 },
 }, { timestamps: true });
 

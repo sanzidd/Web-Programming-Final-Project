@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Building2, User, Star as StarIcon, MessageSquare, CheckCircle2, 
-  Shield, ChevronRight, ChevronLeft, Send, Sparkles, BookOpen, Book, Users, Presentation, Lightbulb, Frown, Target, FlaskConical
+  Building2, User, CheckCircle2, 
+  Shield, ChevronRight, ChevronLeft, Send, Sparkles, Book, Target, FlaskConical
 } from 'lucide-react';
 import api from '../services/api';
 import { useToast } from '../context/ToastContext';
@@ -29,11 +29,10 @@ export default function FeedbackForm() {
     department: '',
     teacher: '',
     courseName: '',
-    courseContentOrg: { q1_objectives: 0, q2_workload: 0, q3_organized: 0, comment: '' },
+    courseContentOrg: { q1_upToDate: 0, comment: '' },
     coFeedback: [], // will be populated dynamically based on assignment COs
-    teachingLearning: { q1_structured: 0, q2_participation: 0, q3_materials: 0, q4_assessment: 0, comment: '' },
-    academicFacilities: { q1_environment: 0, q2_classrooms: 0, q3_laboratory: 0, comment: '' },
-    overallComment: '',
+    academicFacilities: { q1_infrastructure: 0, comment: '' },
+    courseTeacherEval: { rating: 0, comment: '' },
   });
 
   const [selectedDeptName, setSelectedDeptName] = useState('');
@@ -56,8 +55,8 @@ export default function FeedbackForm() {
       steps.push({ label: `CO${co.coNumber || (i + 1)}`, icon: Target });
     });
 
-    steps.push({ label: 'Teaching', icon: Presentation });
     steps.push({ label: 'Facilities', icon: FlaskConical });
+    steps.push({ label: 'Teacher', icon: User });
     steps.push({ label: 'Submit', icon: Send });
 
     return steps;
@@ -96,9 +95,9 @@ export default function FeedbackForm() {
                   coNumber: co.coNumber,
                   coTitle: co.title,
                   coDescription: co.description,
-                  q1_achievement: 0,
-                  q2_alignment: 0,
-                  q3_assessment: 0,
+                  q1_contentAligned: 0,
+                  q2_methodsEffective: 0,
+                  q3_assessmentAppropriate: 0,
                   comment: '',
                 }));
                 setForm(f => ({ ...f, coFeedback }));
@@ -161,9 +160,9 @@ export default function FeedbackForm() {
         coNumber: co.coNumber,
         coTitle: co.title,
         coDescription: co.description,
-        q1_achievement: 0,
-        q2_alignment: 0,
-        q3_assessment: 0,
+        q1_contentAligned: 0,
+        q2_methodsEffective: 0,
+        q3_assessmentAppropriate: 0,
         comment: ''
       }));
       setForm(f => ({ ...f, courseName, coFeedback }));
@@ -199,8 +198,8 @@ export default function FeedbackForm() {
     if (stepIdx >= 2 && stepIdx < 2 + coCount) {
       return { type: 'co', coIndex: stepIdx - 2 };
     }
-    if (stepIdx === 2 + coCount) return { type: 'teachingLearning' };
-    if (stepIdx === 3 + coCount) return { type: 'facilities' };
+    if (stepIdx === 2 + coCount) return { type: 'facilities' };
+    if (stepIdx === 3 + coCount) return { type: 'teacher' };
     if (stepIdx === 4 + coCount) return { type: 'submit' };
     return { type: 'unknown' };
   };
@@ -212,21 +211,17 @@ export default function FeedbackForm() {
       return form.courseName.trim() !== '';
     }
     if (info.type === 'courseContent') {
-      return form.courseContentOrg.q1_objectives && form.courseContentOrg.q2_workload && form.courseContentOrg.q3_organized;
+      return Boolean(form.courseContentOrg.q1_upToDate);
     }
     if (info.type === 'co') {
       const co = form.coFeedback[info.coIndex];
-      return co && co.q1_achievement && co.q2_alignment && co.q3_assessment;
-    }
-    if (info.type === 'teachingLearning') {
-      return form.teachingLearning.q1_structured && form.teachingLearning.q2_participation && 
-             form.teachingLearning.q3_materials && form.teachingLearning.q4_assessment;
+      return Boolean(co && co.q1_contentAligned && co.q2_methodsEffective && co.q3_assessmentAppropriate);
     }
     if (info.type === 'facilities') {
-      return form.academicFacilities.q1_environment && form.academicFacilities.q2_classrooms && form.academicFacilities.q3_laboratory;
+      return Boolean(form.academicFacilities.q1_infrastructure);
     }
-    if (info.type === 'submit') {
-      return Boolean(form.overallComment && form.overallComment.trim().length > 0);
+    if (info.type === 'teacher') {
+      return Boolean(form.courseTeacherEval.rating);
     }
     return true;
   };
@@ -250,17 +245,6 @@ export default function FeedbackForm() {
   };
 
   const handleSubmit = async () => {
-    const trimmedComment = (form.overallComment || '').trim();
-    if (!trimmedComment) {
-      toast.error('Please provide your comments and suggestions in section C before submitting.');
-      const commentInput = document.getElementById('overall-comment-input');
-      if (commentInput) {
-        commentInput.focus();
-        commentInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-      return;
-    }
-
     setLoading(true);
     try {
       const matchedAssignment = myAssignments.find(a => 
@@ -286,11 +270,10 @@ export default function FeedbackForm() {
   const handleReset = () => {
     setForm({
       department: '', teacher: '', courseName: '',
-      courseContentOrg: { q1_objectives: 0, q2_workload: 0, q3_organized: 0, comment: '' },
+      courseContentOrg: { q1_upToDate: 0, comment: '' },
       coFeedback: [],
-      teachingLearning: { q1_structured: 0, q2_participation: 0, q3_materials: 0, q4_assessment: 0, comment: '' },
-      academicFacilities: { q1_environment: 0, q2_classrooms: 0, q3_laboratory: 0, comment: '' },
-      overallComment: '',
+      academicFacilities: { q1_infrastructure: 0, comment: '' },
+      courseTeacherEval: { rating: 0, comment: '' },
     });
     setStep(0);
     setSubmitted(false);
@@ -341,10 +324,10 @@ export default function FeedbackForm() {
             <span>100% Anonymous</span>
           </div>
           <h1 className="font-display feedback-title">
-            Course & Teacher <span className="text-gradient">Evaluation</span>
+            Course <span className="text-gradient">Feedback</span>
           </h1>
           <p className="feedback-subtitle">
-            Your honest evaluation helps teachers improve and ensures quality education.
+            Your honest and constructive feedback is valuable for improving teaching quality.
           </p>
         </div>
 
@@ -494,11 +477,18 @@ export default function FeedbackForm() {
                           <Target size={16} />
                           <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>This course has {courseOutcomes.length} Course Outcome(s)</span>
                         </div>
-                        {courseOutcomes.map((co, i) => (
-                          <div key={i} style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '4px' }}>
-                            <strong>CO{co.coNumber || (i + 1)}:</strong> {co.title}
-                          </div>
-                        ))}
+                        {courseOutcomes.map((co, i) => {
+                          const coNum = co.coNumber || (i + 1);
+                          const rawTitle = (co.title || '').trim();
+                          const rawDesc = (co.description || '').trim();
+                          const isGeneric = !rawTitle || rawTitle.toUpperCase() === `CO${coNum}`;
+                          const text = isGeneric ? rawDesc : (rawDesc && rawDesc !== rawTitle ? `${rawTitle} — ${rawDesc}` : rawTitle);
+                          return (
+                            <div key={i} style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '4px' }}>
+                              <strong>CO{coNum}{text ? ':' : ''}</strong> {text}
+                            </div>
+                          );
+                        })}
                       </div>
                     )}
                   </motion.div>
@@ -517,28 +507,18 @@ export default function FeedbackForm() {
                       <Book size={22} className="form-step-icon" />
                       Course Content & Organisation
                     </h2>
-                    <p className="form-step-desc">Rate the following from Strongly Disagree to Strongly Agree</p>
+                    <p className="form-step-desc">Please indicate your level of agreement with each statement.</p>
                     
                     <div className="likert-section">
                       <LikertScale 
-                        question="1. The course objectives were clear." 
-                        value={form.courseContentOrg.q1_objectives} 
-                        onChange={(v) => updateNestedForm('courseContentOrg', 'q1_objectives', v)} 
-                      />
-                      <LikertScale 
-                        question="2. The course workload was manageable." 
-                        value={form.courseContentOrg.q2_workload} 
-                        onChange={(v) => updateNestedForm('courseContentOrg', 'q2_workload', v)} 
-                      />
-                      <LikertScale 
-                        question="3. The course was well organized." 
-                        value={form.courseContentOrg.q3_organized} 
-                        onChange={(v) => updateNestedForm('courseContentOrg', 'q3_organized', v)} 
+                        question="1. The course contents are up-to-date and well organized." 
+                        value={form.courseContentOrg.q1_upToDate} 
+                        onChange={(v) => updateNestedForm('courseContentOrg', 'q1_upToDate', v)} 
                       />
                       
                       <div className="form-group mt-4">
-                        <label className="form-label">4. Comments on Course Content & Organisation (Optional)</label>
-                        <textarea className="form-textarea" rows={3} value={form.courseContentOrg.comment} onChange={(e) => updateNestedForm('courseContentOrg', 'comment', e.target.value)} />
+                        <label className="form-label">Any other comments:</label>
+                        <textarea className="form-textarea" rows={3} placeholder="Write any comments here (optional)..." value={form.courseContentOrg.comment} onChange={(e) => updateNestedForm('courseContentOrg', 'comment', e.target.value)} />
                       </div>
                     </div>
                   </motion.div>
@@ -550,6 +530,14 @@ export default function FeedbackForm() {
                   const co = courseOutcomes[coIndex];
                   const coNum = co?.coNumber || (coIndex + 1);
                   const coData = form.coFeedback[coIndex] || {};
+                  // Continuous numbering: Q1 is Course Content, then 3 questions per CO
+                  const qBase = 2 + coIndex * 3;
+                  const rawTitle = (co?.title || '').trim();
+                  const rawDesc = (co?.description || '').trim();
+                  const isGenericTitle = !rawTitle || rawTitle.toUpperCase() === `CO${coNum}`;
+                  const coStatement = isGenericTitle
+                    ? rawDesc
+                    : (rawDesc && rawDesc !== rawTitle ? `${rawTitle} — ${rawDesc}` : rawTitle);
 
                   return (
                     <motion.div
@@ -559,34 +547,35 @@ export default function FeedbackForm() {
                       exit={{ opacity: 0, x: -20 }}
                       className="form-step"
                     >
-                      <h2 className="form-step-title" style={{ marginBottom: '24px' }}>
+                      <h2 className="form-step-title">
                         <Target size={22} className="form-step-icon" style={{ color: 'var(--ruet-emerald)' }} />
-                        CO{coNum}: {co?.title}
+                        CO{coNum}{coStatement ? `: ${coStatement}` : ''}
                       </h2>
+                      <p className="form-step-desc">Please indicate your level of agreement with each statement.</p>
                       
                       <div className="likert-section">
                         <LikertScale 
-                          question="1. To what extent did this course help you achieve this CO?"
-                          value={coData.q1_achievement || 0}
-                          onChange={(v) => updateCOFeedback(coIndex, 'q1_achievement', v)}
-                          variant="achievement"
+                          question={`${qBase}. The course contents are aligned with this CO.`}
+                          value={coData.q1_contentAligned || 0}
+                          onChange={(v) => updateCOFeedback(coIndex, 'q1_contentAligned', v)}
                         />
                         <LikertScale 
-                          question="2. Were the teaching-learning methods aligned with this CO?"
-                          value={coData.q2_alignment || 0}
-                          onChange={(v) => updateCOFeedback(coIndex, 'q2_alignment', v)}
+                          question={`${qBase + 1}. The teaching-learning methods are effective to achieve this CO.`}
+                          value={coData.q2_methodsEffective || 0}
+                          onChange={(v) => updateCOFeedback(coIndex, 'q2_methodsEffective', v)}
                         />
                         <LikertScale 
-                          question="3. Did the assessment tools used for this CO engage you in the learning process?"
-                          value={coData.q3_assessment || 0}
-                          onChange={(v) => updateCOFeedback(coIndex, 'q3_assessment', v)}
+                          question={`${qBase + 2}. The used assessment tools are appropriate for this CO.`}
+                          value={coData.q3_assessmentAppropriate || 0}
+                          onChange={(v) => updateCOFeedback(coIndex, 'q3_assessmentAppropriate', v)}
                         />
                         
                         <div className="form-group mt-4">
-                          <label className="form-label">4. Comments or suggestions regarding this CO (Optional)</label>
+                          <label className="form-label">Any other comments:</label>
                           <textarea 
                             className="form-textarea" 
                             rows={3} 
+                            placeholder="Write any comments here (optional)..."
                             value={coData.comment || ''} 
                             onChange={(e) => updateCOFeedback(coIndex, 'comment', e.target.value)} 
                           />
@@ -595,51 +584,6 @@ export default function FeedbackForm() {
                     </motion.div>
                   );
                 })()}
-
-                {/* Teaching-Learning & Assessment */}
-                {currentStepType.type === 'teachingLearning' && (
-                  <motion.div
-                    key="step-teachingLearning"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    className="form-step"
-                  >
-                    <h2 className="form-step-title">
-                      <Presentation size={22} className="form-step-icon" />
-                      Teaching-Learning & Assessment
-                    </h2>
-                    <p className="form-step-desc">Rate the following from Strongly Disagree to Strongly Agree</p>
-                    
-                    <div className="likert-section">
-                      <LikertScale 
-                        question="1. The course was well structured to achieve the learning outcomes." 
-                        value={form.teachingLearning.q1_structured} 
-                        onChange={(v) => updateNestedForm('teachingLearning', 'q1_structured', v)} 
-                      />
-                      <LikertScale 
-                        question="2. The learning and teaching methods encouraged active participation." 
-                        value={form.teachingLearning.q2_participation} 
-                        onChange={(v) => updateNestedForm('teachingLearning', 'q2_participation', v)} 
-                      />
-                      <LikertScale 
-                        question="3. Learning materials were relevant and useful." 
-                        value={form.teachingLearning.q3_materials} 
-                        onChange={(v) => updateNestedForm('teachingLearning', 'q3_materials', v)} 
-                      />
-                      <LikertScale 
-                        question="4. The assessment activities encouraged applying learned knowledge and skills." 
-                        value={form.teachingLearning.q4_assessment} 
-                        onChange={(v) => updateNestedForm('teachingLearning', 'q4_assessment', v)} 
-                      />
-                      
-                      <div className="form-group mt-4">
-                        <label className="form-label">5. Comments on Teaching, Learning and Assessment (Optional)</label>
-                        <textarea className="form-textarea" rows={3} value={form.teachingLearning.comment} onChange={(e) => updateNestedForm('teachingLearning', 'comment', e.target.value)} />
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
 
                 {/* Academic and Laboratory Facilities */}
                 {currentStepType.type === 'facilities' && (
@@ -654,28 +598,49 @@ export default function FeedbackForm() {
                       <FlaskConical size={22} className="form-step-icon" />
                       Academic & Laboratory Facilities
                     </h2>
-                    <p className="form-step-desc">Rate the following from Strongly Disagree to Strongly Agree</p>
+                    <p className="form-step-desc">Please indicate your level of agreement with each statement.</p>
                     
                     <div className="likert-section">
                       <LikertScale 
-                        question="1. The overall classroom environment was conducive to learning." 
-                        value={form.academicFacilities.q1_environment} 
-                        onChange={(v) => updateNestedForm('academicFacilities', 'q1_environment', v)} 
-                      />
-                      <LikertScale 
-                        question="2. Classrooms and seating arrangements were satisfactory." 
-                        value={form.academicFacilities.q2_classrooms} 
-                        onChange={(v) => updateNestedForm('academicFacilities', 'q2_classrooms', v)} 
-                      />
-                      <LikertScale 
-                        question="3. Laboratory facilities and equipment were adequate and appropriate." 
-                        value={form.academicFacilities.q3_laboratory} 
-                        onChange={(v) => updateNestedForm('academicFacilities', 'q3_laboratory', v)} 
+                        question={`${2 + courseOutcomes.length * 3}. Infrastructure and academic facilities are adequate to achieve the COs.`} 
+                        value={form.academicFacilities.q1_infrastructure} 
+                        onChange={(v) => updateNestedForm('academicFacilities', 'q1_infrastructure', v)} 
                       />
                       
                       <div className="form-group mt-4">
-                        <label className="form-label">4. Comments on Academic & Laboratory Facilities (Optional)</label>
-                        <textarea className="form-textarea" rows={3} value={form.academicFacilities.comment} onChange={(e) => updateNestedForm('academicFacilities', 'comment', e.target.value)} />
+                        <label className="form-label">Any other comments:</label>
+                        <textarea className="form-textarea" rows={3} placeholder="Write any comments here (optional)..." value={form.academicFacilities.comment} onChange={(e) => updateNestedForm('academicFacilities', 'comment', e.target.value)} />
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Course Teacher */}
+                {currentStepType.type === 'teacher' && (
+                  <motion.div
+                    key="step-teacher"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="form-step"
+                  >
+                    <h2 className="form-step-title">
+                      <User size={22} className="form-step-icon" />
+                      Course Teacher
+                    </h2>
+                    <p className="form-step-desc">Rate from 1 (Poor) to 5 (Excellent).</p>
+                    
+                    <div className="likert-section">
+                      <LikertScale 
+                        question={`${3 + courseOutcomes.length * 3}. Evaluate the course teacher based on class preparation, lecture delivery, and way of teaching.`} 
+                        value={form.courseTeacherEval.rating} 
+                        onChange={(v) => updateNestedForm('courseTeacherEval', 'rating', v)} 
+                        variant="numeric"
+                      />
+                      
+                      <div className="form-group mt-4">
+                        <label className="form-label">Any other comments:</label>
+                        <textarea className="form-textarea" rows={3} placeholder="Write any comments here (optional)..." value={form.courseTeacherEval.comment} onChange={(e) => updateNestedForm('courseTeacherEval', 'comment', e.target.value)} />
                       </div>
                     </div>
                   </motion.div>
@@ -720,61 +685,28 @@ export default function FeedbackForm() {
                         <span className="review-value" style={{ color: 'var(--ruet-emerald)' }}>✓ Completed</span>
                       </div>
                       
-                      {courseOutcomes.map((co, i) => (
-                        <div className="review-row" key={i}>
-                          <span className="review-label">CO{co.coNumber || (i + 1)}: {co.title}</span>
-                          <span className="review-value" style={{ color: 'var(--ruet-emerald)' }}>✓ Completed</span>
-                        </div>
-                      ))}
+                      {courseOutcomes.map((co, i) => {
+                        const coNum = co.coNumber || (i + 1);
+                        const rawTitle = (co.title || '').trim();
+                        const rawDesc = (co.description || '').trim();
+                        const isGeneric = !rawTitle || rawTitle.toUpperCase() === `CO${coNum}`;
+                        const text = isGeneric ? rawDesc : rawTitle;
+                        return (
+                          <div className="review-row" key={i}>
+                            <span className="review-label">CO{coNum}{text ? `: ${text}` : ''}</span>
+                            <span className="review-value" style={{ color: 'var(--ruet-emerald)' }}>✓ Completed</span>
+                          </div>
+                        );
+                      })}
 
-                      <div className="review-row">
-                        <span className="review-label">Teaching-Learning & Assessment</span>
-                        <span className="review-value" style={{ color: 'var(--ruet-emerald)' }}>✓ Completed</span>
-                      </div>
                       <div className="review-row">
                         <span className="review-label">Academic & Lab Facilities</span>
                         <span className="review-value" style={{ color: 'var(--ruet-emerald)' }}>✓ Completed</span>
                       </div>
-                    </div>
-
-                    {/* Section C: Mandatory Comments & Suggestions */}
-                    <div className="review-section-box mt-6" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '20px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                        <MessageSquare size={20} style={{ color: 'var(--ruet-gold)' }} />
-                        <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '700', color: 'var(--text-primary)' }}>
-                          C. ALL STUDENT COMMENTS & SUGGESTIONS <span style={{ color: '#EF4444' }}>* (Mandatory)</span>
-                        </h3>
+                      <div className="review-row">
+                        <span className="review-label">Course Teacher</span>
+                        <span className="review-value" style={{ color: 'var(--ruet-emerald)' }}>✓ Completed</span>
                       </div>
-                      <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginBottom: '14px' }}>
-                        Please provide your constructive feedback, comments, and suggestions to improve the course and teaching quality.
-                      </p>
-                      <textarea
-                        id="overall-comment-input"
-                        className="form-textarea"
-                        rows={4}
-                        placeholder="Write your comments and suggestions here (Mandatory before submitting)..."
-                        value={form.overallComment}
-                        onChange={(e) => setForm(prev => ({ ...prev, overallComment: e.target.value }))}
-                        style={{
-                          width: '100%',
-                          borderColor: !form.overallComment?.trim() ? 'rgba(239, 68, 68, 0.6)' : undefined,
-                          background: 'rgba(0, 0, 0, 0.2)',
-                          borderRadius: '8px',
-                          padding: '12px',
-                          fontSize: '14px',
-                          lineHeight: '1.5'
-                        }}
-                        required
-                      />
-                      {!form.overallComment?.trim() ? (
-                        <span style={{ color: '#EF4444', fontSize: '12px', marginTop: '6px', display: 'block', fontWeight: '500' }}>
-                          * Comments and suggestions are required before submitting this evaluation.
-                        </span>
-                      ) : (
-                        <span style={{ color: 'var(--ruet-emerald)', fontSize: '12px', marginTop: '6px', display: 'block' }}>
-                          ✓ Comments provided
-                        </span>
-                      )}
                     </div>
 
                     <div className="anonymity-notice mt-6">

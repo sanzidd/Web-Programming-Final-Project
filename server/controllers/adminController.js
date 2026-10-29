@@ -481,7 +481,8 @@ exports.resetTestData = async (req, res) => {
         avgCourseContent: 0,
         avgTeachingLearning: 0,
         avgFacilities: 0,
-        avgCOAttainment: 0
+        avgCOAttainment: 0,
+        avgCourseTeacher: 0
       }
     });
 

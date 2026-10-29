@@ -1,6 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 const XlsxPopulate = require('xlsx-populate');
+const { contentScore, coEntryScore, facilitiesScore, teacherScore } = require('../utils/feedbackScores');
 
 // Helper to convert column number (1-based) to Excel letter (A, B, ..., Z, AA, AB, ...)
 function colToLetter(col) {
@@ -16,6 +17,13 @@ function colToLetter(col) {
 
 function ratingToText(val) {
   const map = { 5: 'Strongly Agree', 4: 'Agree', 3: 'Neutral', 2: 'Disagree', 1: 'Strongly Disagree' };
+  return map[val] || '';
+}
+
+// Course Teacher numeric rating (1-5)
+const TEACHER_RATING_LABELS = ['5 - Excellent', '4 - Very Good', '3 - Good', '2 - Fair', '1 - Poor'];
+function teacherRatingToText(val) {
+  const map = { 5: '5 - Excellent', 4: '4 - Very Good', 3: '3 - Good', 2: '2 - Fair', 1: '1 - Poor' };
   return map[val] || '';
 }
 
@@ -453,40 +461,40 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
 
   let col = 2;
 
-  // Section 1: Course Content and Organization (3 questions + comment)
+  // Question numbering follows the student form: Q1 (content), Q2.. (COs), then Facilities and Course Teacher.
+  // Comment columns are not numbered.
+
+  // Section 1: Course Content and Organization (1 question + comment)
   const s1ColStart = col;
   wsInput.cell(1, col).value('Course Content and Organization');
-  wsInput.cell(2, col).value('The course objectives were clear'); wsInput.cell(3, col).value('Q. 1'); col++;
-  wsInput.cell(2, col).value('The course workload was manageable'); wsInput.cell(3, col).value('Q. 2'); col++;
-  wsInput.cell(2, col).value('The course was well organized (e.g. timely access to materials, notification of changes, etc.)'); wsInput.cell(3, col).value('Q. 3'); col++;
+  wsInput.cell(2, col).value('The course contents are up-to-date and well organized'); wsInput.cell(3, col).value('Q. 1'); col++;
   const s1ColEnd = col - 1;
   const s1CommentCol = col;
-  wsInput.cell(1, col).value('Comments on Course Content and Organization questions (if any)');
-  wsInput.cell(3, col).value('Q. 4'); col++;
+  wsInput.cell(1, col).value('Comments on Course Content and Organization (if any)');
+  wsInput.cell(3, col).value('Comment'); col++;
 
   // Merge headers for Section 1
-  wsInput.range(`B1:${colToLetter(s1ColEnd)}1`).merged(true);
   wsInput.range(`${colToLetter(s1CommentCol)}1:${colToLetter(s1CommentCol)}2`).merged(true);
 
-  let qNum = 5;
+  let qNum = 2;
   const coCols = [];
   cos.forEach((co) => {
     const coNum = co.coNumber || (coCols.length + 1);
     const coStart = col;
     wsInput.cell(1, col).value(`Questions Related to CO${coNum}: ${co.title}`);
-    wsInput.cell(2, col).value(`To what extent this course helped you to achieve CO${coNum}`);
+    wsInput.cell(2, col).value(`The course contents are aligned with CO${coNum}`);
     wsInput.cell(3, col).value(`Q. ${qNum++}`); col++;
 
-    wsInput.cell(2, col).value(`Does the teaching-learning method align with CO${coNum}`);
+    wsInput.cell(2, col).value(`The teaching-learning methods are effective to achieve CO${coNum}`);
     wsInput.cell(3, col).value(`Q. ${qNum++}`); col++;
 
-    wsInput.cell(2, col).value(`Does the assessment tool used engage you in the learning process for CO${coNum}`);
+    wsInput.cell(2, col).value(`The used assessment tools are appropriate for CO${coNum}`);
     wsInput.cell(3, col).value(`Q. ${qNum++}`); col++;
     const coEnd = col - 1;
 
     const commentCol = col;
-    wsInput.cell(1, col).value(`Comments on CO${coNum} questions (if any)`);
-    wsInput.cell(3, col).value(`Q. ${qNum++}`); col++;
+    wsInput.cell(1, col).value(`Comments on CO${coNum} (if any)`);
+    wsInput.cell(3, col).value('Comment'); col++;
 
     // Merge headers for this CO
     wsInput.range(`${colToLetter(coStart)}1:${colToLetter(coEnd)}1`).merged(true);
@@ -495,46 +503,29 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
     coCols.push({ co, coNum, startCol: coStart, endCol: coEnd, commentCol });
   });
 
-  // Section 3: Teaching-Learning & Assessment (4 questions + comment)
-  const s3ColStart = col;
-  wsInput.cell(1, col).value('Teaching-Learning and Assessment');
-  wsInput.cell(2, col).value('I think the course was well structured to achieve the learning outcomes'); wsInput.cell(3, col).value(`Q. ${qNum++}`); col++;
-  wsInput.cell(2, col).value('The learning and teaching methods encouraged participation'); wsInput.cell(3, col).value(`Q. ${qNum++}`); col++;
-  wsInput.cell(2, col).value('Learning materials were relevant and useful'); wsInput.cell(3, col).value(`Q. ${qNum++}`); col++;
-  wsInput.cell(2, col).value('Do the assessment activities encourage you to apply knowledge and skills'); wsInput.cell(3, col).value(`Q. ${qNum++}`); col++;
-  const s3ColEnd = col - 1;
-  const s3CommentCol = col;
-  wsInput.cell(1, col).value('Comments on Teaching-Learning questions (if any)');
-  wsInput.cell(3, col).value(`Q. ${qNum++}`); col++;
-
-  // Merge headers for Section 3
-  wsInput.range(`${colToLetter(s3ColStart)}1:${colToLetter(s3ColEnd)}1`).merged(true);
-  wsInput.range(`${colToLetter(s3CommentCol)}1:${colToLetter(s3CommentCol)}2`).merged(true);
-
-  // Section 4: Academic and Laboratory Facilities (3 questions + comment)
+  // Section: Academic and Laboratory Facilities (1 question + comment)
   const s4ColStart = col;
   wsInput.cell(1, col).value('Academic and Laboratory Facilities');
-  wsInput.cell(2, col).value('The overall environment in the class was conducive to learning'); wsInput.cell(3, col).value(`Q. ${qNum++}`); col++;
-  wsInput.cell(2, col).value('Classrooms were satisfactory'); wsInput.cell(3, col).value(`Q. ${qNum++}`); col++;
-  wsInput.cell(2, col).value('Laboratory facilities were adequate and appropriate'); wsInput.cell(3, col).value(`Q. ${qNum++}`); col++;
+  wsInput.cell(2, col).value('Infrastructure and academic facilities are adequate to achieve the COs'); wsInput.cell(3, col).value(`Q. ${qNum++}`); col++;
   const s4ColEnd = col - 1;
   const s4CommentCol = col;
-  wsInput.cell(1, col).value('Comments on Facilities questions (if any)');
-  wsInput.cell(3, col).value(`Q. ${qNum++}`); col++;
+  wsInput.cell(1, col).value('Comments on Facilities (if any)');
+  wsInput.cell(3, col).value('Comment'); col++;
 
-  // Merge headers for Section 4
-  wsInput.range(`${colToLetter(s4ColStart)}1:${colToLetter(s4ColEnd)}1`).merged(true);
   wsInput.range(`${colToLetter(s4CommentCol)}1:${colToLetter(s4CommentCol)}2`).merged(true);
 
-  // Section C: All Student Comments & Suggestions (Mandatory feedback)
-  const overallCommentCol = col;
-  wsInput.cell(1, col).value('C. ALL STUDENT COMMENTS & SUGGESTIONS');
-  wsInput.cell(2, col).value('Provide feedback, comments and suggestions to improve the course');
-  wsInput.cell(3, col).value(`Q. ${qNum++}`); col++;
+  // Section: Course Teacher (1-5 rating + comment)
+  const s5ColStart = col;
+  wsInput.cell(1, col).value('Course Teacher');
+  wsInput.cell(2, col).value('Evaluate the course teacher based on class preparation, lecture delivery, and way of teaching'); wsInput.cell(3, col).value(`Q. ${qNum++}`); col++;
+  const s5ColEnd = col - 1;
+  const s5CommentCol = col;
+  wsInput.cell(1, col).value('Comments on Course Teacher (if any)');
+  wsInput.cell(3, col).value('Comment'); col++;
 
-  // Merge headers for Section C
-  wsInput.range(`${colToLetter(overallCommentCol)}1:${colToLetter(overallCommentCol)}2`).merged(true);
+  wsInput.range(`${colToLetter(s5CommentCol)}1:${colToLetter(s5CommentCol)}2`).merged(true);
 
+  const overallCommentCol = s5CommentCol;
   const lastCol = overallCommentCol;
   const lastColLetter = colToLetter(lastCol);
 
@@ -544,9 +535,8 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
   }
   wsInput.column(s1CommentCol).width(24);
   coCols.forEach(({ commentCol }) => wsInput.column(commentCol).width(24));
-  wsInput.column(s3CommentCol).width(24);
   wsInput.column(s4CommentCol).width(24);
-  wsInput.column(overallCommentCol).width(35);
+  wsInput.column(s5CommentCol).width(24);
 
   // Style Header Cells (Rows 1-3)
   for (let r = 1; r <= 3; r++) {
@@ -583,36 +573,26 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
       border: true
     });
 
-    // S1
-    wsInput.cell(r, s1ColStart).value(ratingToText(fb.courseContentOrg?.q1_objectives));
-    wsInput.cell(r, s1ColStart + 1).value(ratingToText(fb.courseContentOrg?.q2_workload));
-    wsInput.cell(r, s1ColStart + 2).value(ratingToText(fb.courseContentOrg?.q3_organized));
+    // S1: Course Content & Organisation (legacy rows fall back to the old "well organized" question)
+    wsInput.cell(r, s1ColStart).value(ratingToText(fb.courseContentOrg?.q1_upToDate || fb.courseContentOrg?.q3_organized));
     wsInput.cell(r, s1CommentCol).value(fb.courseContentOrg?.comment || '');
 
     // COs
     coCols.forEach(({ coNum, startCol, commentCol }) => {
       const cd = (fb.coFeedback || []).find(c => c.coNumber === coNum);
-      wsInput.cell(r, startCol).value(ratingToText(cd?.q1_achievement));
-      wsInput.cell(r, startCol + 1).value(ratingToText(cd?.q2_alignment));
-      wsInput.cell(r, startCol + 2).value(ratingToText(cd?.q3_assessment));
+      wsInput.cell(r, startCol).value(ratingToText(cd?.q1_contentAligned));
+      wsInput.cell(r, startCol + 1).value(ratingToText(cd?.q2_methodsEffective || cd?.q2_alignment));
+      wsInput.cell(r, startCol + 2).value(ratingToText(cd?.q3_assessmentAppropriate || cd?.q3_assessment));
       wsInput.cell(r, commentCol).value(cd?.comment || '');
     });
 
-    // S3
-    wsInput.cell(r, s3ColStart).value(ratingToText(fb.teachingLearning?.q1_structured));
-    wsInput.cell(r, s3ColStart + 1).value(ratingToText(fb.teachingLearning?.q2_participation));
-    wsInput.cell(r, s3ColStart + 2).value(ratingToText(fb.teachingLearning?.q3_materials));
-    wsInput.cell(r, s3ColStart + 3).value(ratingToText(fb.teachingLearning?.q4_assessment));
-    wsInput.cell(r, s3CommentCol).value(fb.teachingLearning?.comment || '');
-
-    // S4
-    wsInput.cell(r, s4ColStart).value(ratingToText(fb.academicFacilities?.q1_environment));
-    wsInput.cell(r, s4ColStart + 1).value(ratingToText(fb.academicFacilities?.q2_classrooms));
-    wsInput.cell(r, s4ColStart + 2).value(ratingToText(fb.academicFacilities?.q3_laboratory));
+    // Facilities (legacy rows fall back to the old laboratory question)
+    wsInput.cell(r, s4ColStart).value(ratingToText(fb.academicFacilities?.q1_infrastructure || fb.academicFacilities?.q3_laboratory));
     wsInput.cell(r, s4CommentCol).value(fb.academicFacilities?.comment || '');
 
-    // Section C
-    wsInput.cell(r, overallCommentCol).value(fb.overallComment || fb.commentsAndSuggestions || fb.generalComment || '');
+    // Course Teacher
+    wsInput.cell(r, s5ColStart).value(teacherRatingToText(fb.courseTeacherEval?.rating));
+    wsInput.cell(r, s5CommentCol).value(fb.courseTeacherEval?.comment || '');
 
     // Style data row cells
     for (let c = 2; c <= lastCol; c++) {
@@ -694,7 +674,7 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
   let currentGraphRow = 7;
   const chartDefinitions = [];
 
-  function addGraphTable({ titleFormula, titleText, startCol, endCol }) {
+  function addGraphTable({ titleFormula, titleText, startCol, endCol, labels = ratingLabels }) {
     const tRow = currentGraphRow;
     const qCount = endCol - startCol + 1;
     const colEndLetter = colToLetter(2 + qCount);
@@ -714,7 +694,7 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
     for (let i = 0; i < qCount; i++) {
       const inputColLetter = colToLetter(startCol + i);
       const cellRef = `Input!${inputColLetter}3`;
-      const qText = `Q. ${startCol + i - 1}`;
+      const qText = String(wsInput.cell(3, startCol + i).value() || `Q. ${i + 1}`);
       wsGraphs.cell(tRow + 1, 3 + i).formula(cellRef).value(qText).style({
         bold: true,
         horizontalAlignment: 'center',
@@ -729,7 +709,7 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
     const catRange = `Graphs!$${catStartLetter}$${tRow + 1}:$${catEndLetter}$${tRow + 1}`;
 
     const seriesList = [];
-    ratingLabels.forEach((label, lIdx) => {
+    labels.forEach((label, lIdx) => {
       const rRow = tRow + 2 + lIdx;
       wsGraphs.cell(rRow, 2).value(label).style({
         bold: true,
@@ -792,16 +772,7 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
     chartDefinitions.push({ ...coGraph, sectionName: `CO${coNum}: ${co.title}` });
   });
 
-  // Table for Section 3
-  const s3Graph = addGraphTable({
-    titleFormula: `Input!${colToLetter(s3ColStart)}1`,
-    titleText: 'Teaching-Learning and Assessment',
-    startCol: s3ColStart,
-    endCol: s3ColEnd
-  });
-  chartDefinitions.push({ ...s3Graph, sectionName: 'Teaching-Learning and Assessment' });
-
-  // Table for Section 4
+  // Table for Facilities
   const s4Graph = addGraphTable({
     titleFormula: `Input!${colToLetter(s4ColStart)}1`,
     titleText: 'Academic and Laboratory Facilities',
@@ -809,6 +780,16 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
     endCol: s4ColEnd
   });
   chartDefinitions.push({ ...s4Graph, sectionName: 'Academic and Laboratory Facilities' });
+
+  // Table for Course Teacher
+  const s5Graph = addGraphTable({
+    titleFormula: `Input!${colToLetter(s5ColStart)}1`,
+    titleText: 'Course Teacher',
+    startCol: s5ColStart,
+    endCol: s5ColEnd,
+    labels: TEACHER_RATING_LABELS
+  });
+  chartDefinitions.push({ ...s5Graph, sectionName: 'Course Teacher' });
 
   // ══════════════════════════════════════════════════════════════
   // SHEET 3: Final Feedback
@@ -924,13 +905,12 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
   }
 
   // Section 1: Course Content and Organization
-  const s1Comments = feedbacks.map(f => f.courseContentOrg?.comment).filter(c => c && c.trim() && c.trim().toLowerCase() !== 'no comments');
+  const isRealComment = (c) => c && c.trim() && c.trim().toLowerCase() !== 'no comments';
+  const s1Comments = feedbacks.map(f => f.courseContentOrg?.comment).filter(isRealComment);
   renderFFSection({
     title: 'Course Content and Organization',
     questions: [
-      'The course objectives were clear',
-      'The course workload was manageable',
-      'The course was well organized (e.g. timely access to materials, etc.)'
+      'The course contents are up-to-date and well organized'
     ],
     comments: s1Comments,
     chartDef: chartDefinitions[0]
@@ -938,43 +918,38 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
 
   // Dynamic CO Sections
   coCols.forEach(({ co, coNum }, idx) => {
-    const coComments = feedbacks.map(f => (f.coFeedback || []).find(c => c.coNumber === coNum)?.comment).filter(c => c && c.trim() && c.trim().toLowerCase() !== 'no comments');
+    const coComments = feedbacks.map(f => (f.coFeedback || []).find(c => c.coNumber === coNum)?.comment).filter(isRealComment);
     renderFFSection({
       title: `CO${coNum}: ${co.title}`,
       questions: [
-        `To what extent this course helped you achieve CO${coNum}`,
-        `Does the teaching-learning method align with CO${coNum}`,
-        `Does the assessment tool used engage you in the learning process for CO${coNum}`
+        `The course contents are aligned with CO${coNum}`,
+        `The teaching-learning methods are effective to achieve CO${coNum}`,
+        `The used assessment tools are appropriate for CO${coNum}`
       ],
       comments: coComments,
       chartDef: chartDefinitions[1 + idx]
     });
   });
 
-  // Section 3: Teaching-Learning and Assessment
-  const s3Comments = feedbacks.map(f => f.teachingLearning?.comment).filter(c => c && c.trim() && c.trim().toLowerCase() !== 'no comments');
-  renderFFSection({
-    title: 'Teaching-Learning and Assessment',
-    questions: [
-      'I think the course was well structured to achieve the learning outcomes',
-      'The learning and teaching methods encouraged participation',
-      'Learning materials were relevant and useful',
-      'Do the assessment activities encourage you to apply knowledge and skills'
-    ],
-    comments: s3Comments,
-    chartDef: chartDefinitions[1 + coCols.length]
-  });
-
-  // Section 4: Academic and Laboratory Facilities
-  const s4Comments = feedbacks.map(f => f.academicFacilities?.comment).filter(c => c && c.trim() && c.trim().toLowerCase() !== 'no comments');
+  // Academic and Laboratory Facilities
+  const s4Comments = feedbacks.map(f => f.academicFacilities?.comment).filter(isRealComment);
   renderFFSection({
     title: 'Academic and Laboratory Facilities',
     questions: [
-      'The overall environment in the class was conducive to learning',
-      'Classrooms were satisfactory',
-      'Laboratory facilities were adequate and appropriate'
+      'Infrastructure and academic facilities are adequate to achieve the COs'
     ],
     comments: s4Comments,
+    chartDef: chartDefinitions[1 + coCols.length]
+  });
+
+  // Course Teacher
+  const s5Comments = feedbacks.map(f => f.courseTeacherEval?.comment).filter(isRealComment);
+  renderFFSection({
+    title: 'Course Teacher',
+    questions: [
+      'Evaluate the course teacher based on class preparation, lecture delivery, and way of teaching (1-5)'
+    ],
+    comments: s5Comments,
     chartDef: chartDefinitions[2 + coCols.length]
   });
 
@@ -1019,68 +994,36 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
   let metricSl = 1;
   const allSectionScores = [];
 
-  // 1. Course Content & Organisation
-  const s1Vals = feedbacks.map(f => (f.courseContentOrg?.q1_objectives + f.courseContentOrg?.q2_workload + f.courseContentOrg?.q3_organized) / 3).filter(Boolean);
-  const s1Avg = calcAvg(s1Vals);
-  allSectionScores.push(...s1Vals);
-  wsFF.cell(ffRow, 1).value(metricSl++).style({ horizontalAlignment: 'center', verticalAlignment: 'center', border: true });
-  wsFF.cell(ffRow, 2).value('Course Content & Organisation').style({ bold: true, verticalAlignment: 'center', border: true, wrapText: true });
-  wsFF.cell(ffRow, 3).value(`Average Score: ${s1Avg.toFixed(2)} / 5.00        Attainment: ${calcPctHigh(s1Vals)} Favorable (Rating ≥ 3)`).style({
-    horizontalAlignment: 'center',
-    verticalAlignment: 'center',
-    border: true
-  });
-  wsFF.row(ffRow).height(estimateRowHeight('Course Content & Organisation', { colWidth: 32, isBold: true, minHeight: 24 }));
-  ffRow++;
-
-  // 2. Dynamic COs
-  coCols.forEach(({ co, coNum }) => {
-    const coVals = feedbacks.map(f => {
-      const cd = (f.coFeedback || []).find(c => c.coNumber === coNum);
-      return cd ? (cd.q1_achievement + cd.q2_alignment + cd.q3_assessment) / 3 : 0;
-    }).filter(v => v > 0);
-    const coAvg = calcAvg(coVals);
-    allSectionScores.push(...coVals);
-    const coTitle = `CO${coNum}: ${co.title}`;
-    const h = estimateRowHeight(coTitle, { colWidth: 32, isBold: true, minHeight: 24, linePadding: 8 });
+  const addMetricRow = (title, vals) => {
+    const avg = calcAvg(vals);
+    allSectionScores.push(...vals);
     wsFF.cell(ffRow, 1).value(metricSl++).style({ horizontalAlignment: 'center', verticalAlignment: 'center', border: true });
-    wsFF.cell(ffRow, 2).value(coTitle).style({ bold: true, verticalAlignment: 'center', border: true, wrapText: true });
-    wsFF.cell(ffRow, 3).value(`Average Score: ${coAvg.toFixed(2)} / 5.00        Attainment: ${calcPctHigh(coVals)} Favorable (Rating ≥ 3)`).style({
+    wsFF.cell(ffRow, 2).value(title).style({ bold: true, verticalAlignment: 'center', border: true, wrapText: true });
+    wsFF.cell(ffRow, 3).value(`Average Score: ${avg.toFixed(2)} / 5.00        Attainment: ${calcPctHigh(vals)} Favorable (Rating ≥ 3)`).style({
       horizontalAlignment: 'center',
       verticalAlignment: 'center',
       border: true
     });
-    wsFF.row(ffRow).height(h);
+    wsFF.row(ffRow).height(estimateRowHeight(title, { colWidth: 32, isBold: true, minHeight: 24, linePadding: 8 }));
     ffRow++;
+  };
+
+  // 1. Course Content & Organisation
+  addMetricRow('Course Content & Organisation', feedbacks.map(f => contentScore(f)).filter(v => v !== null));
+
+  // 2. Dynamic COs
+  coCols.forEach(({ co, coNum }) => {
+    const coVals = feedbacks
+      .map(f => coEntryScore((f.coFeedback || []).find(c => c.coNumber === coNum)))
+      .filter(v => v !== null);
+    addMetricRow(`CO${coNum}: ${co.title}`, coVals);
   });
 
-  // 3. Teaching-Learning & Assessment
-  const s3Vals = feedbacks.map(f => (f.teachingLearning?.q1_structured + f.teachingLearning?.q2_participation + f.teachingLearning?.q3_materials + f.teachingLearning?.q4_assessment) / 4).filter(Boolean);
-  const s3Avg = calcAvg(s3Vals);
-  allSectionScores.push(...s3Vals);
-  wsFF.cell(ffRow, 1).value(metricSl++).style({ horizontalAlignment: 'center', verticalAlignment: 'center', border: true });
-  wsFF.cell(ffRow, 2).value('Teaching-Learning & Assessment').style({ bold: true, verticalAlignment: 'center', border: true, wrapText: true });
-  wsFF.cell(ffRow, 3).value(`Average Score: ${s3Avg.toFixed(2)} / 5.00        Attainment: ${calcPctHigh(s3Vals)} Favorable (Rating ≥ 3)`).style({
-    horizontalAlignment: 'center',
-    verticalAlignment: 'center',
-    border: true
-  });
-  wsFF.row(ffRow).height(estimateRowHeight('Teaching-Learning & Assessment', { colWidth: 32, isBold: true, minHeight: 24 }));
-  ffRow++;
+  // 3. Academic & Lab Facilities
+  addMetricRow('Academic & Laboratory Facilities', feedbacks.map(f => facilitiesScore(f)).filter(v => v !== null));
 
-  // 4. Academic & Lab Facilities
-  const s4Vals = feedbacks.map(f => (f.academicFacilities?.q1_environment + f.academicFacilities?.q2_classrooms + f.academicFacilities?.q3_laboratory) / 3).filter(Boolean);
-  const s4Avg = calcAvg(s4Vals);
-  allSectionScores.push(...s4Vals);
-  wsFF.cell(ffRow, 1).value(metricSl++).style({ horizontalAlignment: 'center', verticalAlignment: 'center', border: true });
-  wsFF.cell(ffRow, 2).value('Academic & Laboratory Facilities').style({ bold: true, verticalAlignment: 'center', border: true, wrapText: true });
-  wsFF.cell(ffRow, 3).value(`Average Score: ${s4Avg.toFixed(2)} / 5.00        Attainment: ${calcPctHigh(s4Vals)} Favorable (Rating ≥ 3)`).style({
-    horizontalAlignment: 'center',
-    verticalAlignment: 'center',
-    border: true
-  });
-  wsFF.row(ffRow).height(estimateRowHeight('Academic & Laboratory Facilities', { colWidth: 32, isBold: true, minHeight: 24 }));
-  ffRow++;
+  // 4. Course Teacher
+  addMetricRow('Course Teacher', feedbacks.map(f => teacherScore(f)).filter(v => v !== null));
 
   // Overall Row
   const overallAvg = calcAvg(allSectionScores);
@@ -1116,8 +1059,8 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
     ...feedbacks.map(f => f.overallComment || f.commentsAndSuggestions || f.generalComment),
     ...s1Comments,
     ...feedbacks.flatMap(f => (f.coFeedback || []).map(c => c.comment).filter(c => c && c.trim() && c.trim().toLowerCase() !== 'no comments')),
-    ...s3Comments,
-    ...s4Comments
+    ...s4Comments,
+    ...s5Comments
   ].map(c => (c || '').trim()).filter(c => c && c.toLowerCase() !== 'no comments' && c.toLowerCase() !== 'no specific comments provided.');
 
   const uniqueComments = [...new Set(allComments)];

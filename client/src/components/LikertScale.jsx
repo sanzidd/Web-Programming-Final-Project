@@ -1,4 +1,3 @@
-import React from 'react';
 import './LikertScale.css';
 
 const LIKERT_OPTIONS = [
@@ -17,8 +16,21 @@ const ACHIEVEMENT_OPTIONS = [
   { value: 1, label: 'Not At All' }
 ];
 
+// Numeric 1-5 rating (used for the Course Teacher evaluation)
+const NUMERIC_OPTIONS = [
+  { value: 1, label: '1', hint: 'Poor' },
+  { value: 2, label: '2', hint: 'Fair' },
+  { value: 3, label: '3', hint: 'Good' },
+  { value: 4, label: '4', hint: 'Very Good' },
+  { value: 5, label: '5', hint: 'Excellent' }
+];
+
 export default function LikertScale({ question, value, onChange, variant = 'likert' }) {
-  const options = variant === 'achievement' ? ACHIEVEMENT_OPTIONS : LIKERT_OPTIONS;
+  const options = variant === 'achievement'
+    ? ACHIEVEMENT_OPTIONS
+    : variant === 'numeric'
+      ? NUMERIC_OPTIONS
+      : LIKERT_OPTIONS;
 
   return (
     <div className="likert-container">
@@ -37,7 +49,8 @@ export default function LikertScale({ question, value, onChange, variant = 'like
               onChange={() => onChange(opt.value)} 
             />
             <span className="likert-radio-custom"></span>
-            <span className="likert-label">{opt.label}</span>
+            <span className={`likert-label ${variant === 'numeric' ? 'likert-label-numeric' : ''}`}>{opt.label}</span>
+            {opt.hint && <span className="likert-hint">{opt.hint}</span>}
           </label>
         ))}
       </div>

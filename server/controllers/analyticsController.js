@@ -1,41 +1,11 @@
 const Feedback = require('../models/Feedback');
 const Teacher = require('../models/Teacher');
 const Department = require('../models/Department');
+const { feedbackAverage, aggregateScores, enrichFeedbackForDisplay } = require('../utils/feedbackScores');
 
+// Overall average for a single feedback (current + legacy fields)
 function calcFeedbackAvg(f) {
-  function safeNum(val) {
-    const n = Number(val);
-    return (!isNaN(n) && isFinite(n) && n > 0) ? n : null;
-  }
-
-  const scores = [];
-
-  const c = f.courseContentOrg || f.courseContent;
-  if (c) {
-    const vals = [safeNum(c.q1_objectives || c.q1), safeNum(c.q2_workload || c.q2), safeNum(c.q3_organized || c.q3)].filter(v => v !== null);
-    if (vals.length > 0) scores.push(vals.reduce((a, b) => a + b, 0) / vals.length);
-  }
-
-  const tl = f.teachingLearning || f.learningEnvironment;
-  if (tl) {
-    const vals = [safeNum(tl.q1_structured || tl.q8), safeNum(tl.q2_participation || tl.q9), safeNum(tl.q3_materials || f.learningResources?.q13), safeNum(tl.q4_assessment || f.courseTeacher?.q18)].filter(v => v !== null);
-    if (vals.length > 0) scores.push(vals.reduce((a, b) => a + b, 0) / vals.length);
-  }
-
-  const af = f.academicFacilities || f.learningResources;
-  if (af) {
-    const vals = [safeNum(af.q1_environment || f.learningEnvironment?.q10), safeNum(af.q2_classrooms || f.learningEnvironment?.q11), safeNum(af.q3_laboratory || af.q15)].filter(v => v !== null);
-    if (vals.length > 0) scores.push(vals.reduce((a, b) => a + b, 0) / vals.length);
-  }
-
-  if (Array.isArray(f.coFeedback) && f.coFeedback.length > 0) {
-    const coVals = f.coFeedback.map(co => safeNum(co.q1_achievement)).filter(v => v !== null);
-    if (coVals.length > 0) scores.push(coVals.reduce((a, b) => a + b, 0) / coVals.length);
-  }
-
-  if (scores.length === 0) return null;
-  const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
-  return (!isNaN(avg) && isFinite(avg)) ? avg : null;
+  return feedbackAverage(f);
 }
 
 // Overview stats
@@ -90,7 +60,7 @@ exports.getOverview = async (req, res) => {
       avgRating: parseFloat(avgRating),
       sentimentCounts,
       ratingDistribution: ratingDist,
-      recentFeedbacks,
+      recentFeedbacks: recentFeedbacks.map(enrichFeedbackForDisplay),
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -211,18 +181,30 @@ exports.getTeacherAnalytics = async (req, res) => {
         feedbackCount: m.count,
       }));
 
+    // Live section averages across all feedbacks for this teacher
+    const liveAgg = feedbacks.length > 0 ? aggregateScores(feedbacks) : null;
+    const teacherObj = teacher.toObject();
+    if (liveAgg) {
+      teacherObj.avgRating = liveAgg.avgRating;
+      teacherObj.avgCourseContent = liveAgg.avgCourseContent;
+      teacherObj.avgCOAttainment = liveAgg.avgCOAttainment;
+      teacherObj.avgFacilities = liveAgg.avgFacilities;
+      teacherObj.avgCourseTeacher = liveAgg.avgCourseTeacher;
+      teacherObj.totalFeedbacks = feedbacks.length;
+    }
+
     // Criteria breakdown
     const criteriaRadar = [
-      { criteria: 'Overall', value: teacher.avgRating || 0 },
-      { criteria: 'Course Content', value: teacher.avgCourseContent || 0 },
-      { criteria: 'Teaching-Learning', value: teacher.avgTeachingLearning || 0 },
-      { criteria: 'Facilities', value: teacher.avgFacilities || 0 },
-      { criteria: 'CO Attainment', value: teacher.avgCOAttainment || 0 },
+      { criteria: 'Overall', value: teacherObj.avgRating || 0 },
+      { criteria: 'Course Content', value: teacherObj.avgCourseContent || 0 },
+      { criteria: 'CO Attainment', value: teacherObj.avgCOAttainment || 0 },
+      { criteria: 'Facilities', value: teacherObj.avgFacilities || 0 },
+      { criteria: 'Course Teacher', value: teacherObj.avgCourseTeacher || 0 },
     ];
 
     // Sentiment breakdown
     const sentimentCounts = { positive: 0, neutral: 0, negative: 0 };
-    feedbacks.forEach(f => { sentimentCounts[f.sentiment]++; });
+    feedbacks.forEach(f => { if (f.sentiment) sentimentCounts[f.sentiment]++; });
 
     // Rating distribution
     const ratingDist = [0, 0, 0, 0, 0];
@@ -235,8 +217,8 @@ exports.getTeacherAnalytics = async (req, res) => {
     });
 
     res.json({
-      teacher,
-      feedbacks,
+      teacher: teacherObj,
+      feedbacks: feedbacks.map(enrichFeedbackForDisplay),
       trends,
       criteriaRadar,
       sentimentCounts,
