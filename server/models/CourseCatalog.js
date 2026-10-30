@@ -55,3 +55,4 @@ courseCatalogSchema.statics.ensureSeeded = async function () {
 };
 
 module.exports = mongoose.model('CourseCatalog', courseCatalogSchema);
+

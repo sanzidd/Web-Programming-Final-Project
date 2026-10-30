@@ -73,3 +73,4 @@ feedbackConfigSchema.statics.getConfig = async function () {
 };
 
 module.exports = mongoose.model('FeedbackConfig', feedbackConfigSchema);
+
