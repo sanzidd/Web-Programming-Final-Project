@@ -1,10 +1,25 @@
 const mongoose = require('mongoose');
 
+const dynamicAnswerSchema = new mongoose.Schema({
+  questionId: { type: String, required: true, trim: true },
+  questionText: { type: String, default: '', trim: true },
+  score: { type: Number, min: 1, max: 5, required: true }
+}, { _id: false });
+
+const customSectionResponseSchema = new mongoose.Schema({
+  sectionId: { type: String, required: true, trim: true },
+  title: { type: String, default: '', trim: true },
+  scaleType: { type: String, enum: ['likert', 'rating'], default: 'likert' },
+  responses: { type: [dynamicAnswerSchema], default: [] },
+  comment: { type: String, default: '' }
+}, { _id: false });
+
 // Sub-schema for individual CO feedback
 const coFeedbackSchema = new mongoose.Schema({
   coNumber: { type: Number, required: true },
   coTitle: { type: String, default: '' },
   coDescription: { type: String, default: '' },
+  responses: { type: [dynamicAnswerSchema], default: [] },
   // The course contents are aligned with this CO (1=SD, 5=SA)
   q1_contentAligned: { type: Number, min: 1, max: 5 },
   // The teaching-learning methods are effective to achieve this CO (1=SD, 5=SA)
@@ -27,6 +42,7 @@ const feedbackSchema = new mongoose.Schema({
   
   // Course Content & Organisation
   courseContentOrg: {
+    responses: { type: [dynamicAnswerSchema], default: [] },
     q1_upToDate: { type: Number, min: 1, max: 5 },     // The course contents are up-to-date and well organized
     comment: { type: String, default: '' },
     // Legacy fields (older submissions only)
@@ -40,6 +56,7 @@ const feedbackSchema = new mongoose.Schema({
 
   // Academic & Laboratory Facilities
   academicFacilities: {
+    responses: { type: [dynamicAnswerSchema], default: [] },
     q1_infrastructure: { type: Number, min: 1, max: 5 }, // Infrastructure and academic facilities are adequate to achieve the COs
     comment: { type: String, default: '' },
     // Legacy fields (older submissions only)
@@ -50,9 +67,13 @@ const feedbackSchema = new mongoose.Schema({
 
   // Course Teacher (1 = Poor ... 5 = Excellent)
   courseTeacherEval: {
+    responses: { type: [dynamicAnswerSchema], default: [] },
     rating: { type: Number, min: 1, max: 5 }, // Class preparation, lecture delivery, and way of teaching
     comment: { type: String, default: '' },
   },
+
+  // Optional custom sections configured by Admin
+  customSections: { type: [customSectionResponseSchema], default: [] },
 
   // Legacy: Teaching-Learning & Assessment (section removed from the form; older submissions only)
   teachingLearning: {

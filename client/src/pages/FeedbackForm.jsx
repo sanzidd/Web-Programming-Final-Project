@@ -1,15 +1,78 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Building2, User, CheckCircle2, 
-  Shield, ChevronRight, ChevronLeft, Send, Sparkles, Book, Target, FlaskConical
+import {
+  Building2, User, CheckCircle2, Clock, ShieldAlert,
+  Shield, ChevronRight, ChevronLeft, Send, Sparkles, Book, Target, FlaskConical, Layers
 } from 'lucide-react';
 import api from '../services/api';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import LikertScale from '../components/LikertScale';
 import './FeedbackForm.css';
+
+const DEFAULT_QUESTION_CONFIG = {
+  courseContent: {
+    id: 'courseContent',
+    title: 'Course Content and Organization',
+    scaleType: 'likert',
+    questions: [
+      { id: 'cc_q1', text: 'The course contents are up-to-date and well organized' }
+    ]
+  },
+  coSection: {
+    id: 'coSection',
+    title: 'Course Outcomes (COs)',
+    scaleType: 'likert',
+    questions: [
+      { id: 'co_q1', text: 'The course contents are aligned with {CO}' },
+      { id: 'co_q2', text: 'The teaching-learning methods are effective to achieve {CO}' },
+      { id: 'co_q3', text: 'The used assessment tools are appropriate for {CO}' }
+    ]
+  },
+  facilities: {
+    id: 'facilities',
+    title: 'Academic and Laboratory Facilities',
+    scaleType: 'likert',
+    questions: [
+      { id: 'fac_q1', text: 'Infrastructure and academic facilities are adequate to achieve the COs' }
+    ]
+  },
+  courseTeacher: {
+    id: 'courseTeacher',
+    title: 'Course Teacher',
+    scaleType: 'rating',
+    questions: [
+      { id: 'ct_q1', text: 'Evaluate the course teacher based on class preparation, lecture delivery, and way of teaching' }
+    ]
+  },
+  customSections: []
+};
+
+function resolveCOQuestionText(templateText, coNum) {
+  const raw = String(templateText || '').trim();
+  if (!raw) return `Evaluation of CO${coNum}`;
+  if (/\{co\}/i.test(raw)) {
+    return raw.replace(/\{co\}/gi, `CO${coNum}`);
+  }
+  if (/\bthis\s+CO\b/i.test(raw)) {
+    return raw.replace(/\bthis\s+CO\b/gi, `CO${coNum}`);
+  }
+  return `${raw} (CO${coNum})`;
+}
+
+function formatDeadlineDisplay(deadlineValue) {
+  if (!deadlineValue) return null;
+  const d = new Date(deadlineValue);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit'
+  });
+}
 
 export default function FeedbackForm() {
   const { isStudent, student } = useAuth();
@@ -19,54 +82,186 @@ export default function FeedbackForm() {
   const [departments, setDepartments] = useState([]);
   const [myAssignments, setMyAssignments] = useState([]);
   const [selectedAssignment, setSelectedAssignment] = useState(null);
+  const [questionConfig, setQuestionConfig] = useState(DEFAULT_QUESTION_CONFIG);
+  const [nowMs, setNowMs] = useState(() => Date.now());
 
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  
+
   const formRef = useRef(null);
 
-  const [form, setForm] = useState({
+  const [metaForm, setMetaForm] = useState({
     department: '',
     teacher: '',
-    courseName: '',
-    courseContentOrg: { q1_upToDate: 0, comment: '' },
-    coFeedback: [], // will be populated dynamically based on assignment COs
-    academicFacilities: { q1_infrastructure: 0, comment: '' },
-    courseTeacherEval: { rating: 0, comment: '' },
+    courseName: ''
+  });
+
+  const [scoresBySection, setScoresBySection] = useState({
+    courseContent: {},
+    co: {},
+    facilities: {},
+    courseTeacher: {},
+    custom: {}
+  });
+
+  const [commentsBySection, setCommentsBySection] = useState({
+    courseContent: '',
+    co: {},
+    facilities: '',
+    courseTeacher: '',
+    custom: {}
   });
 
   const [selectedDeptName, setSelectedDeptName] = useState('');
   const [selectedTeacherName, setSelectedTeacherName] = useState('');
+
+  useEffect(() => {
+    const timer = setInterval(() => setNowMs(Date.now()), 30000);
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    api.get('/departments')
+      .then(res => setDepartments(res.data || []))
+      .catch(() => console.warn('Failed to load departments'));
+
+    api.get('/feedback/questions')
+      .then(res => {
+        if (res.data && res.data.courseContent) {
+          setQuestionConfig(res.data);
+        }
+      })
+      .catch(() => console.warn('Using default feedback questions'));
+  }, []);
+
+  const isAssignmentClosed = (a) => {
+    if (!a) return false;
+    const dlPassed = Boolean(a.isDeadlinePassed) ||
+      (a.feedbackDeadline && new Date(a.feedbackDeadline).getTime() <= nowMs);
+    return a.isReviewSessionOpen === false || dlPassed;
+  };
+
+  const isAssignmentExpired = (a) => {
+    if (!a) return false;
+    return Boolean(a.isDeadlinePassed) ||
+      Boolean(a.feedbackDeadline && new Date(a.feedbackDeadline).getTime() <= nowMs);
+  };
 
   // Derive COs from the selected assignment
   const courseOutcomes = useMemo(() => {
     return selectedAssignment?.courseOutcomes || [];
   }, [selectedAssignment]);
 
-  // Build dynamic STEPS based on the number of COs
+  // Build dynamic STEPS based on Admin-configured questions and assignment COs
   const STEPS = useMemo(() => {
-    const steps = [
-      { label: 'Select', icon: Building2 },
-      { label: 'Content', icon: Book },
-    ];
-    
-    // Add one step per CO
-    courseOutcomes.forEach((co, i) => {
-      steps.push({ label: `CO${co.coNumber || (i + 1)}`, icon: Target });
+    const list = [];
+    let qCounter = 1;
+
+    list.push({
+      key: 'select',
+      type: 'select',
+      label: 'Select',
+      icon: Building2,
+      questions: [],
+      startQNum: 1
     });
 
-    steps.push({ label: 'Facilities', icon: FlaskConical });
-    steps.push({ label: 'Teacher', icon: User });
-    steps.push({ label: 'Submit', icon: Send });
+    const ccQuestions = (questionConfig?.courseContent?.questions || []).filter(q => q?.text?.trim());
+    if (ccQuestions.length > 0) {
+      list.push({
+        key: 'courseContent',
+        type: 'courseContent',
+        label: 'Content',
+        title: questionConfig.courseContent.title || 'Course Content and Organization',
+        scaleType: questionConfig.courseContent.scaleType || 'likert',
+        icon: Book,
+        questions: ccQuestions,
+        startQNum: qCounter
+      });
+      qCounter += ccQuestions.length;
+    }
 
-    return steps;
-  }, [courseOutcomes]);
+    const coQuestions = (questionConfig?.coSection?.questions || []).filter(q => q?.text?.trim());
+    if (coQuestions.length > 0 && courseOutcomes.length > 0) {
+      courseOutcomes.forEach((co, i) => {
+        const coNum = co.coNumber || (i + 1);
+        list.push({
+          key: `co-${coNum}-${i}`,
+          type: 'co',
+          coIndex: i,
+          coNum,
+          co,
+          label: `CO${coNum}`,
+          scaleType: questionConfig.coSection.scaleType || 'likert',
+          icon: Target,
+          questions: coQuestions,
+          startQNum: qCounter
+        });
+        qCounter += coQuestions.length;
+      });
+    }
 
-  useEffect(() => {
-    api.get('/departments')
-      .then(res => setDepartments(res.data))
-      .catch(() => console.warn('Failed to load departments'));
-  }, []);
+    const facQuestions = (questionConfig?.facilities?.questions || []).filter(q => q?.text?.trim());
+    if (facQuestions.length > 0) {
+      list.push({
+        key: 'facilities',
+        type: 'facilities',
+        label: 'Facilities',
+        title: questionConfig.facilities.title || 'Academic and Laboratory Facilities',
+        scaleType: questionConfig.facilities.scaleType || 'likert',
+        icon: FlaskConical,
+        questions: facQuestions,
+        startQNum: qCounter
+      });
+      qCounter += facQuestions.length;
+    }
+
+    const ctQuestions = (questionConfig?.courseTeacher?.questions || []).filter(q => q?.text?.trim());
+    if (ctQuestions.length > 0) {
+      list.push({
+        key: 'teacher',
+        type: 'teacher',
+        label: 'Teacher',
+        title: questionConfig.courseTeacher.title || 'Course Teacher',
+        scaleType: questionConfig.courseTeacher.scaleType || 'rating',
+        icon: User,
+        questions: ctQuestions,
+        startQNum: qCounter
+      });
+      qCounter += ctQuestions.length;
+    }
+
+    (questionConfig?.customSections || []).forEach((sec, idx) => {
+      const qs = (sec?.questions || []).filter(q => q?.text?.trim());
+      if (qs.length > 0) {
+        const words = (sec.title || `Section ${idx + 1}`).trim().split(/\s+/);
+        const shortLabel = words.slice(0, 2).join(' ');
+        list.push({
+          key: `custom-${sec.id || idx}`,
+          type: 'custom',
+          sectionId: sec.id || `custom_${idx + 1}`,
+          label: shortLabel.length > 14 ? `${shortLabel.slice(0, 12)}…` : shortLabel,
+          title: sec.title || `Additional Section ${idx + 1}`,
+          scaleType: sec.scaleType || 'likert',
+          icon: Layers,
+          questions: qs,
+          startQNum: qCounter
+        });
+        qCounter += qs.length;
+      }
+    });
+
+    list.push({
+      key: 'submit',
+      type: 'submit',
+      label: 'Submit',
+      icon: Send,
+      questions: [],
+      startQNum: qCounter
+    });
+
+    return list;
+  }, [questionConfig, courseOutcomes]);
 
   useEffect(() => {
     if (isStudent) {
@@ -78,29 +273,26 @@ export default function FeedbackForm() {
           if (location.state?.assignmentId) {
             const target = assignments.find(a => a._id === location.state.assignmentId);
             if (target && !target.alreadyReviewed) {
+              const expired = Boolean(target.isDeadlinePassed) ||
+                Boolean(target.feedbackDeadline && new Date(target.feedbackDeadline).getTime() <= Date.now());
+              const closed = target.isReviewSessionOpen === false || expired;
               const teacherId = typeof target.teacher === 'object' ? target.teacher?._id : target.teacher;
               const deptId = target.department?._id || target.department;
-              setForm(f => ({
-                ...f,
-                department: deptId,
-                teacher: teacherId,
-                courseName: target.courseName
-              }));
-              setSelectedDeptName(target.department?.name || '');
-              setSelectedTeacherName(target.teacher?.name || '');
-              setSelectedAssignment(target);
 
-              if (target.courseOutcomes?.length > 0) {
-                const coFeedback = target.courseOutcomes.map(co => ({
-                  coNumber: co.coNumber,
-                  coTitle: co.title,
-                  coDescription: co.description,
-                  q1_contentAligned: 0,
-                  q2_methodsEffective: 0,
-                  q3_assessmentAppropriate: 0,
-                  comment: '',
-                }));
-                setForm(f => ({ ...f, coFeedback }));
+              if (closed) {
+                setMetaForm(f => ({ ...f, department: deptId || '', teacher: teacherId || '', courseName: '' }));
+                setSelectedDeptName(target.department?.name || '');
+                setSelectedTeacherName(target.teacher?.name || '');
+                setSelectedAssignment(null);
+              } else {
+                setMetaForm({
+                  department: deptId || '',
+                  teacher: teacherId || '',
+                  courseName: target.courseName || ''
+                });
+                setSelectedDeptName(target.department?.name || '');
+                setSelectedTeacherName(target.teacher?.name || '');
+                setSelectedAssignment(target);
               }
             }
           } else if (assignments.length > 0) {
@@ -110,12 +302,12 @@ export default function FeedbackForm() {
             const deptObj = targetAssignment.department;
             const deptId = deptObj?._id || deptObj;
             const deptName = deptObj?.name || '';
-            setForm(f => ({ ...f, department: deptId }));
+            setMetaForm(f => ({ ...f, department: deptId || '' }));
             if (deptName) setSelectedDeptName(deptName);
           } else if (student?.department) {
             const studentDeptId = typeof student.department === 'object' ? student.department._id : student.department;
             const studentDeptName = typeof student.department === 'object' ? student.department.name : '';
-            setForm(f => ({ ...f, department: studentDeptId }));
+            setMetaForm(f => ({ ...f, department: studentDeptId || '' }));
             if (studentDeptName) setSelectedDeptName(studentDeptName);
           }
         })
@@ -123,17 +315,36 @@ export default function FeedbackForm() {
     }
   }, [isStudent, student, location.state]);
 
+  const resetSectionAnswers = () => {
+    setScoresBySection({
+      courseContent: {},
+      co: {},
+      facilities: {},
+      courseTeacher: {},
+      custom: {}
+    });
+    setCommentsBySection({
+      courseContent: '',
+      co: {},
+      facilities: '',
+      courseTeacher: '',
+      custom: {}
+    });
+  };
+
   const handleDeptChange = (e) => {
     const val = e.target.value;
-    setForm(f => ({ ...f, department: val, teacher: '', courseName: '' }));
+    setMetaForm({ department: val, teacher: '', courseName: '' });
     const dept = departments.find(d => d._id === val);
     setSelectedDeptName(dept ? dept.name : '');
+    setSelectedTeacherName('');
     setSelectedAssignment(null);
+    resetSectionAnswers();
   };
 
   const handleTeacherChange = (e) => {
     const val = e.target.value;
-    setForm(f => ({ ...f, teacher: val, courseName: '' }));
+    setMetaForm(f => ({ ...f, teacher: val, courseName: '' }));
     const assignment = myAssignments.find(a => {
       const teacherId = typeof a.teacher === 'object' ? a.teacher?._id : a.teacher;
       return teacherId === val;
@@ -141,34 +352,18 @@ export default function FeedbackForm() {
     const t = assignment?.teacher;
     setSelectedTeacherName(t ? t.name : '');
     setSelectedAssignment(null);
+    resetSectionAnswers();
   };
 
   const handleCourseChange = (e) => {
     const courseName = e.target.value;
-    setForm(f => ({ ...f, courseName }));
-    
-    // Find the selected assignment to get its COs
     const assignment = myAssignments.find(a => {
       const teacherId = typeof a.teacher === 'object' ? a.teacher?._id : a.teacher;
-      return a.courseName === courseName && teacherId === form.teacher && a.department?._id === form.department;
+      return a.courseName === courseName && teacherId === metaForm.teacher && (a.department?._id || a.department) === metaForm.department;
     });
+    setMetaForm(f => ({ ...f, courseName }));
     setSelectedAssignment(assignment || null);
-
-    // Initialize coFeedback based on assignment COs
-    if (assignment?.courseOutcomes?.length > 0) {
-      const coFeedback = assignment.courseOutcomes.map(co => ({
-        coNumber: co.coNumber,
-        coTitle: co.title,
-        coDescription: co.description,
-        q1_contentAligned: 0,
-        q2_methodsEffective: 0,
-        q3_assessmentAppropriate: 0,
-        comment: ''
-      }));
-      setForm(f => ({ ...f, courseName, coFeedback }));
-    } else {
-      setForm(f => ({ ...f, courseName, coFeedback: [] }));
-    }
+    resetSectionAnswers();
   };
 
   const scrollToTop = () => {
@@ -179,84 +374,215 @@ export default function FeedbackForm() {
     }
   };
 
+  const safeStep = Math.min(step, STEPS.length - 1);
+  const currentStep = STEPS[safeStep] || STEPS[0];
+
   const handleNextStep = () => {
-    setStep(s => s + 1);
+    setStep(Math.min(safeStep + 1, STEPS.length - 1));
     scrollToTop();
   };
-  
+
   const handlePrevStep = () => {
-    setStep(s => s - 1);
+    setStep(Math.max(safeStep - 1, 0));
     scrollToTop();
   };
 
-  // Determine what each step index corresponds to
-  const getStepType = (stepIdx) => {
-    if (stepIdx === 0) return { type: 'select' };
-    if (stepIdx === 1) return { type: 'courseContent' };
-    
-    const coCount = courseOutcomes.length;
-    if (stepIdx >= 2 && stepIdx < 2 + coCount) {
-      return { type: 'co', coIndex: stepIdx - 2 };
-    }
-    if (stepIdx === 2 + coCount) return { type: 'facilities' };
-    if (stepIdx === 3 + coCount) return { type: 'teacher' };
-    if (stepIdx === 4 + coCount) return { type: 'submit' };
-    return { type: 'unknown' };
+  const setQuestionScore = (sectionType, questionId, value, subKey = null) => {
+    setScoresBySection(prev => {
+      if (sectionType === 'co') {
+        return {
+          ...prev,
+          co: {
+            ...prev.co,
+            [subKey]: {
+              ...(prev.co[subKey] || {}),
+              [questionId]: value
+            }
+          }
+        };
+      }
+      if (sectionType === 'custom') {
+        return {
+          ...prev,
+          custom: {
+            ...prev.custom,
+            [subKey]: {
+              ...(prev.custom[subKey] || {}),
+              [questionId]: value
+            }
+          }
+        };
+      }
+      return {
+        ...prev,
+        [sectionType]: {
+          ...(prev[sectionType] || {}),
+          [questionId]: value
+        }
+      };
+    });
   };
 
-  const canNext = () => {
-    const info = getStepType(step);
+  const setSectionComment = (sectionType, value, subKey = null) => {
+    setCommentsBySection(prev => {
+      if (sectionType === 'co') {
+        return {
+          ...prev,
+          co: {
+            ...prev.co,
+            [subKey]: value
+          }
+        };
+      }
+      if (sectionType === 'custom') {
+        return {
+          ...prev,
+          custom: {
+            ...prev.custom,
+            [subKey]: value
+          }
+        };
+      }
+      return {
+        ...prev,
+        [sectionType]: value
+      };
+    });
+  };
 
-    if (info.type === 'select') {
-      return form.courseName.trim() !== '';
+  const isStepComplete = (stepItem) => {
+    if (!stepItem) return false;
+    if (stepItem.type === 'select') {
+      if (!metaForm.courseName.trim()) return false;
+      if (selectedAssignment && isAssignmentClosed(selectedAssignment)) return false;
+      return true;
     }
-    if (info.type === 'courseContent') {
-      return Boolean(form.courseContentOrg.q1_upToDate);
+    if (stepItem.type === 'courseContent') {
+      return stepItem.questions.every(q => Number(scoresBySection.courseContent[q.id]) >= 1);
     }
-    if (info.type === 'co') {
-      const co = form.coFeedback[info.coIndex];
-      return Boolean(co && co.q1_contentAligned && co.q2_methodsEffective && co.q3_assessmentAppropriate);
+    if (stepItem.type === 'co') {
+      const coScores = scoresBySection.co[stepItem.coIndex] || {};
+      return stepItem.questions.every(q => Number(coScores[q.id]) >= 1);
     }
-    if (info.type === 'facilities') {
-      return Boolean(form.academicFacilities.q1_infrastructure);
+    if (stepItem.type === 'facilities') {
+      return stepItem.questions.every(q => Number(scoresBySection.facilities[q.id]) >= 1);
     }
-    if (info.type === 'teacher') {
-      return Boolean(form.courseTeacherEval.rating);
+    if (stepItem.type === 'teacher') {
+      return stepItem.questions.every(q => Number(scoresBySection.courseTeacher[q.id]) >= 1);
+    }
+    if (stepItem.type === 'custom') {
+      const secScores = scoresBySection.custom[stepItem.sectionId] || {};
+      return stepItem.questions.every(q => Number(secScores[q.id]) >= 1);
+    }
+    if (stepItem.type === 'submit') {
+      return STEPS.filter(s => s.type !== 'submit').every(s => isStepComplete(s));
     }
     return true;
   };
 
-  const updateNestedForm = (section, field, value) => {
-    setForm(f => ({
-      ...f,
-      [section]: {
-        ...f[section],
-        [field]: value
-      }
-    }));
-  };
-
-  const updateCOFeedback = (coIndex, field, value) => {
-    setForm(f => {
-      const updated = [...f.coFeedback];
-      updated[coIndex] = { ...updated[coIndex], [field]: value };
-      return { ...f, coFeedback: updated };
-    });
-  };
+  const canNext = () => isStepComplete(currentStep);
 
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const matchedAssignment = myAssignments.find(a => 
-        a.courseName === form.courseName && 
-        (typeof a.teacher === 'object' ? a.teacher._id === form.teacher : a.teacher === form.teacher) &&
-        a.department?._id === form.department
+      const matchedAssignment = selectedAssignment || myAssignments.find(a =>
+        a.courseName === metaForm.courseName &&
+        (typeof a.teacher === 'object' ? a.teacher._id === metaForm.teacher : a.teacher === metaForm.teacher) &&
+        (a.department?._id || a.department) === metaForm.department
       );
 
-      await api.post('/feedback', {
-        ...form,
-        assignmentId: matchedAssignment?._id
+      if (matchedAssignment && isAssignmentExpired(matchedAssignment)) {
+        toast.error('The feedback deadline for this course has passed. The review session is closed.');
+        setLoading(false);
+        return;
+      }
+
+      const ccQuestions = (questionConfig?.courseContent?.questions || []).filter(q => q?.text?.trim());
+      const ccResponses = ccQuestions.map(q => ({
+        questionId: q.id,
+        questionText: q.text.trim(),
+        score: Number(scoresBySection.courseContent[q.id])
+      }));
+
+      const coQuestions = (questionConfig?.coSection?.questions || []).filter(q => q?.text?.trim());
+      const coPayload = courseOutcomes.map((co, i) => {
+        const coNum = co.coNumber || (i + 1);
+        const coScores = scoresBySection.co[i] || {};
+        const responses = coQuestions.map(q => ({
+          questionId: q.id,
+          questionText: resolveCOQuestionText(q.text, coNum),
+          score: Number(coScores[q.id])
+        }));
+        return {
+          coNumber: coNum,
+          coTitle: co.title || '',
+          coDescription: co.description || '',
+          responses,
+          ...(responses[0] ? { q1_contentAligned: responses[0].score } : {}),
+          ...(responses[1] ? { q2_methodsEffective: responses[1].score } : {}),
+          ...(responses[2] ? { q3_assessmentAppropriate: responses[2].score } : {}),
+          comment: commentsBySection.co[i] || ''
+        };
       });
+
+      const facQuestions = (questionConfig?.facilities?.questions || []).filter(q => q?.text?.trim());
+      const facResponses = facQuestions.map(q => ({
+        questionId: q.id,
+        questionText: q.text.trim(),
+        score: Number(scoresBySection.facilities[q.id])
+      }));
+
+      const ctQuestions = (questionConfig?.courseTeacher?.questions || []).filter(q => q?.text?.trim());
+      const ctResponses = ctQuestions.map(q => ({
+        questionId: q.id,
+        questionText: q.text.trim(),
+        score: Number(scoresBySection.courseTeacher[q.id])
+      }));
+
+      const customPayload = (questionConfig?.customSections || [])
+        .filter(sec => (sec?.questions || []).some(q => q?.text?.trim()))
+        .map(sec => {
+          const secScores = scoresBySection.custom[sec.id] || {};
+          const responses = sec.questions
+            .filter(q => q?.text?.trim())
+            .map(q => ({
+              questionId: q.id,
+              questionText: q.text.trim(),
+              score: Number(secScores[q.id])
+            }));
+          return {
+            sectionId: sec.id,
+            sectionTitle: sec.title,
+            scaleType: sec.scaleType === 'rating' ? 'rating' : 'likert',
+            responses,
+            comment: commentsBySection.custom[sec.id] || ''
+          };
+        });
+
+      await api.post('/feedback', {
+        department: metaForm.department,
+        teacher: metaForm.teacher,
+        courseName: metaForm.courseName,
+        assignmentId: matchedAssignment?._id,
+        courseContentOrg: {
+          responses: ccResponses,
+          ...(ccResponses[0] ? { q1_upToDate: ccResponses[0].score } : {}),
+          comment: commentsBySection.courseContent || ''
+        },
+        coFeedback: coPayload,
+        academicFacilities: {
+          responses: facResponses,
+          ...(facResponses[0] ? { q1_infrastructure: facResponses[0].score } : {}),
+          comment: commentsBySection.facilities || ''
+        },
+        courseTeacherEval: {
+          responses: ctResponses,
+          ...(ctResponses[0] ? { rating: ctResponses[0].score } : {}),
+          comment: commentsBySection.courseTeacher || ''
+        },
+        customSections: customPayload
+      });
+
       setSubmitted(true);
       scrollToTop();
       toast.success('Feedback submitted successfully!');
@@ -268,13 +594,8 @@ export default function FeedbackForm() {
   };
 
   const handleReset = () => {
-    setForm({
-      department: '', teacher: '', courseName: '',
-      courseContentOrg: { q1_upToDate: 0, comment: '' },
-      coFeedback: [],
-      academicFacilities: { q1_infrastructure: 0, comment: '' },
-      courseTeacherEval: { rating: 0, comment: '' },
-    });
+    setMetaForm({ department: '', teacher: '', courseName: '' });
+    resetSectionAnswers();
     setStep(0);
     setSubmitted(false);
     setSelectedDeptName('');
@@ -297,8 +618,8 @@ export default function FeedbackForm() {
             </div>
             <h2 className="font-display success-title">Thank You!</h2>
             <p className="success-text">
-              Your anonymous feedback has been submitted successfully. 
-              Your voice helps improve education quality at RUET.
+              Your anonymous feedback has been submitted successfully.
+              Your voice helps improve education quality in the Department of Electronics and Telecommunication Engineering.
             </p>
             <div className="success-actions">
               <button onClick={handleReset} className="btn btn-primary btn-lg">
@@ -311,8 +632,6 @@ export default function FeedbackForm() {
       </div>
     );
   }
-
-  const currentStepType = getStepType(step);
 
   return (
     <div className="feedback-page page-transition" ref={formRef}>
@@ -341,7 +660,7 @@ export default function FeedbackForm() {
             <Shield size={48} style={{ color: 'var(--primary-color)', margin: '0 auto 20px' }} />
             <h2 style={{ marginBottom: '10px' }}>Student Login Required</h2>
             <p style={{ color: 'var(--text-muted)', marginBottom: '30px' }}>
-              To prevent spam and ensure the integrity of the feedback system, you must log in with your RUET student credentials. Your feedback will remain 100% anonymous.
+              To prevent spam and ensure the integrity of the feedback system, you must log in with your student credentials. Your feedback will remain 100% anonymous.
             </p>
             <div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
               <a href="/student/login" className="btn btn-primary">Login as Student</a>
@@ -353,9 +672,9 @@ export default function FeedbackForm() {
             {/* Step Indicator */}
             <div className="step-indicator">
               {STEPS.map((s, i) => (
-                <div key={i} className={`step-dot-wrap ${i === step ? 'active' : ''} ${i < step ? 'completed' : ''}`}>
+                <div key={s.key} className={`step-dot-wrap ${i === safeStep ? 'active' : ''} ${i < safeStep ? 'completed' : ''}`}>
                   <div className="step-dot">
-                    {i < step ? <CheckCircle2 size={14} /> : <s.icon size={14} />}
+                    {i < safeStep ? <CheckCircle2 size={14} /> : <s.icon size={14} />}
                   </div>
                   <span className="step-dot-label">{s.label}</span>
                   {i < STEPS.length - 1 && <div className="step-line" />}
@@ -368,7 +687,7 @@ export default function FeedbackForm() {
               <AnimatePresence mode="wait">
 
                 {/* Step 0: Select Department, Teacher, Course */}
-                {currentStepType.type === 'select' && (
+                {currentStep.type === 'select' && (
                   <motion.div
                     key="step-select"
                     initial={{ opacity: 0, x: 20 }}
@@ -382,12 +701,12 @@ export default function FeedbackForm() {
                     </h2>
                     <div className="form-group mt-4">
                       <label className="form-label" htmlFor="dept-select">Department</label>
-                      <select 
-                        id="dept-select" 
-                        className="form-select" 
+                      <select
+                        id="dept-select"
+                        className="form-select"
                         style={{ backgroundColor: '#FFFFFF', color: '#000000', fontWeight: 500 }}
-                        value={form.department} 
-                        onChange={handleDeptChange} 
+                        value={metaForm.department}
+                        onChange={handleDeptChange}
                         required
                       >
                         <option value="" style={{ backgroundColor: '#FFFFFF', color: '#64748B' }}>Select Department</option>
@@ -398,21 +717,21 @@ export default function FeedbackForm() {
                     </div>
                     <div className="form-group mt-4">
                       <label className="form-label" htmlFor="teacher-select">Teacher</label>
-                      <select 
-                        id="teacher-select" 
-                        className="form-select" 
-                        style={{ backgroundColor: form.department ? '#FFFFFF' : '#F1F5F9', color: form.department ? '#000000' : '#64748B', fontWeight: 500 }}
-                        value={form.teacher} 
-                        onChange={handleTeacherChange} 
-                        disabled={!form.department} 
+                      <select
+                        id="teacher-select"
+                        className="form-select"
+                        style={{ backgroundColor: metaForm.department ? '#FFFFFF' : '#F1F5F9', color: metaForm.department ? '#000000' : '#64748B', fontWeight: 500 }}
+                        value={metaForm.teacher}
+                        onChange={handleTeacherChange}
+                        disabled={!metaForm.department}
                         required
                       >
                         <option value="" style={{ backgroundColor: '#FFFFFF', color: '#64748B' }}>Select Teacher</option>
                         {Array.from(new Map(
                           myAssignments
-                            .filter(a => ((a.department?._id || a.department) === form.department))
+                            .filter(a => ((a.department?._id || a.department) === metaForm.department))
                             .map(a => [typeof a.teacher === 'object' ? a.teacher._id : a.teacher, a.teacher])
-                        ).values()).map(t => {
+                        ).values()).filter(Boolean).map(t => {
                           const deptCode = t.department?.code || t.department?.name || '';
                           return (
                             <option key={t._id || t} value={t._id || t} style={{ backgroundColor: '#FFFFFF', color: '#000000' }}>
@@ -424,13 +743,13 @@ export default function FeedbackForm() {
                     </div>
                     <div className="form-group mt-4">
                       <label className="form-label" htmlFor="course-select">Course</label>
-                      <select 
-                        id="course-select" 
-                        className="form-select" 
-                        style={{ backgroundColor: form.teacher ? '#FFFFFF' : '#F1F5F9', color: form.teacher ? '#000000' : '#64748B', fontWeight: 500 }}
-                        value={form.courseName} 
-                        onChange={handleCourseChange} 
-                        disabled={!form.teacher} 
+                      <select
+                        id="course-select"
+                        className="form-select"
+                        style={{ backgroundColor: metaForm.teacher ? '#FFFFFF' : '#F1F5F9', color: metaForm.teacher ? '#000000' : '#64748B', fontWeight: 500 }}
+                        value={metaForm.courseName}
+                        onChange={handleCourseChange}
+                        disabled={!metaForm.teacher}
                         required
                       >
                         <option value="" style={{ backgroundColor: '#FFFFFF', color: '#64748B' }}>Select Course</option>
@@ -438,20 +757,37 @@ export default function FeedbackForm() {
                           .filter(a => {
                             const teacherId = typeof a.teacher === 'object' ? a.teacher?._id : a.teacher;
                             const deptId = a.department?._id || a.department;
-                            return teacherId === form.teacher && deptId === form.department;
+                            return teacherId === metaForm.teacher && deptId === metaForm.department;
                           })
                           .filter(a => !a.alreadyReviewed)
-                          .map(a => (
-                            <option key={a._id} value={a.courseName} disabled={a.isReviewSessionOpen === false} style={{ backgroundColor: '#FFFFFF', color: '#000000' }}>
-                              {a.courseName} {a.isReviewSessionOpen === false ? '(Closed)' : ''}
-                            </option>
-                          ))}
+                          .map(a => {
+                            const expired = isAssignmentExpired(a);
+                            const closed = isAssignmentClosed(a);
+                            const dlStr = formatDeadlineDisplay(a.feedbackDeadline);
+                            const statusSuffix = expired
+                              ? ' (Deadline Passed — Closed)'
+                              : closed
+                                ? ' (Closed)'
+                                : dlStr
+                                  ? ` (Due: ${dlStr})`
+                                  : '';
+                            return (
+                              <option
+                                key={a._id}
+                                value={a.courseName}
+                                disabled={closed}
+                                style={{ backgroundColor: '#FFFFFF', color: '#000000' }}
+                              >
+                                {a.courseCode ? `${a.courseCode} — ` : ''}{a.courseName}{statusSuffix}
+                              </option>
+                            );
+                          })}
                       </select>
-                      {form.teacher && (() => {
+                      {metaForm.teacher && (() => {
                         const teacherCourses = myAssignments.filter(a => {
                           const teacherId = typeof a.teacher === 'object' ? a.teacher?._id : a.teacher;
                           const deptId = a.department?._id || a.department;
-                          return teacherId === form.teacher && deptId === form.department;
+                          return teacherId === metaForm.teacher && deptId === metaForm.department;
                         });
                         const unreviewedCourses = teacherCourses.filter(a => !a.alreadyReviewed);
                         if (teacherCourses.length > 0 && unreviewedCourses.length === 0) {
@@ -465,11 +801,55 @@ export default function FeedbackForm() {
                       })()}
                     </div>
 
+                    {/* Show Deadline Banner if course selected */}
+                    {selectedAssignment && (
+                      <div
+                        className="mt-4"
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '10px',
+                          padding: '12px 16px',
+                          borderRadius: 'var(--radius-md)',
+                          background: isAssignmentClosed(selectedAssignment)
+                            ? 'rgba(244, 63, 94, 0.1)'
+                            : 'rgba(59, 130, 246, 0.08)',
+                          border: `1px solid ${
+                            isAssignmentClosed(selectedAssignment)
+                              ? 'rgba(244, 63, 94, 0.28)'
+                              : 'rgba(59, 130, 246, 0.22)'
+                          }`,
+                          fontSize: '0.88rem'
+                        }}
+                      >
+                        {isAssignmentClosed(selectedAssignment) ? (
+                          <>
+                            <ShieldAlert size={18} style={{ color: '#F87171', flexShrink: 0 }} />
+                            <span style={{ color: '#F87171', fontWeight: 500 }}>
+                              {isAssignmentExpired(selectedAssignment)
+                                ? `Feedback deadline passed on ${formatDeadlineDisplay(selectedAssignment.feedbackDeadline)}. Review session is closed.`
+                                : 'Review session for this course is currently closed.'}
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <Clock size={18} style={{ color: '#60A5FA', flexShrink: 0 }} />
+                            <span style={{ color: 'var(--text-secondary)' }}>
+                              Feedback Deadline:{' '}
+                              <strong style={{ color: 'var(--text-primary)' }}>
+                                {formatDeadlineDisplay(selectedAssignment.feedbackDeadline) || 'Open (No deadline set)'}
+                              </strong>
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    )}
+
                     {/* Show CO info if assignment is selected */}
                     {selectedAssignment && courseOutcomes.length > 0 && (
-                      <div className="co-preview mt-4" style={{ 
-                        background: 'rgba(39, 174, 96, 0.08)', 
-                        borderRadius: 'var(--radius-md)', 
+                      <div className="co-preview mt-4" style={{
+                        background: 'rgba(39, 174, 96, 0.08)',
+                        borderRadius: 'var(--radius-md)',
                         padding: '16px',
                         border: '1px solid rgba(39, 174, 96, 0.2)'
                       }}>
@@ -494,44 +874,73 @@ export default function FeedbackForm() {
                   </motion.div>
                 )}
 
-                {/* Step 1: Course Content & Organisation */}
-                {currentStepType.type === 'courseContent' && (
-                  <motion.div
-                    key="step-courseContent"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    className="form-step"
-                  >
-                    <h2 className="form-step-title">
-                      <Book size={22} className="form-step-icon" />
-                      Course Content & Organisation
-                    </h2>
-                    <p className="form-step-desc">Please indicate your level of agreement with each statement.</p>
-                    
-                    <div className="likert-section">
-                      <LikertScale 
-                        question="1. The course contents are up-to-date and well organized." 
-                        value={form.courseContentOrg.q1_upToDate} 
-                        onChange={(v) => updateNestedForm('courseContentOrg', 'q1_upToDate', v)} 
-                      />
-                      
-                      <div className="form-group mt-4">
-                        <label className="form-label">Any other comments:</label>
-                        <textarea className="form-textarea" rows={3} placeholder="Write any comments here (optional)..." value={form.courseContentOrg.comment} onChange={(e) => updateNestedForm('courseContentOrg', 'comment', e.target.value)} />
+                {/* Course Content / Facilities / Teacher / Custom Sections */}
+                {(currentStep.type === 'courseContent' ||
+                  currentStep.type === 'facilities' ||
+                  currentStep.type === 'teacher' ||
+                  currentStep.type === 'custom') && (() => {
+                  const StepIcon = currentStep.icon;
+                  const isNumeric = currentStep.scaleType === 'rating';
+                  const sectionMapKey = currentStep.type === 'teacher' ? 'courseTeacher' : currentStep.type;
+                  const currentScores = currentStep.type === 'custom'
+                    ? (scoresBySection.custom[currentStep.sectionId] || {})
+                    : (scoresBySection[sectionMapKey] || {});
+                  const currentComment = currentStep.type === 'custom'
+                    ? (commentsBySection.custom[currentStep.sectionId] || '')
+                    : (commentsBySection[sectionMapKey] || '');
+
+                  return (
+                    <motion.div
+                      key={currentStep.key}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      className="form-step"
+                    >
+                      <h2 className="form-step-title">
+                        <StepIcon size={22} className="form-step-icon" />
+                        {currentStep.title}
+                      </h2>
+                      <p className="form-step-desc">
+                        {isNumeric
+                          ? 'Rate each item from 1 (Poor) to 5 (Excellent).'
+                          : 'Please indicate your level of agreement with each statement.'}
+                      </p>
+
+                      <div className="likert-section">
+                        {currentStep.questions.map((q, qIdx) => (
+                          <LikertScale
+                            key={q.id || qIdx}
+                            question={`${currentStep.startQNum + qIdx}. ${q.text}`}
+                            value={currentScores[q.id] || 0}
+                            onChange={(v) => setQuestionScore(sectionMapKey, q.id, v, currentStep.sectionId)}
+                            variant={isNumeric ? 'numeric' : 'likert'}
+                          />
+                        ))}
+
+                        <div className="form-group mt-4">
+                          <label className="form-label">Any other comments:</label>
+                          <textarea
+                            className="form-textarea"
+                            rows={3}
+                            placeholder="Write any comments here (optional)..."
+                            value={currentComment}
+                            onChange={(e) => setSectionComment(sectionMapKey, e.target.value, currentStep.sectionId)}
+                          />
+                        </div>
                       </div>
-                    </div>
-                  </motion.div>
-                )}
+                    </motion.div>
+                  );
+                })()}
 
                 {/* Dynamic CO Steps */}
-                {currentStepType.type === 'co' && (() => {
-                  const coIndex = currentStepType.coIndex;
-                  const co = courseOutcomes[coIndex];
-                  const coNum = co?.coNumber || (coIndex + 1);
-                  const coData = form.coFeedback[coIndex] || {};
-                  // Continuous numbering: Q1 is Course Content, then 3 questions per CO
-                  const qBase = 2 + coIndex * 3;
+                {currentStep.type === 'co' && (() => {
+                  const coIndex = currentStep.coIndex;
+                  const co = currentStep.co;
+                  const coNum = currentStep.coNum;
+                  const coScores = scoresBySection.co[coIndex] || {};
+                  const coComment = commentsBySection.co[coIndex] || '';
+                  const isNumeric = currentStep.scaleType === 'rating';
                   const rawTitle = (co?.title || '').trim();
                   const rawDesc = (co?.description || '').trim();
                   const isGenericTitle = !rawTitle || rawTitle.toUpperCase() === `CO${coNum}`;
@@ -541,7 +950,7 @@ export default function FeedbackForm() {
 
                   return (
                     <motion.div
-                      key={`step-co-${coIndex}`}
+                      key={currentStep.key}
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
@@ -551,33 +960,31 @@ export default function FeedbackForm() {
                         <Target size={22} className="form-step-icon" style={{ color: 'var(--ruet-emerald)' }} />
                         CO{coNum}{coStatement ? `: ${coStatement}` : ''}
                       </h2>
-                      <p className="form-step-desc">Please indicate your level of agreement with each statement.</p>
-                      
+                      <p className="form-step-desc">
+                        {isNumeric
+                          ? 'Rate each item from 1 (Poor) to 5 (Excellent).'
+                          : 'Please indicate your level of agreement with each statement.'}
+                      </p>
+
                       <div className="likert-section">
-                        <LikertScale 
-                          question={`${qBase}. The course contents are aligned with this CO.`}
-                          value={coData.q1_contentAligned || 0}
-                          onChange={(v) => updateCOFeedback(coIndex, 'q1_contentAligned', v)}
-                        />
-                        <LikertScale 
-                          question={`${qBase + 1}. The teaching-learning methods are effective to achieve this CO.`}
-                          value={coData.q2_methodsEffective || 0}
-                          onChange={(v) => updateCOFeedback(coIndex, 'q2_methodsEffective', v)}
-                        />
-                        <LikertScale 
-                          question={`${qBase + 2}. The used assessment tools are appropriate for this CO.`}
-                          value={coData.q3_assessmentAppropriate || 0}
-                          onChange={(v) => updateCOFeedback(coIndex, 'q3_assessmentAppropriate', v)}
-                        />
-                        
+                        {currentStep.questions.map((q, qIdx) => (
+                          <LikertScale
+                            key={q.id || qIdx}
+                            question={`${currentStep.startQNum + qIdx}. ${resolveCOQuestionText(q.text, coNum)}`}
+                            value={coScores[q.id] || 0}
+                            onChange={(v) => setQuestionScore('co', q.id, v, coIndex)}
+                            variant={isNumeric ? 'numeric' : 'likert'}
+                          />
+                        ))}
+
                         <div className="form-group mt-4">
                           <label className="form-label">Any other comments:</label>
-                          <textarea 
-                            className="form-textarea" 
-                            rows={3} 
+                          <textarea
+                            className="form-textarea"
+                            rows={3}
                             placeholder="Write any comments here (optional)..."
-                            value={coData.comment || ''} 
-                            onChange={(e) => updateCOFeedback(coIndex, 'comment', e.target.value)} 
+                            value={coComment}
+                            onChange={(e) => setSectionComment('co', e.target.value, coIndex)}
                           />
                         </div>
                       </div>
@@ -585,69 +992,8 @@ export default function FeedbackForm() {
                   );
                 })()}
 
-                {/* Academic and Laboratory Facilities */}
-                {currentStepType.type === 'facilities' && (
-                  <motion.div
-                    key="step-facilities"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    className="form-step"
-                  >
-                    <h2 className="form-step-title">
-                      <FlaskConical size={22} className="form-step-icon" />
-                      Academic & Laboratory Facilities
-                    </h2>
-                    <p className="form-step-desc">Please indicate your level of agreement with each statement.</p>
-                    
-                    <div className="likert-section">
-                      <LikertScale 
-                        question={`${2 + courseOutcomes.length * 3}. Infrastructure and academic facilities are adequate to achieve the COs.`} 
-                        value={form.academicFacilities.q1_infrastructure} 
-                        onChange={(v) => updateNestedForm('academicFacilities', 'q1_infrastructure', v)} 
-                      />
-                      
-                      <div className="form-group mt-4">
-                        <label className="form-label">Any other comments:</label>
-                        <textarea className="form-textarea" rows={3} placeholder="Write any comments here (optional)..." value={form.academicFacilities.comment} onChange={(e) => updateNestedForm('academicFacilities', 'comment', e.target.value)} />
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-
-                {/* Course Teacher */}
-                {currentStepType.type === 'teacher' && (
-                  <motion.div
-                    key="step-teacher"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    className="form-step"
-                  >
-                    <h2 className="form-step-title">
-                      <User size={22} className="form-step-icon" />
-                      Course Teacher
-                    </h2>
-                    <p className="form-step-desc">Rate from 1 (Poor) to 5 (Excellent).</p>
-                    
-                    <div className="likert-section">
-                      <LikertScale 
-                        question={`${3 + courseOutcomes.length * 3}. Evaluate the course teacher based on class preparation, lecture delivery, and way of teaching.`} 
-                        value={form.courseTeacherEval.rating} 
-                        onChange={(v) => updateNestedForm('courseTeacherEval', 'rating', v)} 
-                        variant="numeric"
-                      />
-                      
-                      <div className="form-group mt-4">
-                        <label className="form-label">Any other comments:</label>
-                        <textarea className="form-textarea" rows={3} placeholder="Write any comments here (optional)..." value={form.courseTeacherEval.comment} onChange={(e) => updateNestedForm('courseTeacherEval', 'comment', e.target.value)} />
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-
                 {/* Review & Submit */}
-                {currentStepType.type === 'submit' && (
+                {currentStep.type === 'submit' && (
                   <motion.div
                     key="step-submit"
                     initial={{ opacity: 0, x: 20 }}
@@ -669,44 +1015,36 @@ export default function FeedbackForm() {
                         <span className="review-label">Teacher</span>
                         <span className="review-value">{selectedTeacherName}</span>
                       </div>
-                      {form.courseName && (
+                      {metaForm.courseName && (
                         <div className="review-row">
                           <span className="review-label">Course</span>
-                          <span className="review-value">{form.courseName}</span>
+                          <span className="review-value">
+                            {selectedAssignment?.courseCode ? `${selectedAssignment.courseCode} — ` : ''}
+                            {metaForm.courseName}
+                          </span>
                         </div>
                       )}
-                      
+
                       <div className="divider" style={{ margin: 'var(--sp-4) 0' }} />
 
                       <h4 className="review-section-title">Sections Completed</h4>
-                      
-                      <div className="review-row">
-                        <span className="review-label">Course Content & Organisation</span>
-                        <span className="review-value" style={{ color: 'var(--ruet-emerald)' }}>✓ Completed</span>
-                      </div>
-                      
-                      {courseOutcomes.map((co, i) => {
-                        const coNum = co.coNumber || (i + 1);
-                        const rawTitle = (co.title || '').trim();
-                        const rawDesc = (co.description || '').trim();
-                        const isGeneric = !rawTitle || rawTitle.toUpperCase() === `CO${coNum}`;
-                        const text = isGeneric ? rawDesc : rawTitle;
+
+                      {STEPS.filter(s => s.type !== 'select' && s.type !== 'submit').map((s) => {
+                        let label = s.title || s.label;
+                        if (s.type === 'co') {
+                          const rawTitle = (s.co?.title || '').trim();
+                          const rawDesc = (s.co?.description || '').trim();
+                          const isGeneric = !rawTitle || rawTitle.toUpperCase() === `CO${s.coNum}`;
+                          const text = isGeneric ? rawDesc : rawTitle;
+                          label = `CO${s.coNum}${text ? `: ${text}` : ''}`;
+                        }
                         return (
-                          <div className="review-row" key={i}>
-                            <span className="review-label">CO{coNum}{text ? `: ${text}` : ''}</span>
+                          <div className="review-row" key={s.key}>
+                            <span className="review-label">{label}</span>
                             <span className="review-value" style={{ color: 'var(--ruet-emerald)' }}>✓ Completed</span>
                           </div>
                         );
                       })}
-
-                      <div className="review-row">
-                        <span className="review-label">Academic & Lab Facilities</span>
-                        <span className="review-value" style={{ color: 'var(--ruet-emerald)' }}>✓ Completed</span>
-                      </div>
-                      <div className="review-row">
-                        <span className="review-label">Course Teacher</span>
-                        <span className="review-value" style={{ color: 'var(--ruet-emerald)' }}>✓ Completed</span>
-                      </div>
                     </div>
 
                     <div className="anonymity-notice mt-6">
@@ -719,16 +1057,16 @@ export default function FeedbackForm() {
 
               {/* Navigation Buttons */}
               <div className="form-nav">
-                {step > 0 ? (
+                {safeStep > 0 ? (
                   <button onClick={handlePrevStep} className="btn btn-secondary">
                     <ChevronLeft size={18} />
                     Back
                   </button>
                 ) : <div />}
-                
+
                 <div style={{ flex: 1 }} />
-                
-                {step < STEPS.length - 1 ? (
+
+                {safeStep < STEPS.length - 1 ? (
                   <button
                     onClick={handleNextStep}
                     className="btn btn-primary"

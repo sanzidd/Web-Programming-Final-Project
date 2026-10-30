@@ -24,10 +24,17 @@ function mean(values) {
   return valid.reduce((a, b) => a + b, 0) / valid.length;
 }
 
+function responsesMean(responses) {
+  if (!Array.isArray(responses) || responses.length === 0) return null;
+  return mean(responses.map(r => safeNum(r?.score)));
+}
+
 // Course Content & Organisation
 function contentScore(f) {
   const c = f.courseContentOrg || f.courseContent;
   if (!c) return null;
+  const dyn = responsesMean(c.responses);
+  if (dyn !== null) return dyn;
   const current = safeNum(c.q1_upToDate);
   if (current !== null) return current;
   return mean([
@@ -40,6 +47,8 @@ function contentScore(f) {
 // Score for a single CO entry
 function coEntryScore(co) {
   if (!co) return null;
+  const dyn = responsesMean(co.responses);
+  if (dyn !== null) return dyn;
   const current = mean([
     safeNum(co.q1_contentAligned),
     safeNum(co.q2_methodsEffective),
@@ -59,6 +68,8 @@ function coScore(f) {
 function facilitiesScore(f) {
   const af = f.academicFacilities || f.learningResources;
   if (!af) return null;
+  const dyn = responsesMean(af.responses);
+  if (dyn !== null) return dyn;
   const current = safeNum(af.q1_infrastructure);
   if (current !== null) return current;
   return mean([
@@ -68,9 +79,16 @@ function facilitiesScore(f) {
   ]);
 }
 
-// Course Teacher (1-5 numeric rating)
+// Course Teacher (1-5 numeric rating or dynamic questions)
 function teacherScore(f) {
+  const dyn = responsesMean(f.courseTeacherEval?.responses);
+  if (dyn !== null) return dyn;
   return safeNum(f.courseTeacherEval?.rating);
+}
+
+function customSectionsScore(f) {
+  if (!Array.isArray(f.customSections) || f.customSections.length === 0) return null;
+  return mean(f.customSections.map(sec => responsesMean(sec?.responses)));
 }
 
 // Legacy Teaching-Learning & Assessment section (removed from the form; old data only)
@@ -92,13 +110,14 @@ function sectionScores(f) {
     co: coScore(f),
     facilities: facilitiesScore(f),
     teacher: teacherScore(f),
+    custom: customSectionsScore(f),
   };
 }
 
 // Overall average of the available sections for one feedback (null if none)
 function feedbackAverage(f) {
   const s = sectionScores(f);
-  return mean([s.content, s.co, s.facilities, s.teacher]);
+  return mean([s.content, s.co, s.facilities, s.teacher, s.custom]);
 }
 
 const round2 = (v) => (v !== null && !isNaN(v) && isFinite(v)) ? Math.round(v * 100) / 100 : 0;
@@ -134,6 +153,7 @@ function extractFeedbackComments(f) {
     ...(Array.isArray(f.coFeedback) ? f.coFeedback.map(c => c?.comment) : []),
     f.academicFacilities?.comment,
     f.courseTeacherEval?.comment,
+    ...(Array.isArray(f.customSections) ? f.customSections.map(s => s?.comment) : []),
     f.teachingLearning?.comment,
     f.overallComment,
     f.commentsAndSuggestions,

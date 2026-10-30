@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Users, Plus, Trash2, Edit2, Mail, Search, 
-  Filter, CheckCircle, XCircle, Key, ShieldCheck, Clock, AlertCircle, Loader2, FileSpreadsheet 
+  Filter, CheckCircle, XCircle, Key, ShieldCheck, Clock, AlertCircle, Loader2, FileSpreadsheet, FileText 
 } from 'lucide-react';
 import api from '../services/api';
 import { useToast } from '../context/ToastContext';
@@ -149,6 +149,28 @@ export default function AdminTeachers() {
       toast.success('Excel report downloaded!');
     } catch {
       toast.error('Failed to download Excel report');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleDownloadWord = async (teacher) => {
+    setActionLoading(`word-${teacher._id}`);
+    try {
+      toast.info(`Generating Word (.docx) report for ${teacher.name}...`);
+      const response = await api.get(`/admin/teachers/${teacher._id}/export-doc`, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      const safeName = (teacher.name || 'Teacher').replace(/[^a-zA-Z0-9]/g, '_');
+      link.setAttribute('download', `Final_Feedback_${safeName}.docx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      toast.success('Word report (.docx) downloaded!');
+    } catch {
+      toast.error('Failed to download Word report');
     } finally {
       setActionLoading(null);
     }
@@ -473,10 +495,20 @@ export default function AdminTeachers() {
                               disabled={actionLoading === `excel-${t._id}`}
                               className="btn btn-outline btn-sm"
                               style={{ padding: '6px 12px', display: 'flex', alignItems: 'center', gap: '4px', borderColor: 'rgba(16, 185, 129, 0.35)', color: '#10b981' }}
-                              title="Download Excel Feedback Report"
+                              title="Download Excel Feedback Report (.xlsx)"
                             >
                               {actionLoading === `excel-${t._id}` ? <Loader2 size={14} className="spin" /> : <FileSpreadsheet size={14} />}
                               Excel Report
+                            </button>
+                            <button
+                              onClick={() => handleDownloadWord(t)}
+                              disabled={actionLoading === `word-${t._id}`}
+                              className="btn btn-outline btn-sm"
+                              style={{ padding: '6px 12px', display: 'flex', alignItems: 'center', gap: '4px', borderColor: 'rgba(59, 130, 246, 0.4)', color: '#60A5FA' }}
+                              title="Download Final Feedback Word Report (.docx)"
+                            >
+                              {actionLoading === `word-${t._id}` ? <Loader2 size={14} className="spin" /> : <FileText size={14} />}
+                              Word Report
                             </button>
                             <button
                               onClick={() => openEditModal(t)}

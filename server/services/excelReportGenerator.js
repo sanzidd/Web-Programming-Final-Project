@@ -1,30 +1,27 @@
 const path = require('path');
 const fs = require('fs');
 const XlsxPopulate = require('xlsx-populate');
-const { contentScore, coEntryScore, facilitiesScore, teacherScore } = require('../utils/feedbackScores');
+const { buildReportData } = require('./reportSectionBuilder');
 
 // Helper to convert column number (1-based) to Excel letter (A, B, ..., Z, AA, AB, ...)
 function colToLetter(col) {
   let temp = col;
   let letter = '';
   while (temp > 0) {
-    let mod = (temp - 1) % 26;
+    const mod = (temp - 1) % 26;
     letter = String.fromCharCode(65 + mod) + letter;
     temp = Math.floor((temp - mod) / 26);
   }
   return letter;
 }
 
-function ratingToText(val) {
-  const map = { 5: 'Strongly Agree', 4: 'Agree', 3: 'Neutral', 2: 'Disagree', 1: 'Strongly Disagree' };
-  return map[val] || '';
-}
-
-// Course Teacher numeric rating (1-5)
-const TEACHER_RATING_LABELS = ['5 - Excellent', '4 - Very Good', '3 - Good', '2 - Fair', '1 - Poor'];
-function teacherRatingToText(val) {
-  const map = { 5: '5 - Excellent', 4: '4 - Very Good', 3: '3 - Good', 2: '2 - Fair', 1: '1 - Poor' };
-  return map[val] || '';
+function escapeXml(str) {
+  return String(str ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
 }
 
 // Reset all stale merged cells from a worksheet
@@ -45,7 +42,9 @@ function makeGuid(index) {
 function buildChartXml({ chartId, catRange, catLabels, seriesList }) {
   const catCount = catLabels.length;
   const colors = ['accent1', 'accent2', 'accent3', 'accent4', 'accent5'];
-  const catPtsXml = catLabels.map((lbl, idx) => `<c:pt idx="${idx}"><c:v>${lbl}</c:v></c:pt>`).join('');
+  const catPtsXml = catLabels
+    .map((lbl, idx) => `<c:pt idx="${idx}"><c:v>${escapeXml(lbl)}</c:v></c:pt>`)
+    .join('');
 
   const seriesXml = seriesList.map((ser, sIdx) => {
     const valPtsXml = ser.values.map((v, idx) => `<c:pt idx="${idx}"><c:v>${v}</c:v></c:pt>`).join('');
@@ -59,7 +58,7 @@ function buildChartXml({ chartId, catRange, catLabels, seriesList }) {
             <c:f>${ser.labelCell}</c:f>
             <c:strCache>
               <c:ptCount val="1"/>
-              <c:pt idx="0"><c:v>${ser.name}</c:v></c:pt>
+              <c:pt idx="0"><c:v>${escapeXml(ser.name)}</c:v></c:pt>
             </c:strCache>
           </c:strRef>
         </c:tx>
@@ -338,7 +337,7 @@ function buildDrawingXml(chartAnchors, imageAnchor) {
       </xdr:to>
       <xdr:pic>
         <xdr:nvPicPr>
-          <xdr:cNvPr id="${imageAnchor.id}" name="Picture 7" descr="RUET Logo">
+          <xdr:cNvPr id="${imageAnchor.id}" name="Picture 7" descr="Institution Logo">
             <a:extLst>
               <a:ext uri="{FF2B5EF4-FFF2-40B4-BE49-F238E27FC236}">
                 <a16:creationId xmlns:a16="http://schemas.microsoft.com/office/drawing/2014/main" id="${picGuid}"/>
@@ -398,12 +397,12 @@ function buildDrawingRelsXml(chartAnchors, imageAnchor) {
 }
 
 /**
- * Generate a complete, formatted Excel feedback report with:
- * - Input sheet: full student response rows with merged headers and styling
- * - Graphs sheet: percentage tables, participants count, and formula calculations
- * - Final Feedback sheet: RUET header, question tables, native Excel bar charts, metrics, and comments
+ * Generate a complete, formatted Excel feedback report dynamically adapted to the active FeedbackConfig:
+ * - Sheet 1 (Input): full student response rows with spacious columns, dynamic row heights, and merged headers
+ * - Sheet 2 (Graphs): percentage tables, participants count, and live Excel formula calculations
+ * - Sheet 3 (Final Feedback): Institutional header, A. Core Questions + native Excel bar charts, B. Summary & Performance Metrics (no Option C)
  */
-exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
+exports.generateFeedbackExcel = async function ({ assignment, feedbacks = [], feedbackConfig = null }) {
   const templatePath = path.join(__dirname, '..', 'feedback_template.xlsx');
   let wb;
   let hasTemplate = false;
@@ -420,22 +419,9 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
     wb = await XlsxPopulate.fromBlankAsync();
   }
 
-  const courseName = assignment.courseName || 'Course';
-  const courseCode = assignment.courseCode || '';
-  const semester = assignment.semester || '';
-  const series = assignment.series || '';
-  const teacherName = assignment.teacher?.name || 'Unknown';
-  const teacherDesignation = assignment.teacher?.designation || '';
-  const deptName = assignment.department?.name || 'Unknown';
-  const deptCode = assignment.department?.code || '';
-  const cos = (assignment.courseOutcomes && assignment.courseOutcomes.length > 0)
-    ? assignment.courseOutcomes
-    : [
-        { coNumber: 1, title: 'CO1', description: 'Course Outcome 1' },
-        { coNumber: 2, title: 'CO2', description: 'Course Outcome 2' }
-      ];
-
-  const totalStudents = feedbacks.length;
+  const report = await buildReportData({ assignment, feedbacks, feedbackConfig });
+  const { meta, sections, overallAvg, overallAttainmentPct } = report;
+  const totalStudents = meta.totalStudents;
   const lastInputRow = Math.max(4, 3 + totalStudents);
 
   // ══════════════════════════════════════════════════════════════
@@ -444,10 +430,12 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
   let wsInput = wb.sheet('Input');
   if (!wsInput) wsInput = wb.addSheet('Input');
 
-  // Completely wipe out stale merged cells, values, styles, and row heights from template
   resetSheetMerges(wsInput);
 
+  const totalDynamicCols = 1 + sections.reduce((sum, s) => sum + s.questions.length + 1, 0);
+  const clearInputCols = Math.max(45, totalDynamicCols + 5);
   const clearInputRows = Math.max(120, lastInputRow + 20);
+
   for (let r = 1; r <= clearInputRows; r++) {
     const row = wsInput.row(r);
     row.height(undefined);
@@ -455,23 +443,12 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
       delete row._node.attributes.ht;
       delete row._node.attributes.customHeight;
     }
-    for (let c = 1; c <= 45; c++) {
+    for (let c = 1; c <= clearInputCols; c++) {
       wsInput.cell(r, c).clear();
     }
   }
-  for (let c = 1; c <= 45; c++) {
+  for (let c = 1; c <= clearInputCols; c++) {
     wsInput.column(c).width(12);
-  }
-
-  // Helper to build a clean CO title string without "CO1: CO1" duplication
-  function formatCOTitle(co, coNum) {
-    const rawTitle = (co?.title || '').trim();
-    const rawDesc = (co?.description || '').trim();
-    const isGeneric = !rawTitle || rawTitle.toUpperCase() === `CO${coNum}`;
-    const body = isGeneric
-      ? rawDesc
-      : (rawDesc && rawDesc !== rawTitle ? `${rawTitle} — ${rawDesc}` : rawTitle);
-    return body ? `CO${coNum}: ${body}` : `CO${coNum}`;
   }
 
   // Column A: Student No. (merged across all 3 header rows)
@@ -481,139 +458,52 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
 
   let col = 2;
   const colWidths = { 1: 14 };
-  const row1HeaderSpecs = []; // { text, totalWidth }
-  const row2QuestionSpecs = []; // { text, width }
-  const mergedCommentSpecs = []; // { text, width }
+  const row1HeaderSpecs = [];
+  const row2QuestionSpecs = [];
+  const mergedCommentSpecs = [];
 
-  // Question numbering follows the student form: Q1 (content), Q2.. (COs), then Facilities and Course Teacher.
-  // Comment columns are not numbered.
+  sections.forEach(sec => {
+    const qCount = sec.questions.length;
+    const startCol = col;
+    const qWidth = qCount === 1
+      ? (sec.key === 'courseTeacher' ? 36 : 34)
+      : (qCount === 2 ? 30 : 28);
 
-  // Section 1: Course Content and Organization (1 question + comment)
-  const s1ColStart = col;
-  const s1Title = 'Course Content and Organization';
-  const s1Q1 = 'The course contents are up-to-date and well organized';
-  wsInput.cell(1, col).value(s1Title);
-  wsInput.cell(2, col).value(s1Q1);
-  wsInput.cell(3, col).value('Q. 1');
-  colWidths[col] = 34;
-  row1HeaderSpecs.push({ text: s1Title, totalWidth: 34 });
-  row2QuestionSpecs.push({ text: s1Q1, width: 34 });
-  col++;
-  const s1ColEnd = col - 1;
+    wsInput.cell(1, startCol).value(sec.inputHeaderTitle);
 
-  const s1CommentCol = col;
-  const s1CommentTitle = 'Comments on Course Content and Organization (if any)';
-  wsInput.cell(1, col).value(s1CommentTitle);
-  wsInput.cell(3, col).value('Comment');
-  colWidths[col] = 30;
-  mergedCommentSpecs.push({ text: s1CommentTitle, width: 30 });
-  col++;
+    sec.questions.forEach(q => {
+      wsInput.cell(2, col).value(q.text);
+      wsInput.cell(3, col).value(`Q. ${q.qNum}`);
+      colWidths[col] = qWidth;
+      row2QuestionSpecs.push({ text: q.text, width: qWidth });
+      col++;
+    });
 
-  wsInput.range(`${colToLetter(s1CommentCol)}1:${colToLetter(s1CommentCol)}2`).merged(true);
-
-  let qNum = 2;
-  const coCols = [];
-  const CO_Q_WIDTH = 28;
-  cos.forEach((co) => {
-    const coNum = co.coNumber || (coCols.length + 1);
-    const coLabel = formatCOTitle(co, coNum);
-    const coHeaderText = `Questions Related to ${coLabel}`;
-    const coStart = col;
-    wsInput.cell(1, col).value(coHeaderText);
-
-    const coQ1 = `The course contents are aligned with CO${coNum}`;
-    wsInput.cell(2, col).value(coQ1);
-    wsInput.cell(3, col).value(`Q. ${qNum++}`);
-    colWidths[col] = CO_Q_WIDTH;
-    row2QuestionSpecs.push({ text: coQ1, width: CO_Q_WIDTH });
-    col++;
-
-    const coQ2 = `The teaching-learning methods are effective to achieve CO${coNum}`;
-    wsInput.cell(2, col).value(coQ2);
-    wsInput.cell(3, col).value(`Q. ${qNum++}`);
-    colWidths[col] = CO_Q_WIDTH;
-    row2QuestionSpecs.push({ text: coQ2, width: CO_Q_WIDTH });
-    col++;
-
-    const coQ3 = `The used assessment tools are appropriate for CO${coNum}`;
-    wsInput.cell(2, col).value(coQ3);
-    wsInput.cell(3, col).value(`Q. ${qNum++}`);
-    colWidths[col] = CO_Q_WIDTH;
-    row2QuestionSpecs.push({ text: coQ3, width: CO_Q_WIDTH });
-    col++;
-    const coEnd = col - 1;
-
-    row1HeaderSpecs.push({ text: coHeaderText, totalWidth: CO_Q_WIDTH * 3 });
+    const endCol = col - 1;
+    if (qCount > 1) {
+      wsInput.range(`${colToLetter(startCol)}1:${colToLetter(endCol)}1`).merged(true);
+    }
+    row1HeaderSpecs.push({ text: sec.inputHeaderTitle, totalWidth: qWidth * qCount });
 
     const commentCol = col;
-    const coCommentTitle = `Comments on CO${coNum} (if any)`;
-    wsInput.cell(1, col).value(coCommentTitle);
-    wsInput.cell(3, col).value('Comment');
-    colWidths[col] = 30;
-    mergedCommentSpecs.push({ text: coCommentTitle, width: 30 });
+    wsInput.cell(1, commentCol).value(sec.commentHeaderTitle);
+    wsInput.cell(3, commentCol).value('Comment');
+    colWidths[commentCol] = 30;
+    mergedCommentSpecs.push({ text: sec.commentHeaderTitle, width: 30 });
+    wsInput.range(`${colToLetter(commentCol)}1:${colToLetter(commentCol)}2`).merged(true);
     col++;
 
-    // Merge headers for this CO
-    wsInput.range(`${colToLetter(coStart)}1:${colToLetter(coEnd)}1`).merged(true);
-    wsInput.range(`${colToLetter(commentCol)}1:${colToLetter(commentCol)}2`).merged(true);
-
-    coCols.push({ co, coNum, coLabel, startCol: coStart, endCol: coEnd, commentCol });
+    sec.startCol = startCol;
+    sec.endCol = endCol;
+    sec.commentCol = commentCol;
   });
 
-  // Section: Academic and Laboratory Facilities (1 question + comment)
-  const s4ColStart = col;
-  const s4Title = 'Academic and Laboratory Facilities';
-  const s4Q1 = 'Infrastructure and academic facilities are adequate to achieve the COs';
-  wsInput.cell(1, col).value(s4Title);
-  wsInput.cell(2, col).value(s4Q1);
-  wsInput.cell(3, col).value(`Q. ${qNum++}`);
-  colWidths[col] = 34;
-  row1HeaderSpecs.push({ text: s4Title, totalWidth: 34 });
-  row2QuestionSpecs.push({ text: s4Q1, width: 34 });
-  col++;
-  const s4ColEnd = col - 1;
+  const lastCol = Math.max(1, col - 1);
 
-  const s4CommentCol = col;
-  const s4CommentTitle = 'Comments on Facilities (if any)';
-  wsInput.cell(1, col).value(s4CommentTitle);
-  wsInput.cell(3, col).value('Comment');
-  colWidths[col] = 30;
-  mergedCommentSpecs.push({ text: s4CommentTitle, width: 30 });
-  col++;
-
-  wsInput.range(`${colToLetter(s4CommentCol)}1:${colToLetter(s4CommentCol)}2`).merged(true);
-
-  // Section: Course Teacher (1-5 rating + comment)
-  const s5ColStart = col;
-  const s5Title = 'Course Teacher';
-  const s5Q1 = 'Evaluate the course teacher based on class preparation, lecture delivery, and way of teaching';
-  wsInput.cell(1, col).value(s5Title);
-  wsInput.cell(2, col).value(s5Q1);
-  wsInput.cell(3, col).value(`Q. ${qNum++}`);
-  colWidths[col] = 36;
-  row1HeaderSpecs.push({ text: s5Title, totalWidth: 36 });
-  row2QuestionSpecs.push({ text: s5Q1, width: 36 });
-  col++;
-  const s5ColEnd = col - 1;
-
-  const s5CommentCol = col;
-  const s5CommentTitle = 'Comments on Course Teacher (if any)';
-  wsInput.cell(1, col).value(s5CommentTitle);
-  wsInput.cell(3, col).value('Comment');
-  colWidths[col] = 30;
-  mergedCommentSpecs.push({ text: s5CommentTitle, width: 30 });
-  col++;
-
-  wsInput.range(`${colToLetter(s5CommentCol)}1:${colToLetter(s5CommentCol)}2`).merged(true);
-
-  const lastCol = s5CommentCol;
-
-  // Apply generous column widths across the Input sheet
   for (let c = 1; c <= lastCol; c++) {
     wsInput.column(c).width(colWidths[c] || 28);
   }
 
-  // Compute spacious header row heights so CO titles and questions never look compact or clipped
   const computedRow1Height = Math.max(
     52,
     ...row1HeaderSpecs.map(h => estimateRowHeight(h.text, {
@@ -652,11 +542,9 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
   wsInput.row(2).height(computedRow2Height);
   wsInput.row(3).height(30);
 
-  // Style Header Cells (Rows 1-3)
   for (let r = 1; r <= 3; r++) {
     for (let c = 1; c <= lastCol; c++) {
-      const cell = wsInput.cell(r, c);
-      cell.style({
+      wsInput.cell(r, c).style({
         fill: 'FFF2CC',
         bold: true,
         fontSize: r === 1 ? 11 : 10,
@@ -668,7 +556,6 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
     }
   }
 
-  // Row 3 question numbers highlight in bold red font
   for (let c = 2; c <= lastCol; c++) {
     const qCell = wsInput.cell(3, c);
     if (qCell.value()) {
@@ -681,10 +568,9 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
   }
 
   // Populate Student Data Rows
-  feedbacks.forEach((fb, idx) => {
+  feedbacks.forEach((_, idx) => {
     const r = 4 + idx;
-    const snCell = wsInput.cell(r, 1);
-    snCell.value(idx + 1).style({
+    wsInput.cell(r, 1).value(idx + 1).style({
       bold: true,
       fontColor: 'FF0000',
       horizontalAlignment: 'center',
@@ -694,36 +580,16 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
 
     const rowComments = [];
 
-    // S1: Course Content & Organisation (legacy rows fall back to the old "well organized" question)
-    const s1CommentVal = fb.courseContentOrg?.comment || '';
-    wsInput.cell(r, s1ColStart).value(ratingToText(fb.courseContentOrg?.q1_upToDate || fb.courseContentOrg?.q3_organized));
-    wsInput.cell(r, s1CommentCol).value(s1CommentVal);
-    rowComments.push(s1CommentVal);
-
-    // COs
-    coCols.forEach(({ coNum, startCol, commentCol }) => {
-      const cd = (fb.coFeedback || []).find(c => c.coNumber === coNum);
-      const coCommentVal = cd?.comment || '';
-      wsInput.cell(r, startCol).value(ratingToText(cd?.q1_contentAligned));
-      wsInput.cell(r, startCol + 1).value(ratingToText(cd?.q2_methodsEffective || cd?.q2_alignment));
-      wsInput.cell(r, startCol + 2).value(ratingToText(cd?.q3_assessmentAppropriate || cd?.q3_assessment));
-      wsInput.cell(r, commentCol).value(coCommentVal);
-      rowComments.push(coCommentVal);
+    sections.forEach(sec => {
+      const rowData = sec.extractedRows[idx] || { texts: [], comment: '' };
+      sec.questions.forEach((__, qIdx) => {
+        wsInput.cell(r, sec.startCol + qIdx).value(rowData.texts[qIdx] || '');
+      });
+      const commentVal = rowData.comment || '';
+      wsInput.cell(r, sec.commentCol).value(commentVal);
+      rowComments.push(commentVal);
     });
 
-    // Facilities (legacy rows fall back to the old laboratory question)
-    const s4CommentVal = fb.academicFacilities?.comment || '';
-    wsInput.cell(r, s4ColStart).value(ratingToText(fb.academicFacilities?.q1_infrastructure || fb.academicFacilities?.q3_laboratory));
-    wsInput.cell(r, s4CommentCol).value(s4CommentVal);
-    rowComments.push(s4CommentVal);
-
-    // Course Teacher
-    const s5CommentVal = fb.courseTeacherEval?.comment || '';
-    wsInput.cell(r, s5ColStart).value(teacherRatingToText(fb.courseTeacherEval?.rating));
-    wsInput.cell(r, s5CommentCol).value(s5CommentVal);
-    rowComments.push(s5CommentVal);
-
-    // Style data row cells with wrapping and comfortable box height
     for (let c = 2; c <= lastCol; c++) {
       wsInput.cell(r, c).style({
         fill: 'E2EFDA',
@@ -755,32 +621,33 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
   let wsGraphs = wb.sheet('Graphs');
   if (!wsGraphs) wsGraphs = wb.addSheet('Graphs');
 
-  // Completely wipe out stale merged cells and row heights from template
   resetSheetMerges(wsGraphs);
 
-  for (let r = 1; r <= 150; r++) {
+  const maxSectionQs = Math.max(6, ...sections.map(s => s.questions.length));
+  const clearGraphRows = Math.max(150, 10 + sections.length * 10);
+  const clearGraphCols = Math.max(20, 4 + maxSectionQs);
+
+  for (let r = 1; r <= clearGraphRows; r++) {
     const row = wsGraphs.row(r);
     row.height(undefined);
     if (row._node && row._node.attributes) {
       delete row._node.attributes.ht;
       delete row._node.attributes.customHeight;
     }
-    for (let c = 1; c <= 20; c++) {
+    for (let c = 1; c <= clearGraphCols; c++) {
       wsGraphs.cell(r, c).value(undefined);
     }
   }
 
-  // Set column widths for Graphs sheet
   wsGraphs.column(1).width(5);
   wsGraphs.column(2).width(30);
-  for (let c = 3; c <= 15; c++) {
+  for (let c = 3; c <= Math.max(15, 2 + maxSectionQs); c++) {
     wsGraphs.column(c).width(14);
   }
   wsGraphs.row(2).height(22);
   wsGraphs.row(3).height(22);
   wsGraphs.row(5).height(26);
 
-  // Total Participants Banner
   wsGraphs.cell('C2').value('Total Participants :');
   wsGraphs.range('C2:E3').merged(true).style({
     fill: 'FFFF00',
@@ -792,9 +659,10 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
     border: true
   });
 
-  wsGraphs.cell('F2').value(totalStudents);
   if (totalStudents > 0) {
-    wsGraphs.cell('F2').formula(`COUNTA(Input!A4:A${lastInputRow})`);
+    wsGraphs.cell('F2').formula(`COUNTA(Input!A4:A${lastInputRow})`).value(totalStudents);
+  } else {
+    wsGraphs.cell('F2').value(0);
   }
   wsGraphs.range('F2:F3').merged(true).style({
     fill: 'FFFF00',
@@ -806,7 +674,6 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
     border: true
   });
 
-  // Header row 5
   wsGraphs.cell('B5').value('Criterias').style({
     bold: true,
     horizontalAlignment: 'center',
@@ -814,24 +681,26 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
     border: true
   });
   wsGraphs.cell('C5').value('Question Nos.');
-  wsGraphs.range('C5:H5').merged(true).style({
+  const qNosEndCol = colToLetter(Math.max(8, 2 + maxSectionQs));
+  wsGraphs.range(`C5:${qNosEndCol}5`).merged(true).style({
     bold: true,
     horizontalAlignment: 'center',
     verticalAlignment: 'center',
     border: true
   });
 
-  const ratingLabels = ['Strongly Agree', 'Agree', 'Neutral', 'Disagree', 'Strongly Disagree'];
-
   let currentGraphRow = 7;
-  const chartDefinitions = [];
 
-  function addGraphTable({ titleFormula, titleText, startCol, endCol, labels = ratingLabels }) {
+  function addGraphTable(sec) {
     const tRow = currentGraphRow;
+    const startCol = sec.startCol;
+    const endCol = sec.endCol;
     const qCount = endCol - startCol + 1;
     const colEndLetter = colToLetter(2 + qCount);
+    const titleFormula = `Input!${colToLetter(startCol)}1`;
+    const titleText = sec.ffTitle;
+    const labels = sec.scaleLabels;
 
-    // Section title row
     wsGraphs.cell(tRow, 2).formula(titleFormula).value(titleText);
     wsGraphs.range(`B${tRow}:${colEndLetter}${tRow}`).merged(true).style({
       bold: true,
@@ -848,7 +717,6 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
     }));
     wsGraphs.row(tRow + 1).height(24);
 
-    // Question numbers row
     const catLabels = [];
     wsGraphs.cell(tRow + 1, 2).value(undefined).style({ border: true });
     for (let i = 0; i < qCount; i++) {
@@ -879,18 +747,14 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
         border: true
       });
 
+      const distRow = sec.distributions[lIdx];
       const rowVals = [];
       for (let i = 0; i < qCount; i++) {
         const inputColLetter = colToLetter(startCol + i);
-        const formula = totalStudents > 0 
+        const formula = totalStudents > 0
           ? `COUNTIF(Input!${inputColLetter}$4:Input!${inputColLetter}$${lastInputRow}, "${label}")/$F$2*100`
           : '0';
-
-        let cMatches = 0;
-        for (let r = 4; r <= lastInputRow; r++) {
-          if (wsInput.cell(r, startCol + i).value() === label) cMatches++;
-        }
-        const pct = totalStudents > 0 ? +((cMatches / totalStudents) * 100).toFixed(1) : 0;
+        const pct = distRow ? distRow.values[i] : 0;
         rowVals.push(pct);
 
         wsGraphs.cell(rRow, 3 + i).formula(formula).value(pct).style({
@@ -909,48 +773,13 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
       });
     });
 
-    currentGraphRow = tRow + 8;
-    return { catRange, catLabels, seriesList };
+    currentGraphRow = tRow + 2 + labels.length + 1;
+    return { catRange, catLabels, seriesList, sectionName: titleText };
   }
 
-  // Table 1: Section 1
-  const s1Graph = addGraphTable({
-    titleFormula: 'Input!B1',
-    titleText: 'Course Content and Organization',
-    startCol: s1ColStart,
-    endCol: s1ColEnd
+  sections.forEach(sec => {
+    sec.chartDef = addGraphTable(sec);
   });
-  chartDefinitions.push({ ...s1Graph, sectionName: 'Course Content and Organization' });
-
-  // Tables for COs
-  coCols.forEach(({ coLabel, startCol, endCol }) => {
-    const coGraph = addGraphTable({
-      titleFormula: `Input!${colToLetter(startCol)}1`,
-      titleText: coLabel,
-      startCol,
-      endCol
-    });
-    chartDefinitions.push({ ...coGraph, sectionName: coLabel });
-  });
-
-  // Table for Facilities
-  const s4Graph = addGraphTable({
-    titleFormula: `Input!${colToLetter(s4ColStart)}1`,
-    titleText: 'Academic and Laboratory Facilities',
-    startCol: s4ColStart,
-    endCol: s4ColEnd
-  });
-  chartDefinitions.push({ ...s4Graph, sectionName: 'Academic and Laboratory Facilities' });
-
-  // Table for Course Teacher
-  const s5Graph = addGraphTable({
-    titleFormula: `Input!${colToLetter(s5ColStart)}1`,
-    titleText: 'Course Teacher',
-    startCol: s5ColStart,
-    endCol: s5ColEnd,
-    labels: TEACHER_RATING_LABELS
-  });
-  chartDefinitions.push({ ...s5Graph, sectionName: 'Course Teacher' });
 
   // ══════════════════════════════════════════════════════════════
   // SHEET 3: Final Feedback
@@ -958,10 +787,10 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
   let wsFF = wb.sheet('Final Feedback');
   if (!wsFF) wsFF = wb.addSheet('Final Feedback');
 
-  // Completely wipe out stale merged cells, values, styles, and row heights from template
   resetSheetMerges(wsFF);
 
-  for (let r = 1; r <= 250; r++) {
+  const clearFFRows = Math.max(250, 35 + sections.reduce((sum, s) => sum + s.questions.length + 5, 0));
+  for (let r = 1; r <= clearFFRows; r++) {
     const row = wsFF.row(r);
     row.height(undefined);
     if (row._node && row._node.attributes) {
@@ -973,13 +802,11 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
     }
   }
 
-  // Layout: 3 main columns for Final Feedback
   wsFF.column(1).width(5);   // Col A: Sl.
   wsFF.column(2).width(32);  // Col B: Criteria / Questions / Section Titles
   wsFF.column(3).width(62);  // Col C: Charts / Performance metrics
 
-  // Institutional Header (Merged A:C)
-  wsFF.cell('A1').value(`Department of ${deptName}`);
+  wsFF.cell('A1').value(`Department of ${meta.deptName}`);
   wsFF.range('A1:C1').merged(true).style({ bold: true, fontSize: 16, horizontalAlignment: 'center', verticalAlignment: 'center' });
   wsFF.row(1).height(26);
 
@@ -987,19 +814,24 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
   wsFF.range('A2:C2').merged(true).style({ italic: true, fontSize: 12, horizontalAlignment: 'center', verticalAlignment: 'center' });
   wsFF.row(2).height(20);
 
-  wsFF.cell('A3').value(courseCode ? `Students' Feedback on ${courseName} (${courseCode})` : `Students' Feedback on ${courseName}`);
+  wsFF.cell('A3').value(
+    meta.courseCode
+      ? `Students' Feedback on ${meta.courseName} (${meta.courseCode})`
+      : `Students' Feedback on ${meta.courseName}`
+  );
   wsFF.range('A3:C3').merged(true).style({ bold: true, fontSize: 13, horizontalAlignment: 'center', verticalAlignment: 'center' });
   wsFF.row(3).height(22);
 
-  wsFF.cell('A4').value(`Course Teacher: ${teacherName}, ${teacherDesignation}, Dept of ${deptCode}`);
+  const teacherLineParts = [meta.teacherName, meta.teacherDesignation, meta.deptCode ? `Dept of ${meta.deptCode}` : ''].filter(Boolean);
+  wsFF.cell('A4').value(`Course Teacher: ${teacherLineParts.join(', ')}`);
   wsFF.range('A4:C4').merged(true).style({ fontSize: 11, horizontalAlignment: 'center', verticalAlignment: 'center' });
   wsFF.row(4).height(18);
 
-  wsFF.cell('A5').value(`Session: ${series} | Semester: ${semester || 'N/A'}`);
+  wsFF.cell('A5').value(`Session: ${meta.series || 'N/A'} | Semester: ${meta.semester || 'N/A'}`);
   wsFF.range('A5:C5').merged(true).style({ fontSize: 11, horizontalAlignment: 'center', verticalAlignment: 'center' });
   wsFF.row(5).height(18);
 
-  wsFF.row(6).height(10); // spacing
+  wsFF.row(6).height(10);
 
   wsFF.cell('A7').value('A. CORE QUESTIONS');
   wsFF.range('A7:C7').merged(true).style({
@@ -1012,7 +844,7 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
   });
   wsFF.row(7).height(24);
 
-  wsFF.row(8).height(10); // spacing
+  wsFF.row(8).height(10);
 
   let ffRow = 9;
   const chartAnchors = [];
@@ -1022,14 +854,12 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
     const startRow = ffRow;
     const chartRowEntries = [];
 
-    // Header Row
     wsFF.cell(ffRow, 1).value('Sl.').style({ bold: true, horizontalAlignment: 'center', verticalAlignment: 'center', border: true });
     wsFF.cell(ffRow, 2).value(title).style({ bold: true, verticalAlignment: 'center', border: true, wrapText: true });
     const hHeader = estimateRowHeight(title, { colWidth: 32, isBold: true, minHeight: 28, linePadding: 8 });
     chartRowEntries.push({ r: ffRow, h: hHeader });
     ffRow++;
 
-    // Question Rows
     questions.forEach((q, idx) => {
       wsFF.cell(ffRow, 1).value(idx + 1).style({ horizontalAlignment: 'center', verticalAlignment: 'center', border: true });
       wsFF.cell(ffRow, 2).value(q).style({ verticalAlignment: 'center', border: true, wrapText: true });
@@ -1040,7 +870,6 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
 
     const lastChartRow = ffRow - 1;
 
-    // Ensure chart box rows span enough vertical height (~138pt min) so 1-question charts in Col C are never cramped
     const totalChartH = chartRowEntries.reduce((sum, e) => sum + e.h, 0);
     const minChartBoxHeight = 138;
     if (totalChartH < minChartBoxHeight) {
@@ -1049,10 +878,8 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
     }
     chartRowEntries.forEach(e => wsFF.row(e.r).height(e.h));
 
-    // Merge and border the chart container box in Column C
     wsFF.range(`C${startRow}:C${lastChartRow}`).merged(true).style({ border: true });
 
-    // Comments Row (spans B:C underneath the chart box, matching template layout)
     const cSl = questions.length + 1;
     wsFF.cell(ffRow, 1).value(cSl).style({ horizontalAlignment: 'center', verticalAlignment: 'center', border: true });
     const commentSummary = comments.length > 0 ? comments.slice(0, 4).join('; ') : 'No comments';
@@ -1084,57 +911,20 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
     });
     chartIndex++;
 
-    wsFF.row(ffRow).height(12); // Spacing row height
-    ffRow++; // empty spacing row
+    wsFF.row(ffRow).height(12);
+    ffRow++;
   }
 
-  // Section 1: Course Content and Organization
-  const isRealComment = (c) => c && c.trim() && c.trim().toLowerCase() !== 'no comments';
-  const s1Comments = feedbacks.map(f => f.courseContentOrg?.comment).filter(isRealComment);
-  renderFFSection({
-    title: 'Course Content and Organization',
-    questions: [
-      'The course contents are up-to-date and well organized'
-    ],
-    comments: s1Comments,
-    chartDef: chartDefinitions[0]
-  });
-
-  // Dynamic CO Sections
-  coCols.forEach(({ coLabel, coNum }, idx) => {
-    const coComments = feedbacks.map(f => (f.coFeedback || []).find(c => c.coNumber === coNum)?.comment).filter(isRealComment);
+  sections.forEach(sec => {
+    const ffQuestions = sec.questions.map(q => (
+      sec.scaleType === 'rating' && !/\(1\s*-\s*5\)/.test(q.text) ? `${q.text} (1-5)` : q.text
+    ));
     renderFFSection({
-      title: coLabel,
-      questions: [
-        `The course contents are aligned with CO${coNum}`,
-        `The teaching-learning methods are effective to achieve CO${coNum}`,
-        `The used assessment tools are appropriate for CO${coNum}`
-      ],
-      comments: coComments,
-      chartDef: chartDefinitions[1 + idx]
+      title: sec.ffTitle,
+      questions: ffQuestions,
+      comments: sec.comments,
+      chartDef: sec.chartDef
     });
-  });
-
-  // Academic and Laboratory Facilities
-  const s4Comments = feedbacks.map(f => f.academicFacilities?.comment).filter(isRealComment);
-  renderFFSection({
-    title: 'Academic and Laboratory Facilities',
-    questions: [
-      'Infrastructure and academic facilities are adequate to achieve the COs'
-    ],
-    comments: s4Comments,
-    chartDef: chartDefinitions[1 + coCols.length]
-  });
-
-  // Course Teacher
-  const s5Comments = feedbacks.map(f => f.courseTeacherEval?.comment).filter(isRealComment);
-  renderFFSection({
-    title: 'Course Teacher',
-    questions: [
-      'Evaluate the course teacher based on class preparation, lecture delivery, and way of teaching (1-5)'
-    ],
-    comments: s5Comments,
-    chartDef: chartDefinitions[2 + coCols.length]
   });
 
   // ══════════════════════════════════════════════════════════════
@@ -1152,7 +942,6 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
   wsFF.row(ffRow).height(24);
   ffRow++;
 
-  // Table Header Row
   wsFF.cell(ffRow, 1).value('Sl.').style({ bold: true, horizontalAlignment: 'center', verticalAlignment: 'center', fill: 'E7E6E6', border: true });
   wsFF.cell(ffRow, 2).value('Evaluation Criteria / Section').style({ bold: true, verticalAlignment: 'center', fill: 'E7E6E6', border: true });
   wsFF.cell(ffRow, 3).value('Performance Summary (Avg Score out of 5.0  |  Attainment % Favorable ≥ 3)').style({
@@ -1165,55 +954,25 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
   wsFF.row(ffRow).height(24);
   ffRow++;
 
-  function calcAvg(arr) {
-    const valid = arr.filter(v => typeof v === 'number' && v > 0);
-    return valid.length ? +(valid.reduce((a, b) => a + b, 0) / valid.length).toFixed(2) : 0;
-  }
-
-  function calcPctHigh(arr) {
-    const valid = arr.filter(v => typeof v === 'number' && v > 0);
-    return valid.length ? `${Math.round((valid.filter(v => v >= 3).length / valid.length) * 100)}%` : '0%';
-  }
-
-  let metricSl = 1;
-  const allSectionScores = [];
-
-  const addMetricRow = (title, vals) => {
-    const avg = calcAvg(vals);
-    allSectionScores.push(...vals);
-    wsFF.cell(ffRow, 1).value(metricSl++).style({ horizontalAlignment: 'center', verticalAlignment: 'center', border: true });
-    wsFF.cell(ffRow, 2).value(title).style({ bold: true, verticalAlignment: 'center', border: true, wrapText: true });
-    wsFF.cell(ffRow, 3).value(`Average Score: ${avg.toFixed(2)} / 5.00        Attainment: ${calcPctHigh(vals)} Favorable (Rating ≥ 3)`).style({
+  sections.forEach((sec, idx) => {
+    wsFF.cell(ffRow, 1).value(idx + 1).style({ horizontalAlignment: 'center', verticalAlignment: 'center', border: true });
+    wsFF.cell(ffRow, 2).value(sec.metricTitle).style({ bold: true, verticalAlignment: 'center', border: true, wrapText: true });
+    wsFF.cell(ffRow, 3).value(
+      `Average Score: ${sec.avgScore.toFixed(2)} / 5.00        Attainment: ${sec.attainmentPct} Favorable (Rating ≥ 3)`
+    ).style({
       horizontalAlignment: 'center',
       verticalAlignment: 'center',
       border: true
     });
-    wsFF.row(ffRow).height(estimateRowHeight(title, { colWidth: 32, isBold: true, minHeight: 24, linePadding: 8 }));
+    wsFF.row(ffRow).height(estimateRowHeight(sec.metricTitle, { colWidth: 32, isBold: true, minHeight: 24, linePadding: 8 }));
     ffRow++;
-  };
-
-  // 1. Course Content & Organisation
-  addMetricRow('Course Content & Organisation', feedbacks.map(f => contentScore(f)).filter(v => v !== null));
-
-  // 2. Dynamic COs
-  coCols.forEach(({ coLabel, coNum }) => {
-    const coVals = feedbacks
-      .map(f => coEntryScore((f.coFeedback || []).find(c => c.coNumber === coNum)))
-      .filter(v => v !== null);
-    addMetricRow(coLabel, coVals);
   });
 
-  // 3. Academic & Lab Facilities
-  addMetricRow('Academic & Laboratory Facilities', feedbacks.map(f => facilitiesScore(f)).filter(v => v !== null));
-
-  // 4. Course Teacher
-  addMetricRow('Course Teacher', feedbacks.map(f => teacherScore(f)).filter(v => v !== null));
-
-  // Overall Row
-  const overallAvg = calcAvg(allSectionScores);
   wsFF.cell(ffRow, 1).value('★').style({ horizontalAlignment: 'center', verticalAlignment: 'center', fill: 'FFF2CC', bold: true, border: true });
   wsFF.cell(ffRow, 2).value('Overall Course Rating & Attainment').style({ fill: 'FFF2CC', bold: true, verticalAlignment: 'center', border: true, wrapText: true });
-  wsFF.cell(ffRow, 3).value(`Average Score: ${overallAvg.toFixed(2)} / 5.00        Attainment: ${calcPctHigh(allSectionScores)} Favorable (Rating ≥ 3)`).style({
+  wsFF.cell(ffRow, 3).value(
+    `Average Score: ${overallAvg.toFixed(2)} / 5.00        Attainment: ${overallAttainmentPct} Favorable (Rating ≥ 3)`
+  ).style({
     fill: 'FFF2CC',
     bold: true,
     horizontalAlignment: 'center',
@@ -1229,8 +988,12 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
   if (hasTemplate && wb._zip) {
     const zip = wb._zip;
 
-    // Write chart XMLs for all generated charts
-    chartAnchors.forEach(ca => {
+    const s1Entry = zip.file('xl/charts/style1.xml');
+    const c1Entry = zip.file('xl/charts/colors1.xml');
+    const baseStyleBuf = s1Entry ? await s1Entry.async('nodebuffer') : null;
+    const baseColorsBuf = c1Entry ? await c1Entry.async('nodebuffer') : null;
+
+    for (const ca of chartAnchors) {
       const chartXml = buildChartXml({
         chartId: ca.chartIndex,
         catRange: ca.chartDef.catRange,
@@ -1239,40 +1002,35 @@ exports.generateFeedbackExcel = async function({ assignment, feedbacks = [] }) {
       });
       zip.file(`xl/charts/chart${ca.chartIndex}.xml`, chartXml);
 
-      // Ensure style and color files exist for this chart
-      if (!zip.file(`xl/charts/style${ca.chartIndex}.xml`)) {
-        const s1 = zip.file('xl/charts/style1.xml');
-        if (s1) zip.file(`xl/charts/style${ca.chartIndex}.xml`, s1.asNodeBuffer ? s1.asNodeBuffer() : s1._data);
+      if (!zip.file(`xl/charts/style${ca.chartIndex}.xml`) && baseStyleBuf) {
+        zip.file(`xl/charts/style${ca.chartIndex}.xml`, baseStyleBuf);
       }
-      if (!zip.file(`xl/charts/colors${ca.chartIndex}.xml`)) {
-        const c1 = zip.file('xl/charts/colors1.xml');
-        if (c1) zip.file(`xl/charts/colors${ca.chartIndex}.xml`, c1.asNodeBuffer ? c1.asNodeBuffer() : c1._data);
+      if (!zip.file(`xl/charts/colors${ca.chartIndex}.xml`) && baseColorsBuf) {
+        zip.file(`xl/charts/colors${ca.chartIndex}.xml`, baseColorsBuf);
       }
-    });
+      const chartRelsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId2" Type="http://schemas.microsoft.com/office/2011/relationships/chartColorStyle" Target="colors${ca.chartIndex}.xml"/><Relationship Id="rId1" Type="http://schemas.microsoft.com/office/2011/relationships/chartStyle" Target="style${ca.chartIndex}.xml"/></Relationships>`;
+      zip.file(`xl/charts/_rels/chart${ca.chartIndex}.xml.rels`, chartRelsXml);
+    }
 
-    // Remove any excess chart files from the template zip that are not used
-    for (let k = chartAnchors.length + 1; k <= 20; k++) {
+    for (let k = chartAnchors.length + 1; k <= 40; k++) {
       if (zip.file(`xl/charts/chart${k}.xml`)) zip.remove(`xl/charts/chart${k}.xml`);
       if (zip.file(`xl/charts/style${k}.xml`)) zip.remove(`xl/charts/style${k}.xml`);
       if (zip.file(`xl/charts/colors${k}.xml`)) zip.remove(`xl/charts/colors${k}.xml`);
       if (zip.file(`xl/charts/_rels/chart${k}.xml.rels`)) zip.remove(`xl/charts/_rels/chart${k}.xml.rels`);
     }
 
-    // Picture anchor for RUET logo
     const imageAnchor = {
       id: chartAnchors.length + 2,
       rId: `rId${chartAnchors.length + 1}`
     };
 
-    // Build and write drawing1.xml
     const drawingXml = buildDrawingXml(chartAnchors, imageAnchor);
     zip.file('xl/drawings/drawing1.xml', drawingXml);
 
-    // Build and write drawing1.xml.rels
     const drawingRelsXml = buildDrawingRelsXml(chartAnchors, imageAnchor);
     zip.file('xl/drawings/_rels/drawing1.xml.rels', drawingRelsXml);
 
-    // Rebuild [Content_Types].xml clean with exact chart overrides
     if (wb._contentTypes && wb._contentTypes._node && wb._contentTypes._node.children) {
       const ctNode = wb._contentTypes._node;
       ctNode.children = ctNode.children.filter(child => {

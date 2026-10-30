@@ -45,9 +45,11 @@
 /* ── Step Indicator ── */
 .step-indicator {
   display: flex;
+  flex-wrap: wrap;
+  row-gap: 28px;
+  column-gap: 0;
   align-items: center;
   justify-content: center;
-  gap: 0;
   margin-bottom: var(--sp-8);
   padding: 0 var(--sp-4);
 }

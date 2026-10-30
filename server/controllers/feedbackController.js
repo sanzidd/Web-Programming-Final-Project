@@ -1,23 +1,23 @@
-const crypto = require('crypto');
 const Feedback = require('../models/Feedback');
 const Teacher = require('../models/Teacher');
 const FeedbackLog = require('../models/FeedbackLog');
 const CourseAssignment = require('../models/CourseAssignment');
+const FeedbackConfig = require('../models/FeedbackConfig');
 const Student = require('../models/Student');
 const Department = require('../models/Department');
 const ReviewSession = require('../models/ReviewSession');
 const { aggregateScores } = require('../utils/feedbackScores');
+const { resolveCOQuestionText } = require('../services/reportSectionBuilder');
 
 /**
  * Helper to generate all common variants of a series string
- * e.g., "22" -> ["22", "2022", "Series 22", "series 22", "Series 2022", "series 2022", "all", "*"]
  */
 function getSeriesMatchVariants(inputSeries) {
   if (!inputSeries) return ['all', 'All', '*', ''];
   const raw = String(inputSeries).trim();
   const digits = raw.replace(/\D/g, '');
   const variants = new Set(['all', 'All', '*', '', raw, raw.toLowerCase()]);
-  
+
   if (digits.length >= 2) {
     const s2 = digits.slice(-2);
     const s4 = `20${s2}`;
@@ -51,6 +51,16 @@ exports.getSessionStatus = async (req, res) => {
   }
 };
 
+// Public / Student endpoint to fetch active Admin-configured feedback questions
+exports.getFeedbackQuestions = async (req, res) => {
+  try {
+    const config = await FeedbackConfig.getConfig();
+    res.json(config);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // Get assignments eligible for current student
 exports.getMyAssignments = async (req, res) => {
   try {
@@ -62,7 +72,6 @@ exports.getMyAssignments = async (req, res) => {
       return res.status(404).json({ message: 'Student profile not found' });
     }
 
-    // Extract series cleanly (2-digit and 4-digit)
     const rawSeries = String(student.series || (student.roll && student.roll.length >= 2 ? student.roll.substring(0, 2) : '')).trim();
     const digits = rawSeries.replace(/\D/g, '');
     const s2 = digits.length >= 2 ? digits.slice(-2) : rawSeries;
@@ -75,14 +84,12 @@ exports.getMyAssignments = async (req, res) => {
       ]
     };
 
-    // Verify student department is valid in DB (not orphaned or null)
     let studentDeptId = student.department;
     if (studentDeptId) {
       const deptExists = await Department.findById(studentDeptId);
       if (!deptExists) studentDeptId = null;
     }
 
-    // Auto-heal department and series if missing using RUET roll convention (YYDDNNN)
     if (!studentDeptId && student.roll && student.roll.length >= 4) {
       const deptDigits = student.roll.substring(2, 4);
       const deptCodeMap = {
@@ -114,37 +121,34 @@ exports.getMyAssignments = async (req, res) => {
 
     let assignments = [];
     if (studentDeptId) {
-      // Primary query: courses for student's department and series
       assignments = await CourseAssignment.find({
         isActive: true,
         department: studentDeptId,
         ...seriesQuery
       })
-      .populate('department', 'name code')
-      .populate('teacherDepartment', 'name code')
-      .populate({
-        path: 'teacher',
-        select: 'name designation email courses department',
-        populate: { path: 'department', select: 'name code' }
-      })
-      .sort({ courseCode: 1, courseName: 1 });
+        .populate('department', 'name code')
+        .populate('teacherDepartment', 'name code')
+        .populate({
+          path: 'teacher',
+          select: 'name designation email courses department',
+          populate: { path: 'department', select: 'name code' }
+        })
+        .sort({ courseCode: 1, courseName: 1 });
     }
 
-    // Fallback: Only if student has no registered department set,
-    // look up any active courses matching this student's series
     if (!studentDeptId && s2) {
       assignments = await CourseAssignment.find({
         isActive: true,
         ...seriesQuery
       })
-      .populate('department', 'name code')
-      .populate('teacherDepartment', 'name code')
-      .populate({
-        path: 'teacher',
-        select: 'name designation email courses department',
-        populate: { path: 'department', select: 'name code' }
-      })
-      .sort({ courseCode: 1, courseName: 1 });
+        .populate('department', 'name code')
+        .populate('teacherDepartment', 'name code')
+        .populate({
+          path: 'teacher',
+          select: 'name designation email courses department',
+          populate: { path: 'department', select: 'name code' }
+        })
+        .sort({ courseCode: 1, courseName: 1 });
     }
 
     const feedbackLogs = await FeedbackLog.find({ student: req.studentId }).select('assignment');
@@ -156,9 +160,14 @@ exports.getMyAssignments = async (req, res) => {
 
     const assignmentsWithStatus = assignments.map(a => {
       const obj = a.toObject();
+      const isDeadlinePassed = CourseAssignment.isDeadlinePassed(obj);
+      const effectiveOpen = CourseAssignment.isEffectiveSessionOpen(obj);
       return {
         ...obj,
-        isReviewSessionOpen: obj.isReviewSessionOpen !== false,
+        feedbackDeadline: obj.feedbackDeadline || null,
+        isDeadlinePassed,
+        manualSessionOpen: obj.isReviewSessionOpen !== false,
+        isReviewSessionOpen: effectiveOpen,
         alreadyReviewed: reviewedAssignmentIds.has(a._id.toString())
       };
     });
@@ -169,10 +178,45 @@ exports.getMyAssignments = async (req, res) => {
   }
 };
 
+function isRating(v) {
+  const n = Number(v);
+  return Number.isInteger(n) && n >= 1 && n <= 5;
+}
+
+function normalizeSectionResponses(configuredQuestions, submittedResponses, legacyFallbacks = [], formatText = null) {
+  const questions = (configuredQuestions || []).filter(q => q && String(q.text || '').trim());
+  const submitted = Array.isArray(submittedResponses) ? submittedResponses : [];
+  const normalized = [];
+
+  for (let idx = 0; idx < questions.length; idx++) {
+    const q = questions[idx];
+    const resolvedText = formatText ? formatText(q.text, idx) : String(q.text).trim();
+    const byId = submitted.find(r => r && r.questionId === q.id);
+    const byIdx = submitted[idx];
+    const rawScore = byId?.score !== undefined
+      ? byId.score
+      : (byIdx?.score !== undefined ? byIdx.score : legacyFallbacks[idx]);
+
+    if (!isRating(rawScore)) {
+      return {
+        valid: false,
+        message: `Please answer: "${resolvedText}"`
+      };
+    }
+
+    normalized.push({
+      questionId: q.id || `q_${idx + 1}`,
+      questionText: resolvedText,
+      score: Number(rawScore)
+    });
+  }
+
+  return { valid: true, responses: normalized };
+}
+
 // Submit feedback (student auth required, but feedback itself is anonymous)
 exports.submitFeedback = async (req, res) => {
   try {
-    // Global Review Session check
     const globalSession = await ReviewSession.getCurrentSession();
     if (!globalSession.isOpen) {
       return res.status(403).json({
@@ -181,50 +225,23 @@ exports.submitFeedback = async (req, res) => {
       });
     }
 
-    const { 
-      assignmentId, teacher, department, courseName, 
-      courseContentOrg, coFeedback, academicFacilities, courseTeacherEval
+    const {
+      assignmentId,
+      teacher,
+      department,
+      courseName,
+      courseContentOrg = {},
+      coFeedback = [],
+      academicFacilities = {},
+      courseTeacherEval = {},
+      customSections = []
     } = req.body;
 
-    // Validate main nested objects
-    const missing = [];
-    if (!teacher) missing.push('teacher');
-    if (!department) missing.push('department');
-    if (!courseContentOrg) missing.push('courseContentOrg');
-    if (!academicFacilities) missing.push('academicFacilities');
-    if (!courseTeacherEval) missing.push('courseTeacherEval');
-
-    if (missing.length > 0) {
-      return res.status(400).json({ message: 'All feedback sections are required. Missing: ' + missing.join(', ') });
+    if (!teacher || !department) {
+      return res.status(400).json({ message: 'Teacher and Department are required.' });
     }
 
-    const isRating = (v) => Number.isInteger(Number(v)) && Number(v) >= 1 && Number(v) <= 5;
-
-    // Course Content & Organisation
-    if (!isRating(courseContentOrg.q1_upToDate)) {
-      return res.status(400).json({ message: 'Please answer the Course Content & Organisation question' });
-    }
-
-    // CO feedback
-    if (Array.isArray(coFeedback)) {
-      for (const co of coFeedback) {
-        if (!isRating(co.q1_contentAligned) || !isRating(co.q2_methodsEffective) || !isRating(co.q3_assessmentAppropriate)) {
-          return res.status(400).json({ message: `All questions for CO${co.coNumber} are required` });
-        }
-      }
-    }
-
-    // Academic & Laboratory Facilities
-    if (!isRating(academicFacilities.q1_infrastructure)) {
-      return res.status(400).json({ message: 'Please answer the Academic & Laboratory Facilities question' });
-    }
-
-    // Course Teacher
-    if (!isRating(courseTeacherEval.rating)) {
-      return res.status(400).json({ message: 'Please rate the Course Teacher (1-5)' });
-    }
-
-    // Eligibility check: Ensure assignment exists and is active
+    // Eligibility & Deadline check first so expired deadlines immediately return 403
     let targetAssignment = null;
     if (req.studentId) {
       const student = await Student.findById(req.studentId);
@@ -251,52 +268,154 @@ exports.submitFeedback = async (req, res) => {
         if (!targetAssignment || !targetAssignment.isActive) {
           return res.status(403).json({ message: 'You are not eligible to review this course/teacher because it is not currently active.' });
         }
+        if (CourseAssignment.isDeadlinePassed(targetAssignment)) {
+          return res.status(403).json({
+            message: 'The feedback deadline for this course has passed. The review session is closed.',
+            isClosed: true,
+            isDeadlinePassed: true
+          });
+        }
         if (targetAssignment.isReviewSessionOpen === false) {
           return res.status(403).json({ message: 'The feedback session for this course is currently closed.', isClosed: true });
         }
       }
+    } else if (assignmentId) {
+      targetAssignment = await CourseAssignment.findById(assignmentId);
+      if (targetAssignment && CourseAssignment.isDeadlinePassed(targetAssignment)) {
+        return res.status(403).json({
+          message: 'The feedback deadline for this course has passed. The review session is closed.',
+          isClosed: true,
+          isDeadlinePassed: true
+        });
+      }
+    }
+
+    const cfg = await FeedbackConfig.getConfig();
+    const clean = (v) => (typeof v === 'string' ? v.trim() : '');
+
+    // 1. Validate Course Content section
+    const ccCheck = normalizeSectionResponses(
+      cfg.courseContent?.questions,
+      courseContentOrg?.responses,
+      [courseContentOrg?.q1_upToDate]
+    );
+    if (!ccCheck.valid) {
+      return res.status(400).json({ message: ccCheck.message });
+    }
+
+    // 2. Validate CO section(s)
+    const coQuestions = cfg.coSection?.questions || [];
+    const normalizedCOs = [];
+    const submittedCOList = Array.isArray(coFeedback) ? coFeedback : [];
+
+    if (coQuestions.length > 0 && submittedCOList.length > 0) {
+      for (const co of submittedCOList) {
+        const coNum = Number(co.coNumber) || 1;
+        const coCheck = normalizeSectionResponses(
+          coQuestions,
+          co.responses,
+          [co.q1_contentAligned, co.q2_methodsEffective, co.q3_assessmentAppropriate],
+          (tmpl) => resolveCOQuestionText(tmpl, coNum)
+        );
+        if (!coCheck.valid) {
+          return res.status(400).json({ message: `CO${coNum}: ${coCheck.message}` });
+        }
+        normalizedCOs.push({
+          coNumber: coNum,
+          coTitle: clean(co.coTitle),
+          coDescription: clean(co.coDescription),
+          responses: coCheck.responses,
+          q1_contentAligned: coCheck.responses[0]?.score,
+          q2_methodsEffective: coCheck.responses[1]?.score,
+          q3_assessmentAppropriate: coCheck.responses[2]?.score,
+          comment: clean(co.comment)
+        });
+      }
+    } else if (submittedCOList.length > 0) {
+      for (const co of submittedCOList) {
+        normalizedCOs.push({
+          coNumber: Number(co.coNumber) || 1,
+          coTitle: clean(co.coTitle),
+          coDescription: clean(co.coDescription),
+          responses: [],
+          comment: clean(co.comment)
+        });
+      }
+    }
+
+    // 3. Validate Facilities section
+    const facCheck = normalizeSectionResponses(
+      cfg.facilities?.questions,
+      academicFacilities?.responses,
+      [academicFacilities?.q1_infrastructure]
+    );
+    if (!facCheck.valid) {
+      return res.status(400).json({ message: facCheck.message });
+    }
+
+    // 4. Validate Course Teacher section
+    const ctCheck = normalizeSectionResponses(
+      cfg.courseTeacher?.questions,
+      courseTeacherEval?.responses,
+      [courseTeacherEval?.rating]
+    );
+    if (!ctCheck.valid) {
+      return res.status(400).json({ message: ctCheck.message });
+    }
+
+    // 5. Validate Custom Sections (if Admin added any)
+    const normalizedCustomSections = [];
+    const submittedCustomList = Array.isArray(customSections) ? customSections : [];
+    for (const cfgSec of (cfg.customSections || [])) {
+      const qs = (cfgSec.questions || []).filter(q => q && String(q.text || '').trim());
+      if (qs.length === 0) continue;
+      const submittedSec = submittedCustomList.find(s => s && s.sectionId === cfgSec.id) || {};
+      const customCheck = normalizeSectionResponses(qs, submittedSec.responses, []);
+      if (!customCheck.valid) {
+        return res.status(400).json({ message: `${cfgSec.title}: ${customCheck.message}` });
+      }
+      normalizedCustomSections.push({
+        sectionId: cfgSec.id,
+        sectionTitle: cfgSec.title,
+        scaleType: cfgSec.scaleType === 'rating' ? 'rating' : 'likert',
+        responses: customCheck.responses,
+        comment: clean(submittedSec.comment)
+      });
     }
 
     // Duplicate prevention: check studentId + assignmentId in FeedbackLog
-    // This allows tracking who gave feedback for a course without linking it to the feedback content
     if (req.studentId && targetAssignment) {
       const existing = await FeedbackLog.findOne({ student: req.studentId, assignment: targetAssignment._id });
       if (existing) {
-        console.warn(`[409] Duplicate submission prevented for student: ${req.studentId}, assignment: ${targetAssignment._id}`);
         return res.status(409).json({ message: 'You have already submitted feedback for this course' });
       }
       await FeedbackLog.create({ student: req.studentId, assignment: targetAssignment._id });
     }
 
-    const clean = (v) => (typeof v === 'string' ? v.trim() : '');
-
     const feedback = await Feedback.create({
-      teacher, department, courseName,
+      teacher,
+      department,
+      courseName: clean(courseName) || targetAssignment?.courseName || 'Course',
       courseContentOrg: {
-        q1_upToDate: Number(courseContentOrg.q1_upToDate),
-        comment: clean(courseContentOrg.comment),
+        responses: ccCheck.responses,
+        ...(ccCheck.responses[0] ? { q1_upToDate: ccCheck.responses[0].score } : {}),
+        comment: clean(courseContentOrg?.comment),
       },
-      coFeedback: (Array.isArray(coFeedback) ? coFeedback : []).map(co => ({
-        coNumber: co.coNumber,
-        coTitle: co.coTitle || '',
-        coDescription: co.coDescription || '',
-        q1_contentAligned: Number(co.q1_contentAligned),
-        q2_methodsEffective: Number(co.q2_methodsEffective),
-        q3_assessmentAppropriate: Number(co.q3_assessmentAppropriate),
-        comment: clean(co.comment),
-      })),
+      coFeedback: normalizedCOs,
       academicFacilities: {
-        q1_infrastructure: Number(academicFacilities.q1_infrastructure),
-        comment: clean(academicFacilities.comment),
+        responses: facCheck.responses,
+        ...(facCheck.responses[0] ? { q1_infrastructure: facCheck.responses[0].score } : {}),
+        comment: clean(academicFacilities?.comment),
       },
       courseTeacherEval: {
-        rating: Number(courseTeacherEval.rating),
-        comment: clean(courseTeacherEval.comment),
+        responses: ctCheck.responses,
+        ...(ctCheck.responses[0] ? { rating: ctCheck.responses[0].score } : {}),
+        comment: clean(courseTeacherEval?.comment),
       },
+      customSections: normalizedCustomSections,
       sentiment: null,
     });
 
-    // Update teacher averages (supports both current and legacy feedback fields)
     const allFeedbacks = await Feedback.find({ teacher }).lean();
     const agg = aggregateScores(allFeedbacks);
 

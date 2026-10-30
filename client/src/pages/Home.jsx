@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   MessageSquarePlus, Shield, BarChart3, Users, Star, 
-  Building2, ChevronRight, Sparkles, Lock, Eye, TrendingUp,
+  Building2, ChevronRight, Sparkles, Lock, Eye,
   Award, Zap
 } from 'lucide-react';
 import api from '../services/api';
@@ -89,14 +89,16 @@ export default function Home() {
               <span>Anonymous & Secure</span>
             </div>
             <h1 className="hero-title font-display">
-              Shape the Future of{' '}
-              <span className="text-gradient">Education</span>{' '}
-              at RUET
+              Student{' '}
+              <span className="text-gradient">Feedback</span>
+              <span style={{ display: 'block', fontSize: 'clamp(1.25rem, 2.3vw, 1.85rem)', marginTop: '10px', fontWeight: 600, lineHeight: 1.35 }}>
+                Department of Electronics and Telecommunication Engineering
+              </span>
             </h1>
             <p className="hero-subtitle">
-              Your voice matters. Share honest, anonymous feedback about your teachers 
-              and help improve the quality of education at Rajshahi University of 
-              Engineering & Technology.
+              Your voice matters. Share honest, anonymous feedback about your courses and teachers 
+              to help improve the quality of education in the Department of Electronics and 
+              Telecommunication Engineering.
             </p>
             <div className="hero-actions">
               <Link to="/feedback" className="btn btn-primary btn-lg" id="hero-cta">
@@ -129,7 +131,7 @@ export default function Home() {
               </div>
               <div className="hero-logo-orbit" />
               <div className="hero-central-graphic">
-                <img src="/ruet-logo.png" alt="RUET Official Logo" className="hero-logo-img" />
+                <img src="/ruet-logo.png" alt="Department of Electronics and Telecommunication Engineering Logo" className="hero-logo-img" />
               </div>
             </div>
           </motion.div>
@@ -206,8 +208,8 @@ export default function Home() {
               {
                 step: '01',
                 icon: <Building2 size={28} />,
-                title: 'Select Department & Teacher',
-                desc: 'Choose from all 18 RUET departments and find the teacher you want to evaluate.',
+                title: 'Select Course & Teacher',
+                desc: 'Select your assigned course and faculty member in the Department of Electronics and Telecommunication Engineering.',
                 color: 'var(--ruet-gold)',
               },
               {
@@ -348,7 +350,7 @@ export default function Home() {
               Ready to Make a <span className="text-gradient">Difference</span>?
             </h2>
             <p className="cta-subtitle">
-              Your honest feedback helps teachers grow and improves education for everyone at RUET.
+              Your honest feedback helps teachers grow and improves education for everyone in the Department of Electronics and Telecommunication Engineering.
             </p>
             <Link to="/feedback" className="btn btn-primary btn-lg">
               <MessageSquarePlus size={20} />

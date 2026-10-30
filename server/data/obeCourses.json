@@ -1,0 +1,2477 @@
+[
+  {
+    "courseCode": "ETE 1110",
+    "courseName": "Engineering Graphics and Design",
+    "semester": "1st Semester",
+    "credits": 1.5,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Apply engineering drawing principles, geometric constructions, plane elevations, and sectional views using traditional technique.",
+        "description": "PO: PO1 | Domain: Psychomotor Level-3 (Precision)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Use modern tools (CAD) to draw and design different engineering structure and devices.",
+        "description": "PO: PO5 | Domain: Psychomotor Level-3 (Precision)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Work individually and in a group in the provided laboratory environment to perform experiments and prepare reports.",
+        "description": "PO: PO9 | Domain: Affective Level-3 (Valuing)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 1111",
+    "courseName": "Electrical Circuit Theory",
+    "semester": "1st Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand the basics of electrical circuit system and magnetic circuits.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Analyze electrical circuit systems involving sources, passive elements, magnetic circuits, and resonant networks under DC, AC, and transient operating conditions.",
+        "description": "PO: PO2 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Design of magnetic circuits and resonant circuits and determine natural and step responses of RC, RL, and RLC circuits.",
+        "description": "PO: PO3 | Domain: Cognitive Level-3 (Apply)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 1112",
+    "courseName": "Sessional based on ETE 1111",
+    "semester": "1st Semester",
+    "credits": 1.5,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Verification of different circuit laws and theorems for DC and AC networks with modern experimental setup.",
+        "description": "PO: PO5 | Domain: Psychomotor Level-2 (Manipulation)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Compare and analysis of the experimental results with the theoretical analysis.",
+        "description": "PO: PO2 | Domain: Psychomotor Level- 2 (Manipulation)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Work individually and in a group in the provided laboratory environment to perform experiments and prepare reports.",
+        "description": "PO: PO9 | Domain: Affective Level-3 (Valuing)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 1113",
+    "courseName": "Computer Fundamentals and Programming with C",
+    "semester": "1st Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand basics of computer fundamentals with planning and development of C programming algorithm using operators, expression, control statement and apply it as a problem-solving tool.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Analyze different type of files, structure and storage functions of C programming language.",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 1114",
+    "courseName": "Sessional based on ETE 1113",
+    "semester": "1st Semester",
+    "credits": 1.5,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Write and debug C programs to solve practical problems using known programming language studied in the theory course.",
+        "description": "PO: PO5 | Domain: Psychomotor Level-3 (Precision)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Work individually and in group in the provided laboratory environment.",
+        "description": "PO: PO9 | Domain: Affective Level-3 (Valuing)"
+      }
+    ]
+  },
+  {
+    "courseCode": "HUM 1115",
+    "courseName": "Communicative English",
+    "semester": "1st Semester",
+    "credits": 2,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Communicate effectively in academic and workplace contexts by employing grammatical, phonetic, reading, and writing skills for accurate comprehension, analysis, and expression of information.",
+        "description": "PO: PO 10 | Domain: Affective Level-4 (Organizing)"
+      }
+    ]
+  },
+  {
+    "courseCode": "HUM 1116",
+    "courseName": "Sessional based on Hum 1115",
+    "semester": "1st Semester",
+    "credits": 0.75,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Demonstrate clear, fluent, grammatically accurate, and contextually appropriate spoken and written communication in academic and professional contexts.",
+        "description": "PO: PO10 | Domain: Affective Level-4 (Organizing)"
+      }
+    ]
+  },
+  {
+    "courseCode": "MATH 1115",
+    "courseName": "Calculus and Differential Equations",
+    "semester": "1st Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Apply the concepts of calculus, infinite series, and differential equations to model and solve engineering applications.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Analyze integration techniques, Beta and Gamma functions, areas of plane regions in Cartesian and polar coordinates, volumes and surface areas of solids of revolution, and ordinary differential equations with their applications.",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (analyze)"
+      }
+    ]
+  },
+  {
+    "courseCode": "PHY 1115",
+    "courseName": "Physics",
+    "semester": "1st Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand the concept of atomic structure, electronic structure of materials, thermo electricity, photo electricity and physical optics.",
+        "description": "PO: PO1 | Domain: Cognitive Level-3 (Apply)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Analyze the characteristics of atomic structure, electronic structure of materials, thermo electricity, photo electricity, sounds and physical optics.",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      }
+    ]
+  },
+  {
+    "courseCode": "PHY 1116",
+    "courseName": "Sessional based on Phy 1115",
+    "semester": "1st Semester",
+    "credits": 0.75,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Analyze different physical phenomena regarding mechanics, optics and modern physics and apply modern instruments in conducting different experiments.",
+        "description": "PO: PO2 | Domain: Psychomotor Level-2 (Manipulation)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Work individually and in group in the provided laboratory environment and write corresponding reports.",
+        "description": "PO: PO9 | Domain: Affective Level-3 (Valuing)"
+      }
+    ]
+  },
+  {
+    "courseCode": "CSE 1254",
+    "courseName": "Object Oriented Programming Lab",
+    "semester": "2nd Semester",
+    "credits": 1.5,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Using C++ programing language to demonstrate object-oriented principles (abstraction, encapsulation, inheritance, polymorphism) in solving real-world problems",
+        "description": "PO: PO5 | Domain: Psychomotor Level-3 (Precision)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Work individually and collaboratively in teams to design, develop, and analyze C++ programs that meet specified user requirements.",
+        "description": "PO: PO9 | Domain: Affective Level-3 (Valuing)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Design and develop object-oriented solutions to open-ended, real-world problems by applying appropriate OOP principles and demonstrating creativity, critical thinking, and problem-solving skills.",
+        "description": "PO: PO3 | Domain: Psychomotor Level-4 (Articulation)"
+      }
+    ]
+  },
+  {
+    "courseCode": "EEE 1253",
+    "courseName": "Electrical Machine",
+    "semester": "2nd Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand the construction and operation of DC machines and special machines",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Analyze operating principles and performance of transformers and various AC machines.",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      }
+    ]
+  },
+  {
+    "courseCode": "EEE 1254",
+    "courseName": "Sessional based on EEE 1253",
+    "semester": "2nd Semester",
+    "credits": 0.75,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Analyze the performance characteristics of various electrical machines.",
+        "description": "PO: PO2 | Domain: Psychomotor Level-2 (Manipulation)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Use associated accessories/tools to measure the performance of the electrical machines.",
+        "description": "PO: PO5 | Domain: Psychomotor Level-3 (Precision)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 1211",
+    "courseName": "Analog Electronics-I",
+    "semester": "2nd Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand the basics of Fermi level, PN junction, diodes, BJT, JFET, and MOSFET with their DC and AC analysis.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Analyze the performance of diode, BJT, JFET, and MOSFET and investigate their performance in multistage network with their frequency response.",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Design of a practical system and solve real life problem using diode, BJT, MOSFET, and JFET to meet the need of the society.",
+        "description": "PO: PO3 | Domain: Cognitive Level-6 (Create)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 1212",
+    "courseName": "Sessional based on ETE 1211",
+    "semester": "2nd Semester",
+    "credits": 1.5,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Analyze the characteristics of diode circuits, linear regulators, biasing configuration, amplifier and switching circuits using BJT and FET and compare their performance with the theoretical result.",
+        "description": "PO: PO2 | Domain: Psychomotor Level-3 (Precision)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Write a report individually or in a group by solving practical problem in laboratory with specific needs and requirements",
+        "description": "PO: PO9 | Domain: Affective Level-4 (Organizing)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Use modern kits and tools to measure the outputs of electronics circuits, record the experimental data, and analyze the results.",
+        "description": "PO: PO5 | Domain: Psychomotor Level-3 (Precision)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 1213",
+    "courseName": "Digital Electronics",
+    "semester": "2nd Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand the basics of combinational and sequential circuits.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Analyze digital electronic systems using logic design principles, combinational circuits, memory devices, and A/D–D/A conversion techniques.",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 1214",
+    "courseName": "Sessional based on ETE 1213",
+    "semester": "2nd Semester",
+    "credits": 1.5,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Analyze the performance of logic gate, combinational, sequential circuits, counters, and shift registers and compare theoretical and experimental results to identify discrepancies.",
+        "description": "PO: PO2 | Domain: Psychomotor Level-2 (Manipulation)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Write report individually or in a group by solving practical problem in laboratory with specific needs and requirements",
+        "description": "PO: PO9 | Domain: Affective Level-4 (Organizing)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Use modern kits and tools to measure the associated outputs, record the experimental data, analyze the results.",
+        "description": "PO: PO5 | Domain: Psychomotor Level-3 (Precision)"
+      }
+    ]
+  },
+  {
+    "courseCode": "HUM 1215",
+    "courseName": "Financial Accounts and Economic Analysis",
+    "semester": "2nd Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Apply the basics of accounting, finance, management, and economic principles to evaluate costs, financial performance, and economic feasibility for effective project management and decision-making.",
+        "description": "PO: PO11 | Domain: Cognitive Level-3 (Apply)"
+      }
+    ]
+  },
+  {
+    "courseCode": "MATH 1215",
+    "courseName": "Linear Algebra and Three-Dimensional Geometry",
+    "semester": "2nd Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Apply concepts of vector calculus, matrices, linear transformations, and three-dimensional geometry to solve mathematical and engineering problems.",
+        "description": "PO: PO1 | Domain: Cognitive Level-3 (Apply)"
+      }
+    ]
+  },
+  {
+    "courseCode": "CSE 2153",
+    "courseName": "Data Structure and Algorithm",
+    "semester": "3rd Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand the basic concepts and operations of different linear and nonlinear data structures with its associate applications.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Analyze the algorithms of various structure and implement it through programming.",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      }
+    ]
+  },
+  {
+    "courseCode": "CSE 2154",
+    "courseName": "Sessional based on CSE 2153",
+    "semester": "3rd Semester",
+    "credits": 1.5,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Write and debug the various operations and performance of linear and non-linear structures using Python.",
+        "description": "PO: PO5 | Domain: Psychomotor Level-3 (Precision)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Investigate the simulation and theoretical results of different structures and identify the reasons for any discrepancies.",
+        "description": "PO: PO4 | Domain: Psychomotor Level-2 (Manipulation)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 2110",
+    "courseName": "Electronic Circuit Design and Simulation Lab",
+    "semester": "3rd Semester",
+    "credits": 1.5,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Analyze the operations and applications of filters, oscillators, audio transformers, and amplifiers, and compare simulation and theoretical results to identify discrepancies.",
+        "description": "PO: PO2 | Domain: Psychomotor Level-2 (Manipulation)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Use of PSpice, Wolfram Mathematica, Origin and MATLAB software to solve mathematical problems and simulation of different circuits.",
+        "description": "PO: PO5 | Domain: Psychomotor Level-3 (Precision)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Design and develop a solution of an open-ended problem based on electronic circuit with required software individually or in a group in simulator",
+        "description": "PO: PO3 | Domain: Psychomotor Level-4 (Articulation)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 2111",
+    "courseName": "Analog Electronics-II",
+    "semester": "3rd Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand basics of operational amplifier, filters, power amplifiers, switch capacitor, PLL, oscillators and 555 Timer ICs, pin functioning and internal circuits.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Analyze the characteristics of Op-Amp, filters, power amplifiers, switch capacitor, PLL, oscillators and 555 Timer ICs.",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Design real time problem using Op-Amp, filters, multivibrators, amplifiers ,oscillators and 555 Timer ICs for a given specification.",
+        "description": "PO: PO3 | Domain: Cognitive Level-5 (Evaluate)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 2112",
+    "courseName": "Sessional based on ETE 2111",
+    "semester": "3rd Semester",
+    "credits": 1.5,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Analyze the characteristics of inverting amplifier, non-inverting amplifier, integrator, differentiator, adder, subtractor, oscillator, multivibrator circuits and identify the reasons for any discrepancies. between experimental and theoretical results.",
+        "description": "PO: PO2 | Domain: Psychomotor Level-3 (Precision)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Write a report individually and/or in a group on the conducted experiments.",
+        "description": "PO: PO9 | Domain: Affective Level-4 (Organizing)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 2113",
+    "courseName": "Analog Communication",
+    "semester": "3rd Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Apply communication system principles for signal transmission, modulation, multiplexing, and channel performance in engineering applications.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Analyze modulation, multiplexing, noise effects, and channel performance for solving analog communication system problems in engineering applications.",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Design and integrate communication systems by assimilating concepts of modulation, multiplexing, and noise with real-world applications",
+        "description": "PO: PO3 | Domain: Cognitive Level-6 (Create)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 2114",
+    "courseName": "Sessional based on ETE 2113",
+    "semester": "3rd Semester",
+    "credits": 1.5,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Investigate analog modulation, multiplexing, signals, and noise in real-world communication systems such as radio and television using theoretical and practical approaches.",
+        "description": "PO: PO4 | Domain: Psychomotor Level-2 (Manipulation)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Use modern tool to investigate and analyze analog modulation, multiplexing, signals, and noise in real-world communication systems",
+        "description": "PO: PO5 | Domain: Psychomotor Level-3 (Precision)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Work individually and in group to conduct experiment in the provided laboratory environment.",
+        "description": "PO: PO9 | Domain: Affective Level-3 (Valuing)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 2115",
+    "courseName": "Signal & System",
+    "semester": "3rd Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Apply signal and system principles to analyze system behavior, signal representations, and responses in continuous and discrete domains.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Analyze Laplace and Z-transforms to solve system equations, analyze stability, and study spectral characteristics for engineering applications",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 2116",
+    "courseName": "Sessional based on ETE 2115",
+    "semester": "3rd Semester",
+    "credits": 0.75,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Investigate the properties and behaviors of different type signals and systems, LTI system responses, and transformations using Fourier, Laplace, and Z-transforms through simulation.",
+        "description": "PO: PO4 | Domain: Psychomotor Level-3 (Precision)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Use MATLAB to generate different types of signals and systems.",
+        "description": "PO: PO5 | Domain: Psychomotor Level-4 (Articulation)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Work individually and in group to conduct experiment in the provided laboratory environment.",
+        "description": "PO: PO9 | Domain: Affective Level-3 (Valuing)"
+      }
+    ]
+  },
+  {
+    "courseCode": "MATH 2115",
+    "courseName": "Transformation Techniques and Partial Differential Equation",
+    "semester": "3rd Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand Fourier series, Fourier transform, inverse Fourier transform, Laplace transform, inverse Laplace transform, partial differential equations, Frobenius method, Bessel’s functions, and Legendre’s polynomials with their basic properties and applications.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Analyze boundary value problems of wave equations, improper integrals, solutions of differential equations using Laplace transforms, solutions of partial differential equations by different methods, and series solutions of differential equations using the Frobenius method.",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      }
+    ]
+  },
+  {
+    "courseCode": "CSE 2253",
+    "courseName": "Database Management System",
+    "semester": "4th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand the fundamental concepts of database systems and evaluate their application in real-world scenarios, including transaction management, concurrency control, and recovery mechanisms.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Design and implement database schemas using the Entity-Relationship (E-R) model and apply normalization techniques to optimize database design.",
+        "description": "PO: PO3 | Domain: Cognitive Level-6 (Create)"
+      }
+    ]
+  },
+  {
+    "courseCode": "CSE 2254",
+    "courseName": "Sessional based on CSE 2253",
+    "semester": "4th Semester",
+    "credits": 1.5,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Investigate relational database operations using Structured Query Language (SQL), ensuring enforcement of database integrity constraints and security policies within a multi-user environment.",
+        "description": "PO: PO4 | Domain: Psychomotor Level-4 (Articulation)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Communicate effectively with the engineering community and society at large by presenting technical concepts, designs, and solutions related to Database Management Systems (DBMS)",
+        "description": "PO: PO 10 | Domain: Affective Level-5 (Characterizing)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Design and develop an efficient, secure, and scalable database solution for an open-ended real-world problem—such as in healthcare, education, e-governance, or social development—by applying suitable data models.",
+        "description": "PO: PO3 | Domain: Psychomotor Level-5 ( (Naturalization)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 2200",
+    "courseName": "Project Design and Development-I",
+    "semester": "4th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Apply the knowledge of electronics and associated science and mathematics to solve the complex engineering problems.",
+        "description": "PO: PO1 | Domain: Cognitive Level-3 (Apply)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Assess the issues associated with society, health, and culture and find the solution of a complex engineering problem considering the assessed issues and professional engineering practice.",
+        "description": "PO: PO6 | Domain: Psychomotor Level-4 (Articulation)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Demonstrate knowledge and understanding about project planning, implementation, troubleshooting and finance management.",
+        "description": "PO: PO11 | Domain: Affective Level-3 (Valuing)"
+      },
+      {
+        "coNumber": 4,
+        "title": "Communicate effectively on complex activities with the research community and with society at large such as write effective reports, design documentation, and make effective demonstration.",
+        "description": "PO: PO10 | Domain: Affective Level-5 (Characterizing)"
+      },
+      {
+        "coNumber": 5,
+        "title": "Practice ethical principles, professional ethics and responsibilities in solving complex engineering problems and preparing documentation.",
+        "description": "PO: PO8 | Domain: Affective Level-3 (Valuing)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 2211",
+    "courseName": "Power Electronics",
+    "semester": "4th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand the basics of power semiconductor devices and their characteristics.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Identify the characteristics of various types of AC-DC converters, DC-AC converters, DC-DC converters and AC-AC converters.",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Identify a contemporary problem through literature review whose solution will be designed, developed and verified using power electronics and drives.",
+        "description": "PO: PO12 | Domain: Affective Level-4 (Organizing)"
+      },
+      {
+        "coNumber": 4,
+        "title": "Design of industrial power system using various power electronic converters according to the applications.",
+        "description": "PO: PO3 | Domain: Cognitive Level-6 (Create)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 2212",
+    "courseName": "Sessional based on ETE 2211",
+    "semester": "4th Semester",
+    "credits": 0.75,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand and measure the performance of power converters (ac-dc/dc-ac/ac-ac/dc-dc) using experiment/simulation software.",
+        "description": "PO: PO5 | Domain: Psychomotor Level-3 (Precision)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Work individually and in a group in the provided laboratory environment to perform experiments and prepare reports.",
+        "description": "PO: PO9 | Domain: Affective Level-3 (Valuing)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Design and implement a complex engineering problem related to industrial electronics for the sustainable development of society and environment.",
+        "description": "PO: PO7 | Domain: Psychomotor Level-4 (Articulation)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 2213",
+    "courseName": "EM fields and Waves",
+    "semester": "4th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Apply coordinate systems, vector calculus, electromagnetic field concepts in free space and material media, and mathematical methods to determine electromagnetic field parameters for magnetostatic and time-varying fields.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Design electromagnetic devices and transmission line models for specific applications, ensuring efficient wave transmission with minimal loss",
+        "description": "PO: PO3 | Domain: Cognitive Level-6 (Create)"
+      }
+    ]
+  },
+  {
+    "courseCode": "HUM 2215",
+    "courseName": "Engineering Ethics and Sociology",
+    "semester": "4th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Evaluate ethical and unethical practices, moral dilemmas, social phenomena, and competing values and responsibilities in professional, social, and real-life contexts by integrating sociological understanding.",
+        "description": "PO: PO8 | Domain: Affective Level-3 (Value)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Apply sociological and ethical principles to real-world engineering issues.",
+        "description": "PO: PO6 | Domain: Affective Level-4 (Organizing)"
+      }
+    ]
+  },
+  {
+    "courseCode": "MATH 2215",
+    "courseName": "Complex Variable & Statistical Analysis System",
+    "semester": "4th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand complex number systems, functions, limits and continuity of complex variables, complex differentiation, Cauchy-Riemann equations, elementary mappings, complex line integration, Cauchy integral theorem and formula, Liouville’s theorem, Taylor’s and Laurent’s theorems, singular points, residues, contour integration, and conformal mapping.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Analyze frequency distribution, central tendency, dispersion, moments, skewness and kurtosis, probability distributions, sampling theory, estimation, hypothesis testing, correlation, regression analysis, and their applications.",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      }
+    ]
+  },
+  {
+    "courseCode": "CSE 3154",
+    "courseName": "Web Programming",
+    "semester": "5th Semester",
+    "credits": 1.5,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Design and implement dynamic, responsive, and scalable web applications using modern tools and technologies such as JavaScript, React JS, and Node JS, ensuring efficiency, usability, and security in real-world contexts.",
+        "description": "PO: PO5 | Domain: Psychomotor Level-4 (Articulation)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Communicate effectively with the engineering community and society at large by presenting technical concepts, designs, and solutions related to modern web programming and front-end development.",
+        "description": "PO: PO10 | Domain: Affective Level-5 (Characterizing)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Design and develop efficient, user-friendly, and scalable web applications for open-ended real-world problems—such as in healthcare, education, e-governance, or social development—by applying suitable web technologies and frameworks.",
+        "description": "PO: PO3 | Domain: Psychomotor Level-4 (Articulation)"
+      }
+    ]
+  },
+  {
+    "courseCode": "EEE 3153",
+    "courseName": "Power System",
+    "semester": "5th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand the concepts of power flow, stability limits, and fault analysis, allowing them to predict and mitigate potential issues in power systems.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Analyze power transmission, generation and distribution systems, calculate transmission line parameters, and perform per unit calculations.",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Integrate protection schemes, circuit breakers, and relays into a power system network to achieve safe and reliable operation.",
+        "description": "PO: PO3 | Domain: Cognitive Level-6 (Create)"
+      }
+    ]
+  },
+  {
+    "courseCode": "EEE 3154",
+    "courseName": "Sessional based on EEE 3153",
+    "semester": "5th Semester",
+    "credits": 0.75,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Investigate the characteristics of power flow networks using appropriate software tools, analyze simulation results, and identify potential operational issues in power systems.",
+        "description": "PO: PO4 | Domain: Psychomotor Level-3 (Precision)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Use modern engineering software tools to document, visualize, and present power system analysis results through well-structured technical reports and presentations.",
+        "description": "PO: PO5 | Domain: Psychomotor Level-4 (Articulation)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 3111",
+    "courseName": "Digital Communication",
+    "semester": "5th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Explain the fundamentals of digital communication, channels, A/D conversion, noises, pulse modulation, digital modulation techniques, detection and estimation.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Analyze the performance of pulse and digital modulation techniques, source and channel coding methods, and digital transmitters and receivers to optimize system performance.",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Design digital transmitter and receiver and optimize their performance.",
+        "description": "PO: PO3 | Domain: Cognitive Level-6 (Create)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 3112",
+    "courseName": "Sessional based on ETE 3111",
+    "semester": "5th Semester",
+    "credits": 0.75,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Use modern tools for generating and measuring signals associated with digital communication.",
+        "description": "PO: PO5 | Domain: Psychomotor Level-3 (Precision)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Investigation of different types of modulation and demodulation, coding and decoding schemes.",
+        "description": "PO: PO4 | Domain: Psychomotor Level-3 (Precision)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Work individually and in group in the provided laboratory environment to perform experiments and prepare reports.",
+        "description": "PO: PO9 | Domain: Affective Level-3 (Valuing)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 3113",
+    "courseName": "Microwave Engineering",
+    "semester": "5th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Explain the UHF concept of wave propagation, line transmission line, microstrips and waveguides.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Analysis of different type of solid-state microwave devices, microwave tubes and hybrid circuits",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 3114",
+    "courseName": "Sessional based on ETE 3113",
+    "semester": "5th Semester",
+    "credits": 0.75,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Measure the performance of microwave system using training kits.",
+        "description": "PO: PO5 | Domain: Psychomotor Level-3 (Precision)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Investigate the performance of the microwave systems with specific requirements.",
+        "description": "PO: PO4 | Domain: Psychomotor Level-4 (Articulation)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Work individually and in group in the provided laboratory environment to perform experiments and prepare reports.",
+        "description": "PO: PO9 | Domain: Affective Level-3 (Valuing)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 3115",
+    "courseName": "Numerical Methods in Engineering",
+    "semester": "5th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand the significance of Numerical methods in engineering problem solving and basic knowledge of numbers and errors.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Select an appropriate method and determine the solutions of numerical problems.",
+        "description": "PO: PO2 | Domain: Cognitive Level-5 (Evaluate)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 3116",
+    "courseName": "Sessional based on ETE 3115",
+    "semester": "5th Semester",
+    "credits": 0.75,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Use MATLAB/Python/C ++ /any other modern language to solve numerical problems, and compare performance of each method.",
+        "description": "PO: PO5 | Domain: Psychomotor Level-4 (Articulation)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Write efficient, well-documented report individually and/or in a group and present numerical results in an informative way.",
+        "description": "PO: PO9 | Domain: Affective Level-4 (Organizing)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 3117",
+    "courseName": "Control System",
+    "semester": "5th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand control system fundamentals, modeling, and time- and frequency-domain analysis",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Analyze system performance and apply compensation techniques to enhance stability and dynamic response.",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Design of controllers and compensators for specific industrial plants to improve system’s stability.",
+        "description": "PO: PO3 | Domain: Cognitive Level-6 (Create)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 3118",
+    "courseName": "Sessional based on ETE 3117",
+    "semester": "5th Semester",
+    "credits": 0.75,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Investigate control systems by designing and simulating them, analyzing stability and performance using various techniques, and comparing simulation with theoretical results to identify discrepancies.",
+        "description": "PO: PO4 | Domain: Psychomotor Level-4 (Articulation)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Use appropriate tools to determine the outputs of the assigned problem and analyze the results.",
+        "description": "PO: PO5 | Domain: Psychomotor Level-4 (Articulation)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Work individually and in group in the provided laboratory environment.",
+        "description": "PO: PO9 | Domain: Affective Level-3 (Valuing)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 3200",
+    "courseName": "Project Design and Development-II",
+    "semester": "6th Semester",
+    "credits": 0.75,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Design a solution of a complex engineering problem related to communication and ICT for the concurrent need of the society.",
+        "description": "PO: PO3 | Domain: Cognitive Level-6 (Create)"
+      },
+      {
+        "coNumber": 2,
+        "title": "To analyze and synthesize of data using appropriate methods and analysis techniques.",
+        "description": "PO: PO4 | Domain: Psychomotor Level-3 (Precision)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Assess the issues associated with society, health, and culture and find the solution of a complex engineering problem considering the assessed issues and professional engineering practice.",
+        "description": "PO: PO6 | Domain: Psychomotor Level-3 (Precision)"
+      },
+      {
+        "coNumber": 4,
+        "title": "Plan, manage, and make budget for an engineering project and apply them to one’s own work.",
+        "description": "PO: PO11 | Domain: Affective Level-4 (Organizing)"
+      },
+      {
+        "coNumber": 5,
+        "title": "Communicate effectively on complex activities with the research community and the society through report writing, presentations, and preparing documentation.",
+        "description": "PO: PO10 | Domain: Affective Level-5 (Characterizing)"
+      },
+      {
+        "coNumber": 6,
+        "title": "Practice ethical principles, professional ethics and responsibilities in solving complex engineering problems and preparing documentation.",
+        "description": "PO: PO8 | Domain: Affective Level-3 (Valuing)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 3211",
+    "courseName": "Fiber Optic Communication",
+    "semester": "6th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Apply the knowledge of optical fiber principles, constructional parameters, optical components, devices, and networks to select suitable optical communication solutions for different applications.",
+        "description": "PO: PO1 | Domain: Cognitive Level-3 (Apply)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Analyze optical communication requirements, link parameters, losses, power budget, and rise-time budget to select suitable fiber optic communication solutions for different applications.",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Design a fiber optic link based on budgets",
+        "description": "PO: PO3 | Domain: Cognitive Level-6 (Create)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 3212",
+    "courseName": "Sessional based on ETE 3211",
+    "semester": "6th Semester",
+    "credits": 0.75,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Observe different optical characteristics of optical fiber using experimental (optical equipments) setup.",
+        "description": "PO: PO4 | Domain: Psychomotor Level-3 (Precision)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Use modern tools (COMSOL Multiphysics software, etc.) to design and characterize a conventional optical fiber.",
+        "description": "PO: PO5 | Domain: Psychomotor Level-4 (Articulation)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Write efficient, well-documented report individually and/or in a group and present numerical results in an informative way",
+        "description": "PO: PO9 | Domain: Affective Level-4 (Organizing)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 3213",
+    "courseName": "Antennas and Propagation",
+    "semester": "6th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Explain the fundamentals of electromagnetic wave radiation from antennas and the parameters and characteristics of various types of antennas used in wireless communication.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Calculate antenna parameters and analyze the characteristics of both individual antenna elements and antenna arrays",
+        "description": "PO: PO2 | Domain: Cognitive Level-5 (Evaluate)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Identify current challenges in antenna systems through literature review and develop proposed design solutions.",
+        "description": "PO: PO12 | Domain: Affective Level-4 (Organizing)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 3214",
+    "courseName": "Sessional based on ETE 3213",
+    "semester": "6th Semester",
+    "credits": 0.75,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Apply modern tools to design, measure and characterize various antennas for complex wireless communication engineering problems.",
+        "description": "PO: PO5 | Domain: Psychomotor Level-4 (Articulation)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Design and simulate antenna performance parameters at a specified frequency to solve the complex wireless communication engineering problems.",
+        "description": "PO: PO3 | Domain: Psychomotor Level-4 (Articulation)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Work individually and in a group in the antenna laboratory to perform experiments and prepare reports.",
+        "description": "PO: PO9 | Domain: Affective Level-3 (Valuing)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 3215",
+    "courseName": "Digital Signal Processing",
+    "semester": "6th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand and interpret the concepts of digital signal processing—including discrete-time signals, systems, spectrum estimation, multirate processing, DSP processors and their applications.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Analyze and evaluate the performance of FIR/IIR filters and Fourier-based transforms (DFT, FFT) using appropriate mathematical tools and algorithms for digital signal analysis.",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 3216",
+    "courseName": "Sessional based on ETE 3215",
+    "semester": "6th Semester",
+    "credits": 0.75,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Investigate DSP operations and algorithms on real-time hardware platforms or DSP processors to validate theoretical concepts in practice.",
+        "description": "PO: PO4 | Domain: Psychomotor Level-4 (Articulation)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Design and analyze FIR/IIR filters and estimate signal spectrum with multirate DSP techniques using modern tools (Matlab/Python)",
+        "description": "PO: PO5 | Domain: Psychomotor Level-4 (Articulation)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 3217",
+    "courseName": "Information Theory",
+    "semester": "6th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Explain the concepts of information theory, including probability distributions, random variables, entropy, and mutual information, and their significance in communication systems.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Analyze the parameters, characteristics, and capacity of various wireless communication channels to maximize capacity and minimize loss.",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 3218",
+    "courseName": "Seminar",
+    "semester": "6th Semester",
+    "credits": 0.75,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "To develop independent and life-long learning skill to cope with the technological change.",
+        "description": "PO: PO12 | Domain: Affective Level-3 (Valuing)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Identify and formulate a complex engineering problem using the knowledge of mathematics, science, and engineering courses and comprehensive literature review.",
+        "description": "PO: PO2 | Domain: Affective Level-4 (Organizing)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Develop communication skill through effective presentation, active conversations with audiences, and receiving instructions from mentors.",
+        "description": "PO: PO10 | Domain: Affective Level-5 (Characterizing)"
+      },
+      {
+        "coNumber": 4,
+        "title": "Practice ethical principles in research and intellectual contexts including academic integrity, proper use of citation, and engineering norms.",
+        "description": "PO: PO8 | Domain: Affective Level-3 (Valuing)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 3221",
+    "courseName": "Microwave Devices",
+    "semester": "6th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand the basic microwave solid state devices and their working principles.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Characterize various solid-state devices with theoretical and mathematical analysis.",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Understand the basic characteristics of microwave tubes and comparative analysis of their performance.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 4,
+        "title": "Design a microwave tube for specific application.",
+        "description": "PO: PO3 | Domain: Cognitive Level-6 (Create)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 3222",
+    "courseName": "Sessional based on ETE 3221",
+    "semester": "6th Semester",
+    "credits": 0.75,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Investigate the characteristics and performance of various microwave solid-state devices and microwave tubes through laboratory observation, measurement, and interpretation.",
+        "description": "PO: PO4 | Domain: Psychomotor Level-3 (Precision)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Design a microwave device with given specification individually or in a group.",
+        "description": "PO: PO9 | Domain: Psychomotor Level-4 (Articulation)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 3223",
+    "courseName": "Numerical Techniques in Electromagnetics",
+    "semester": "6th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand the significance of Numerical techniques in engineering problem solving.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Solve numerically electromagnetics problems to study wave propagation, transmission lines and antennas.",
+        "description": "PO: PO2 | Domain: Cognitive Level-5 (Evaluate)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Develop and implement numerical methods for finite difference and finite element differential equation models as well as integral equation models.",
+        "description": "PO: PO3 | Domain: Cognitive Level-5 (Evaluate)"
+      },
+      {
+        "coNumber": 4,
+        "title": "Describe and list the advantages and limitations of different numerical techniques using commercial software/modern tools to identify their limitations.",
+        "description": "PO: PO5 | Domain: Cognitive Level-2 (Understand)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 3224",
+    "courseName": "Sessional based on ETE 3223",
+    "semester": "6th Semester",
+    "credits": 0.75,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Investigate major numerical methods, their merits and limitations, and implement appropriate methods to solve electromagnetics problems through laboratory-based analysis and interpretation.",
+        "description": "PO: PO4 | Domain: Psychomotor Level-4 (Articulation)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Perform both hand computation and programming applied in MATLAB/C++/any other programming language",
+        "description": "PO: PO2 | Domain: Psychomotor Level-4 (Articulation)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Write efficient, well-documented MATLAB/C++/any other modern programming language code and present numerical results in an informative way",
+        "description": "PO: PO5 | Domain: Psychomotor Level-4 (Articulation)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 3225",
+    "courseName": "Digital Image Processing",
+    "semester": "6th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand image formation models, enhancement, compression, segmentation and classification.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Analyze image features and application-specific image processing problems using segmentation, feature extraction, classification methods, and learning-based algorithms.",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 3226",
+    "courseName": "Sessional based on ETE 3225",
+    "semester": "6th Semester",
+    "credits": 0.75,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Investigate image operations, intensity transformations, filtering, detection, feature extraction, classification techniques, and CNN-based models using programming scripts and publicly available datasets to solve open-ended image processing problems.",
+        "description": "PO: PO4 | Domain: Psychomotor Level-4 (Articulation)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Use commercially available tools to investigate the performance of feature-based image processing techniques.",
+        "description": "PO: PO5 | Domain: Psychomotor Level-3 (Precision)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 3227",
+    "courseName": "Digital Speech Processing",
+    "semester": "6th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand the basics of speech modeling, speech processing methods, text-to-speech synthesis, speech coding, and speech recognition.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Analyze the performance of different speech processing tools and existing speech processing techniques to solve problems in the speech processing domain.",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      },
+      {
+        "coNumber": 5,
+        "title": "Develop a learning-based algorithm to automate the speech processing task for a particular application.",
+        "description": "PO: PO3 | Domain: Cognitive Level-5 (Evaluate)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 3228",
+    "courseName": "Sessional based on ETE 3227",
+    "semester": "6th Semester",
+    "credits": 0.75,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Investigate the modeling of vocal tract from the speech signal using programming scripts.",
+        "description": "PO: PO4 | Domain: Psychomotor Level-3 (Precision)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Extract features of the speech signal and apply the extracted features for further speech processing using modern software/packages.",
+        "description": "PO: PO5 | Domain: Psychomotor Level-4 (Articulation)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Learn to write programming scripts/codes for speech endpoint detection, dynamic time warping, spectrogram and pitch frequency estimation.",
+        "description": "PO: PO1 | Domain: Psychomotor Level-3 (Precision)"
+      },
+      {
+        "coNumber": 4,
+        "title": "Learn to develop codes individually and/or in a group using machine learning/ deep learning software/libraries to implement neural networks for automatic speech recognition.",
+        "description": "PO: PO9 | Domain: Psychomotor Level-3 (Precision)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 3229",
+    "courseName": "Renewable Energy",
+    "semester": "6th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand the basics of different renewable energy sources.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Investigation of characteristics of renewable sources with current power system network and performance study.",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Develop renewable energy system for sustainable development and analyze its environmental effects.",
+        "description": "PO: PO7 | Domain: Cognitive Level-6 (Create)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 3230",
+    "courseName": "Sessional based on ETE 3229",
+    "semester": "6th Semester",
+    "credits": 0.75,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Measure the performance of different renewable energy sources using experiment/simulation software.",
+        "description": "PO: PO5 | Domain: Psychomotor Level-3 (Precision)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Design of real-life renewable energy –based system including solar home system, reduced scale wind power system and microgrid.",
+        "description": "PO: PO3 | Domain: Cognitive Level-4 (Analyze)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Identify a contemporary problem associated with renewable energy through literature review whose solution will be designed, developed and verified.",
+        "description": "PO: PO12 | Domain: Affective Level-4 (Organizing)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 3231",
+    "courseName": "Measurement, Instrumentation and Sensors Applications",
+    "semester": "6th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand the principles and characteristics of measurement and instrumentation methods, instrument transformers, CROs and their applications, and measurement of physical quantities such as temperature, pressure, flow rate, and humidity using modern instruments and tools.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Analyze AC and DC bridges for measurement of resistance, inductance and capacitance.",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 3232",
+    "courseName": "Sessional based on ETE 3231",
+    "semester": "6th Semester",
+    "credits": 0.75,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Design AC and DC bridge circuits for measuring unknown resistance, inductance, and capacitance.",
+        "description": "PO: PO3 | Domain: Psychomotor Level-2 (Manipulation)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Use instrument transformers, CROs, and transducers to measure unknown electrical and physical quantities.",
+        "description": "PO: PO5 | Domain: Psychomotor Level-4 (Articulation)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 3233",
+    "courseName": "TV Engineering",
+    "semester": "6th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand the basics of TV standards, scanning, transmission, reception, signal reconstruction, and the construction and characteristics of monochrome and color TV systems.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Calculate various parameters of monochrome and color TV systems using the mathematical skills developed here.",
+        "description": "PO: PO2 | Domain: Cognitive Level-5 (Evaluate)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Design TV receiver systems and high-definition TV receiver models for specific applications with minimum signal reproduction and interference loss.",
+        "description": "PO: PO3 | Domain: Cognitive Level-6 (Create)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 3234",
+    "courseName": "Sessional based on ETE 3233",
+    "semester": "6th Semester",
+    "credits": 0.75,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand the various characteristics, operations and applications of different TV systems.",
+        "description": "PO: PO1 | Domain: Psychomotor Level-2 (Manipulation)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Compare between laboratory and theoretical characteristics of monochrome/color television and identify the reasons for any discrepancies.",
+        "description": "PO: PO2 | Domain: Psychomotor Level-4 (Articulation)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Implement and analysis a prototype TV receiver individually or in a group.",
+        "description": "PO: PO9 | Domain: Psychomotor Level-3 (Precision)"
+      },
+      {
+        "coNumber": 4,
+        "title": "Investigate a model of high-definition TV receiver with minimum signal reproduction and interference loss.",
+        "description": "PO: PO4 | Domain: Psychomotor Level-3 (Precision)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 3235",
+    "courseName": "Web Engineering",
+    "semester": "6th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Able to understand and apply Web development processes.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Identify document and analyze requirements for web application.",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Develop web applications using server-side programming languages, components, and web engineering methodologies.",
+        "description": "PO: PO3 | Domain: Cognitive Level-6 (Create)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 3236",
+    "courseName": "Sessional based on ETE 3235",
+    "semester": "6th Semester",
+    "credits": 0.75,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Formulate the concepts of information regarding web application, services, and mechanism.",
+        "description": "PO: PO2 | Domain: Psychomotor Level-3 (Precision)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Analyze different technologies for web application",
+        "description": "PO: PO2 | Domain: Psychomotor Level-4 (Articulation)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Validate different types web applications associated with real life problems using modern tools and known web language.",
+        "description": "PO: PO5 | Domain: Psychomotor Level-4 (Articulation)"
+      },
+      {
+        "coNumber": 4,
+        "title": "Implement information security in a web application individually or in a group.",
+        "description": "PO: PO9 | Domain: Psychomotor Level-5 (Naturalization)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 4100",
+    "courseName": "Project and Thesis",
+    "semester": "7th Semester",
+    "credits": 1.5,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Apply knowledge of mathematics, natural science and electronics and telecommunication engineering to solve complex engineering problem.",
+        "description": "PO: PO1 | Domain: Cognitive Level-3 (Apply)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Identify and formulate research gaps in electronics and telecommunication engineering domain through comprehensive literature review and the knowledge of mathematics, science, and engineering courses.",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Design and implement of a complex engineering problem in multi-disciplinary domain.",
+        "description": "PO: PO3 | Domain: Psychomotor Level-5 (Naturalization)"
+      },
+      {
+        "coNumber": 4,
+        "title": "Investigate a complex engineering problem using research-based knowledge and apply suitable research methods such as simulations, experiments, data interpretation and synthesis to validate a research outcome.",
+        "description": "PO: PO4 | Domain: Affective Level-4 (Organizing)"
+      },
+      {
+        "coNumber": 5,
+        "title": "Apply appropriate techniques and tools to solve a complex engineering problem by considering the limitations.",
+        "description": "PO: PO5 | Domain: Psychomotor Level-4 (Articulation)"
+      },
+      {
+        "coNumber": 6,
+        "title": "Assess the issues associated with society, health, and culture and find the solution of a complex engineering problem considering the assessed issues and professional engineering practice.",
+        "description": "PO: PO6 | Domain: Affective Level-3 (Valuing)"
+      },
+      {
+        "coNumber": 7,
+        "title": "Evaluate the sustainability and impact of the solution of the proposed work in terms of environmental consideration.",
+        "description": "PO: PO7 | Domain: Affective Level-5 (Characterizing)"
+      },
+      {
+        "coNumber": 8,
+        "title": "Communicate effectively on complex activities with the research community and with society such as preparing technical papers, writing thesis, and making effective presentations.",
+        "description": "PO: PO10 | Domain: Affective Level-5 (Characterizing)"
+      },
+      {
+        "coNumber": 9,
+        "title": "Practice ethical principles, professional ethics and responsibilities in solving complex engineering problems and preparing theses and scientific articles.",
+        "description": "PO: PO8 | Domain: Affective Level-3 (Valuing)"
+      },
+      {
+        "coNumber": 10,
+        "title": "To develop independent and life-long learning skill through the use of advanced tools and techniques and tackling the difficulties throughout the project.",
+        "description": "PO: PO12 | Domain: Affective Level-4 (Organizing)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 4111",
+    "courseName": "Wireless and Mobile Communication",
+    "semester": "7th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Explain the fundamental concepts of wireless communication, international standardization bodies, system architecture, and wireless network channels.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Analyze wireless radio channel characteristics and advanced wireless communication systems using appropriate mathematical and technical skills",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Design a wireless system using multi-carrier transmission systems individually or in a group.",
+        "description": "PO: PO3 | Domain: Cognitive Level-6 (Create)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 4112",
+    "courseName": "Sessional based on ETE 4111",
+    "semester": "7th Semester",
+    "credits": 0.75,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Investigate the performance of wireless communication systems by modeling and simulating SNR, BER, channel characteristics, and handoff performance under various propagation models.",
+        "description": "PO: PO4 | Domain: Psychomotor Level-4 (Articulation)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Use modern tools such as MATLAB and Simulink to model wireless channels, simulate handoff performance, and evaluate the effects of SNR, channel estimation, and multipath propagation in wireless communication systems.",
+        "description": "PO: PO5 | Domain: Psychomotor Level-4 (Articulation)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 4113",
+    "courseName": "VLSI Design",
+    "semester": "7th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Analyze semiconductor technology trends and their impact on scaling and performance, along with the operation of MOS and BiCMOS circuits",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Design logic, stick, and mask layouts of MOS and BiCMOS circuits using Lambda rules, and develop memory elements and FPGA architectures",
+        "description": "PO: PO3 | Domain: Cognitive Level-6 (Create)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Understand the basic of fabrication technologies and ultra-fast technology.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 4114",
+    "courseName": "Sessional based on ETE 4113",
+    "semester": "7th Semester",
+    "credits": 0.75,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Investigate the simulated outputs of NMOS-based designs and CMOS-based designs and identify the reasons for any discrepancies with theoretical results.",
+        "description": "PO: PO4 | Domain: Psychomotor Level-4 (Articulation)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Write report individually or in a group by solving practical problem in laboratory with specific needs and requirements.",
+        "description": "PO: PO9 | Domain: Affective Level-4 (Organizing)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Use appropriate software tools to design and simulate the output of given problem with specific requirements.",
+        "description": "PO: PO5 | Domain: Psychomotor Level-4 (Articulation)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 4115",
+    "courseName": "Microprocessor and Interfacing",
+    "semester": "7th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Explain the architecture, organization, pin diagram, memory subsystem and instruction sets of microprocessor.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Formulate assembly language programs for computational problem solving using suitable addressing modes and microprocessor-based system solutions for real-life applications using interfacing devices.",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analysis)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 4116",
+    "courseName": "Sessional based on ETE 4115",
+    "semester": "7th Semester",
+    "credits": 0.75,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Investigate assembly programs in EMU8086 for arithmetic operations, logic operations, and decision-making algorithms through implementation and testing.",
+        "description": "PO: PO4 | Domain: Psychomotor Level-3 (Precision)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Use 8086 microprocessor hardware systems and assembly/machine language interfaces to execute programs for practical applications.",
+        "description": "PO: PO5 | Domain: Psychomotor Level-3 (Precision)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Write report individually or in a group by solving practical problem in the laboratory with specific needs and requirements.",
+        "description": "PO: PO9 | Domain: Affective Level-4 (Organizing)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 4117",
+    "courseName": "Data Communication and Computer Networks",
+    "semester": "7th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand and explain the fundamental concepts of data communication, network models, and transmission technologies.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Analyze and apply protocols, addressing schemes, and security mechanisms in computer networks and internet systems",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Identify problem on network protocols or network security and present the problem and solution to ensure efficient and secure data communication.",
+        "description": "PO: PO10 | Domain: Affective Level-3 (Valuing)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 4118",
+    "courseName": "Sessional based on ETE 4117",
+    "semester": "7th Semester",
+    "credits": 0.75,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Investigate network topologies, routing, VLANs, IP addressing, ACL, and AAA configurations using software tools and networking devices to solve communication and network security problems.",
+        "description": "PO: PO4 | Domain: Psychomotor Level-4 (Articulation)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Use eNSP/Cisco to determine the associated outputs of different network topologies, configurations, and protocols.",
+        "description": "PO: PO5 | Domain: Psychomotor Level-4 (Articulation)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 4120",
+    "courseName": "Industrial Training",
+    "semester": "7th Semester",
+    "credits": 0.75,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Gain practical knowledge on modern technologies which are using in the renowned electronics and communication related organization and to develop responsibilities relevant to professional engineering practice.",
+        "description": "PO: PO6 | Domain: Psychomotor Level-4 (Articulation)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Write a report individually or in a group by working in an organization.",
+        "description": "PO: PO9 | Domain: Affective Level-4 (Organizing)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Develop communication and presentation skills by working in an office and presenting their work.",
+        "description": "PO: PO10 | Domain: Affective Level-5 (Characterizing)"
+      },
+      {
+        "coNumber": 4,
+        "title": "Demonstrate knowledge of ethical values in non-classroom activities such as service learning, internship, and field work.",
+        "description": "PO: PO8 | Domain: Affective Level-3 (Valuing)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 4121",
+    "courseName": "Multimedia and Communication",
+    "semester": "7th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Describe technical characteristics and performance of multimedia system and terminals.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Design creative approach in application of multimedia devices, equipment and systems.",
+        "description": "PO: PO3 | Domain: Cognitive Level-6 (Create)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Interpret and analyze measurement results obtained on the multimedia system and components.",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 4123",
+    "courseName": "Biomedical Engineering",
+    "semester": "7th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Describe bioelectric potential sources and biomedical instruments, and characterize measurement systems including bio-amplifiers, electrodes, sensors, and transducers for physiological data acquisition",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Analyze the characteristics of various patient monitoring systems.",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Identify the contemporary problem on biomedical engineering through literature review whose solution will be designed and developed.",
+        "description": "PO: PO 12 | Domain: Affective Level-4 ( Organizing)"
+      },
+      {
+        "coNumber": 4,
+        "title": "Learn to employ code of ethics, rights and responsibilities of engineer for conducting research on animals and human beings.",
+        "description": "PO: PO8 | Domain: Affective Level-3 (Valuing)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 4125",
+    "courseName": "Radio Wave Propagation",
+    "semester": "7th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand the purpose, functions, parameters, and characteristics of RF links, RF systems, emitters, antennas, and measurement tools used in communication systems.",
+        "description": "PO: PO1 | Domain: Cognitive Level-4 (Analyze)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Analyze the performance of line-of-sight and non-line-of-sight RF links and radio channels through parameter estimation and detection for specific frequencies.",
+        "description": "PO: PO1 | Domain: Cognitive Level-4 (Analyze)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Design and evaluate the performance of receiver, transmitter, transceiver systems and RF link.",
+        "description": "PO: PO3 | Domain: Cognitive Level-6 (Create)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 4127",
+    "courseName": "Spread Spectrum and CDMA Technology",
+    "semester": "7th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand basics of CDMA fundamentals, channel operation, channelization, and spread spectrum concept",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Analyze the protocols and physical layer features",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Analyze and design various link budgeting and apply it radio network dimensioning and planning issues",
+        "description": "PO: PO3 | Domain: Cognitive Level-4 (Analyze)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 4129",
+    "courseName": "Discrete Mathematics",
+    "semester": "7th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand and analyze mathematical arguments.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Analyze the basic properties of set, function & relations.",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Investigate different problems based on number theory, recursion and counting method.",
+        "description": "PO: PO4 | Domain: Cognitive Level-4 (Analyze)"
+      },
+      {
+        "coNumber": 4,
+        "title": "Know essential concepts in graph theory and analyze related algorithms.",
+        "description": "PO: PO2 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 5,
+        "title": "Develop a solution to a particular problem using the knowledge of discrete mathematics.",
+        "description": "PO: PO3 | Domain: Cognitive Level-6 (Create)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 4131",
+    "courseName": "Graph Theory",
+    "semester": "7th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand the basic concepts of graph theory, graph architecture of real-life problems, and the application of graphs for solving specific problems from multiple perspectives.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Optimize a given problem based on graphs using multiple suitable related algorithms.",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 4133",
+    "courseName": "Optoelectronics",
+    "semester": "7th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand the fundamental behavior, theory, and properties of light, light sources, modulators, detectors, optical fibers, integrated devices, and photodetection mechanisms.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Analyze the performance of modulators, LEDs, LASERs, detectors, optical fibers, and integrated waveguides for optical communication and photonic device applications.",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Apply and analyze optoelectronic devices in various societal and health applications.",
+        "description": "PO: PO7 | Domain: Cognitive Level-3 (Apply)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 4135",
+    "courseName": "Processing and Fabrication Technology",
+    "semester": "7th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand the basics of nanotechnology fabrication processes, different device structures, substrate materials, and film deposition processes.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Analyze advanced fabrication and characterization methods, device/system development processes, and different isolation techniques used in nanotechnology.",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Design various chips using different fabrication techniques.",
+        "description": "PO: PO3 | Domain: Cognitive Level-6 (Create)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 4137",
+    "courseName": "Random Signal Processing",
+    "semester": "7th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand the basics of probability theory, stochastic processes, and the parameters and characteristics of random variables used in communication systems.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Analyze random variables, random vectors, and communication channels through parameter calculation, parameter estimation, and detection techniques.",
+        "description": "PO: PO2 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Design a gaussian channel for distributed random sequences in stochastic process.",
+        "description": "PO: PO3 | Domain: Cognitive Level-6 (Create)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 4139",
+    "courseName": "Data Science",
+    "semester": "7th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand the fundamentals of data science, including its scope, applications, role in problem-solving, statistical foundations, data extraction, data mining, and data visualization techniques for analyzing and interpreting data.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Explore artificial intelligence, machine learning, search algorithms, and data security to develop intelligent and secure data-driven solutions.",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 4200",
+    "courseName": "Project and Thesis",
+    "semester": "8th Semester",
+    "credits": 2.5,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Apply knowledge of mathematics, natural science and electronics and telecommunication engineering to solve complex engineering problem.",
+        "description": "PO: PO1 | Domain: Cognitive Level-3 (Apply)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Identify and formulate research gaps in electronics and telecommunication engineering domain through comprehensive literature review and the knowledge of mathematics, science, and engineering courses.",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Design and implement of a complex engineering problem in multi-disciplinary domain.",
+        "description": "PO: PO3 | Domain: Psychomotor Level-5 (Naturalization)"
+      },
+      {
+        "coNumber": 4,
+        "title": "Investigate a complex engineering problem using research-based knowledge and apply suitable research methods such as simulations, experiments, data interpretation and synthesis to validate a research outcome.",
+        "description": "PO: PO4 | Domain: Affective Level-4 (Organizing)"
+      },
+      {
+        "coNumber": 5,
+        "title": "Apply appropriate techniques and tools to solve a complex engineering problem by considering the limitations.",
+        "description": "PO: PO5 | Domain: Psychomotor Level-4 (Articulation)"
+      },
+      {
+        "coNumber": 6,
+        "title": "Assess the issues associated with society, health, and culture and find the solution of a complex engineering problem considering the assessed issues and professional engineering practice.",
+        "description": "PO: PO6 | Domain: Affective Level-3 (Valuing)"
+      },
+      {
+        "coNumber": 7,
+        "title": "Evaluate the sustainability and impact of the solution of the proposed work in terms of environmental consideration.",
+        "description": "PO: PO7 | Domain: Affective Level-5 (Characterizing)"
+      },
+      {
+        "coNumber": 8,
+        "title": "Communicate effectively on complex activities with the research community and with society such as preparing technical papers, writing thesis, and making effective presentations.",
+        "description": "PO: PO10 | Domain: Affective Level-5 (Characterizing)"
+      },
+      {
+        "coNumber": 9,
+        "title": "Practice ethical principles, professional ethics and responsibilities in solving complex engineering problems and preparing theses and scientific articles.",
+        "description": "PO: PO8 | Domain: Affective Level-3 (Valuing)"
+      },
+      {
+        "coNumber": 10,
+        "title": "To develop independent and life-long learning skill through the use of advanced tools and techniques and tackling the difficulties throughout the project.",
+        "description": "PO: PO12 | Domain: Affective Level-4 (Organizing)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 4211",
+    "courseName": "Telecommunication Engineering",
+    "semester": "8th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Apply the basic concepts of telecommunication engineering, international regulatory bodies, telephone apparatus systems, switching systems, and advanced telecommunication systems using required mathematical skills.",
+        "description": "PO: PO1 | Domain: Cognitive Level-3 (Apply)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Analyze traffic characteristics and network blocking probabilities to develop efficient telecommunication systems",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 4212",
+    "courseName": "Sessional Based on ETE 4212",
+    "semester": "8th Semester",
+    "credits": 0.75,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Investigate the performance of telecommunication switching and signaling using different methods.",
+        "description": "PO: PO4 | Domain: Psychomotor Level-3 (Precision)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Write report individually or in a group by solving practical problem in laboratory with specific needs and requirements",
+        "description": "PO: PO9 | Domain: Affective Level-4 (Organizing)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Use appropriate tools/kits to determine the performance of different telecommunication switching and signaling.",
+        "description": "PO: PO5 | Domain: Psychomotor Level-4 (Articulation)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 4213",
+    "courseName": "Satellite Communication and Radar",
+    "semester": "8th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Apply the basic concepts of satellite communication and radar systems, including earth station components, satellite types, radar components, signals, detection processes, functions, and applications.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Design a satellite link for a specific application.",
+        "description": "PO: PO3 | Domain: Cognitive Level-6 (Create)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Identify the contemporary problem on Satellite/Radar through a literature review whose solution will be designed and developed.",
+        "description": "PO: PO12 | Domain: Affective Level-3 (Valuing)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 4214",
+    "courseName": "Sessional Based on ETE 4213",
+    "semester": "8th Semester",
+    "credits": 0.75,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Investigate satellite link performance using C and Ku bands and radar echo signals for voice, data, video transmission, reception, and target information extraction through laboratory kits and software tools.",
+        "description": "PO: PO4 | Domain: Psychomotor Level-3 (Precision)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Identify problem on existing satellite or radar communication and present the problem and solution to the engineering community.",
+        "description": "PO: PO 10 | Domain: Affective Level-4 (Organizing)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Use commercially available software/hardware tool to investigate the operation and performance of a Doppler radar and tracking radar.",
+        "description": "PO: PO5 | Domain: Affective Level-4 (Organizing)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 4215",
+    "courseName": "Machine Learning",
+    "semester": "8th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand the fundamental issues and challenges of machine learning in supervised and unsupervised learning.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Analyze mathematical foundations of machine learning algorithms and neural network architectures across supervised, semi-supervised, unsupervised, and reinforcement learning for real-world applications",
+        "description": "PO: PO2 | Domain: Cognitive Level-5 (Evaluate)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Apply machine learning techniques to solve real-world problems in environmental sustainability, healthcare, wireless communication, and industrial automation",
+        "description": "PO: PO7 | Domain: Affective Level-4 (Organizing)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 4216",
+    "courseName": "Sessional Based on ETE 4215",
+    "semester": "8th Semester",
+    "credits": 0.75,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Develop and investigate the performance of machine learning algorithms such as decision trees, regression, classification, Bayesian models, SVM, and ensemble methods.",
+        "description": "PO: PO4 | Domain: Psychomotor Level-4 (Articulation)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Design and implement end-to-end machine learning and neural network models to address real-world societal, health, safety, cultural, and legal challenges",
+        "description": "PO: PO6 | Domain: Psychomotor Level-4 (Articulation)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Identify a contemporary problem through a literature review and design a neural network to tackle it.",
+        "description": "PO: PO12 | Domain: Affective Level-4 (Organizing)"
+      },
+      {
+        "coNumber": 4,
+        "title": "Present the finding of existing works from literature and solution of the finding to engineering community and society.",
+        "description": "PO: PO10 | Domain: Affective Level-5 (Characterizing)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 4217",
+    "courseName": "Internet of Things (IoT)",
+    "semester": "8th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand the fundamental concepts of Internet of Things (IoT), real-world IoT applications, connected devices, sensors, data communication, communication protocols, and embedded platforms used in IoT-based data acquisition and control systems.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Design and deploy IoT architectures integrating sensors, networks, and cloud platforms to optimize performance, scalability, and data management.",
+        "description": "PO: PO3 | Domain: Affective Level-5 (Characterizing)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 4219",
+    "courseName": "Advanced Solid-State Devices",
+    "semester": "8th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Learn the basic concepts of solid-state devices and understand the standardized devices.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Comprehend the architecture of advanced solid-state devices and make relevance in IoT.",
+        "description": "PO: PO1 | Domain: Cognitive Level-3 (Apply)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Analyze the advanced operation of solid-state devices from learnt basic concepts and calculate the performance parameters.",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      },
+      {
+        "coNumber": 4,
+        "title": "Design a IoT system using advanced solid-state devices through integration with IoT.",
+        "description": "PO: PO3 | Domain: Cognitive Level-6 (Create)"
+      },
+      {
+        "coNumber": 5,
+        "title": "Decide a solution on IoT platforms through advanced solid-state devices individually or in a group.",
+        "description": "PO: PO9 | Domain: Affective Level-4 (Organizing)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 4221",
+    "courseName": "Microcontroller and Embedded System",
+    "semester": "8th Semester",
+    "credits": null,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand the basics of embedded systems, their design concepts, and the basic operations of microcontroller, FPGA, PLC, and DSP boards.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Apply programming and hardware interfacing skills using microcontroller, FPGA, PLC, and DSP boards to interface different I/O devices for specific applications.",
+        "description": "PO: PO2 | Domain: Cognitive Level-3 (Apply)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Design of industrial embedded system using microcontroller, FPGA, PLC, and DSP boards.",
+        "description": "PO: PO3 | Domain: Cognitive Level-6 (Create)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 4223",
+    "courseName": "Engineering Materials",
+    "semester": "8th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand the concepts of atomic bonding, crystal structures, imperfections, diffusion, mechanical properties, electron energy, and dislocations as related to processing and performance of engineering materials.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Analyze the relationship between structure, processing, properties, microstructure characteristics, electronic properties, material formation, microstructure manipulation, and phase diagrams for engineering design, materials processing, and material selection.",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 4225",
+    "courseName": "Neural Network & Fuzzy Systems",
+    "semester": "8th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Recognize the basic of neural network theory and fuzzy logic theory",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Analyze the functional components of neural network classifiers and the functional components of fuzzy logic classifiers",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Design trainable neural networks, fuzzy logic systems, and genetic algorithms to solve typical control, computing, biomedical, and real-life optimization problems",
+        "description": "PO: PO3 | Domain: Cognitive Level-6 (Create)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 4227",
+    "courseName": "Operating Systems",
+    "semester": "8th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Explain the fundamental abstractions of operating systems and describe how they enable efficient execution of application programs.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Apply various process management and scheduling techniques to achieve effective multiprocessing and resource utilization.",
+        "description": "PO: PO2 | Domain: Cognitive Level-3 (Apply)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Analyze different memory management techniques, including partitioning, segmentation, paging, and deadlock handling mechanisms.",
+        "description": "PO: PO2 | Domain: Affective Level-4 (Organizing)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 4229",
+    "courseName": "Software Engineering",
+    "semester": "8th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand the fundamental concepts of software engineering, including project planning, requirement analysis, and system design principles.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Analyze various Software Development Life Cycle (SDLC) models, software engineering principles, and project management frameworks to select suitable methodologies for designing, developing, and managing efficient software systems.",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 4231",
+    "courseName": "Machine Vision",
+    "semester": "8th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand the geometry of machine vision and stereo vision systems, including the processes of shape recovery and depth estimation.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Analyze and compare the performance of different tools related to machine vision.",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Apply existing techniques using modern tools to tackle different problems in the machine vision domain.",
+        "description": "PO: PO5 | Domain: Cognitive Level-3 (Apply)"
+      },
+      {
+        "coNumber": 4,
+        "title": "Develop a learning-based algorithm to automate the machine vision task for a particular application.",
+        "description": "PO: PO3 | Domain: Cognitive Level-6 (Create)"
+      }
+    ]
+  },
+  {
+    "courseCode": "ETE 4233",
+    "courseName": "ICT Security",
+    "semester": "8th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Understand ICT security threats, security services, countermeasures, and the fundamentals of physical layer security for information and communication systems.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Analyze cryptographic techniques, hash functions, authentication mechanisms, firewalls, and intrusion detection techniques for information and communications security.",
+        "description": "PO: PO2 | Domain: Cognitive Level-4 (Analyze)"
+      }
+    ]
+  },
+  {
+    "courseCode": "HUM 4215",
+    "courseName": "Project Management and Legal Issues",
+    "semester": "8th Semester",
+    "credits": 3,
+    "courseOutcomes": [
+      {
+        "coNumber": 1,
+        "title": "Explain the concepts, objectives, and life cycle phases of project management in engineering contexts.",
+        "description": "PO: PO1 | Domain: Cognitive Level-2 (Understand)"
+      },
+      {
+        "coNumber": 2,
+        "title": "Apply project planning, scheduling (PERT/CPM), and resource allocation techniques in telecommunication projects.",
+        "description": "PO: PO2 | Domain: Cognitive Level-3 (Apply)"
+      },
+      {
+        "coNumber": 3,
+        "title": "Analyze project cost estimation, budgeting, and risk management strategies for engineering projects.",
+        "description": "PO: PO11 | Domain: Cognitive Level-4 (Analyze)"
+      },
+      {
+        "coNumber": 4,
+        "title": "Interpret legal issues related to contracts, intellectual property rights, and professional ethics in engineering practices.",
+        "description": "PO: PO6 | Domain: Affective Level-3 (Valuing)"
+      },
+      {
+        "coNumber": 5,
+        "title": "Demonstrate teamwork, leadership, and effective communication skills in project documentation and presentations.",
+        "description": "PO: PO10 | Domain: Affective Level-3 (Valuing)"
+      }
+    ]
+  }
+]

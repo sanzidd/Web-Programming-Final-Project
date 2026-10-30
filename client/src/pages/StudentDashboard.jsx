@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { 
   GraduationCap, BookOpen, User, CheckCircle2, Clock, 
   Search, ArrowRight, ShieldAlert, Target, Building2,
-  Calendar, Layers, Sparkles, Key, Lock, Eye, EyeOff, X, Loader2
+  Calendar, Sparkles, Key, Lock, Eye, EyeOff, X, Loader2
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -20,6 +20,12 @@ export default function StudentDashboard() {
   const [loading, setLoading] = useState(true);
   const [filterTab, setFilterTab] = useState('all'); // 'all' | 'pending' | 'reviewed'
   const [searchQuery, setSearchQuery] = useState('');
+  const [nowMs, setNowMs] = useState(() => Date.now());
+
+  useEffect(() => {
+    const timer = setInterval(() => setNowMs(Date.now()), 30000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Change Password Modal State
   const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -83,6 +89,63 @@ export default function StudentDashboard() {
 
   const handleGiveFeedback = (assignmentId) => {
     navigate('/feedback', { state: { assignmentId } });
+  };
+
+  const getDeadlineMeta = (item) => {
+    if (!item?.feedbackDeadline) {
+      return {
+        hasDeadline: false,
+        formatted: 'No deadline set (Open)',
+        badge: null,
+        tone: 'neutral',
+        isExpired: false
+      };
+    }
+    const dl = new Date(item.feedbackDeadline);
+    if (Number.isNaN(dl.getTime())) {
+      return {
+        hasDeadline: false,
+        formatted: 'No deadline set (Open)',
+        badge: null,
+        tone: 'neutral',
+        isExpired: false
+      };
+    }
+    const formatted = dl.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit'
+    });
+    const diffMs = dl.getTime() - nowMs;
+    const isExpired = Boolean(item.isDeadlinePassed) || diffMs <= 0;
+    if (isExpired) {
+      return {
+        hasDeadline: true,
+        formatted,
+        badge: 'Expired',
+        tone: 'expired',
+        isExpired: true
+      };
+    }
+    if (diffMs <= 48 * 3600 * 1000) {
+      const hrs = Math.max(1, Math.ceil(diffMs / (3600 * 1000)));
+      return {
+        hasDeadline: true,
+        formatted,
+        badge: `${hrs}h left`,
+        tone: 'warning',
+        isExpired: false
+      };
+    }
+    return {
+      hasDeadline: true,
+      formatted,
+      badge: 'Open',
+      tone: 'open',
+      isExpired: false
+    };
   };
 
   const handlePasswordChange = async (e) => {
@@ -317,7 +380,9 @@ export default function StudentDashboard() {
           <div className="student-course-grid">
             {filteredCourses.map((item, idx) => {
               const isReviewed = item.alreadyReviewed;
-              const isClosed = item.isReviewSessionOpen === false;
+              const dlMeta = getDeadlineMeta(item);
+              const isExpired = dlMeta.isExpired;
+              const isClosed = item.isReviewSessionOpen === false || isExpired;
 
               return (
                 <motion.div
@@ -336,6 +401,11 @@ export default function StudentDashboard() {
                         <span className="course-status-badge reviewed">
                           <CheckCircle2 size={13} />
                           Reviewed
+                        </span>
+                      ) : isExpired ? (
+                        <span className="course-status-badge closed">
+                          <ShieldAlert size={13} />
+                          Deadline Passed
                         </span>
                       ) : isClosed ? (
                         <span className="course-status-badge closed">
@@ -361,11 +431,58 @@ export default function StudentDashboard() {
                       </div>
                       <div className="course-meta-item">
                         <Building2 size={15} style={{ color: '#60A5FA' }} />
-                        <span>Dept: <strong>{item.department?.code || item.department?.name || 'RUET'}</strong></span>
+                        <span>Dept: <strong>{item.department?.code || item.department?.name || 'ETE'}</strong></span>
                       </div>
                       <div className="course-meta-item">
                         <Calendar size={15} style={{ color: '#A78BFA' }} />
                         <span>Semester: <strong>{item.semester || 'Current'}</strong> | Series: <strong>{item.series || 'All'}</strong></span>
+                      </div>
+                      <div className="course-meta-item" style={{ flexWrap: 'wrap' }}>
+                        <Clock
+                          size={15}
+                          style={{
+                            color: dlMeta.tone === 'expired'
+                              ? '#F87171'
+                              : dlMeta.tone === 'warning'
+                                ? '#FBBF24'
+                                : '#34D399'
+                          }}
+                        />
+                        <span>
+                          Deadline:{' '}
+                          <strong style={{ color: dlMeta.tone === 'expired' && !isReviewed ? '#F87171' : undefined }}>
+                            {dlMeta.formatted}
+                          </strong>
+                        </span>
+                        {!isReviewed && dlMeta.badge && (
+                          <span
+                            style={{
+                              fontSize: '0.7rem',
+                              fontWeight: 600,
+                              padding: '2px 8px',
+                              borderRadius: '999px',
+                              background: dlMeta.tone === 'expired'
+                                ? 'rgba(244, 63, 94, 0.16)'
+                                : dlMeta.tone === 'warning'
+                                  ? 'rgba(245, 158, 11, 0.16)'
+                                  : 'rgba(15, 123, 95, 0.16)',
+                              color: dlMeta.tone === 'expired'
+                                ? '#F87171'
+                                : dlMeta.tone === 'warning'
+                                  ? '#FBBF24'
+                                  : '#34D399',
+                              border: `1px solid ${
+                                dlMeta.tone === 'expired'
+                                  ? 'rgba(244, 63, 94, 0.32)'
+                                  : dlMeta.tone === 'warning'
+                                    ? 'rgba(245, 158, 11, 0.32)'
+                                    : 'rgba(15, 123, 95, 0.32)'
+                              }`
+                            }}
+                          >
+                            {dlMeta.badge}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -379,6 +496,10 @@ export default function StudentDashboard() {
                     {isReviewed ? (
                       <span style={{ fontSize: '0.85rem', color: 'var(--ruet-emerald)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
                         <CheckCircle2 size={16} /> Completed
+                      </span>
+                    ) : isExpired ? (
+                      <span style={{ fontSize: '0.82rem', color: '#F87171', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        <ShieldAlert size={14} /> Session Closed
                       </span>
                     ) : isClosed ? (
                       <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>

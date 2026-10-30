@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { User, Star, ArrowLeft, MessageSquare, BookOpen, Mail, TrendingUp, FileSpreadsheet, Loader2 } from 'lucide-react';
+import { User, Star, ArrowLeft, MessageSquare, BookOpen, Mail, TrendingUp, FileSpreadsheet, FileText, Loader2 } from 'lucide-react';
 import { LineChart, Line, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, BarChart, Bar } from 'recharts';
 import api from '../services/api';
 import { useToast } from '../context/ToastContext';
@@ -29,6 +29,7 @@ export default function TeacherProfile() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
+  const [exportingDoc, setExportingDoc] = useState(false);
 
   useEffect(() => {
     api.get(`/analytics/teacher/${id}`).then(r => setData(r.data)).catch(() => toast.error('Failed to load')).finally(() => setLoading(false));
@@ -57,6 +58,29 @@ export default function TeacherProfile() {
     }
   };
 
+  const handleExportWord = async () => {
+    if (!data?.teacher || exportingDoc) return;
+    setExportingDoc(true);
+    try {
+      toast.info(`Generating Word (.docx) report for ${data.teacher.name}...`);
+      const response = await api.get(`/admin/teachers/${id}/export-doc`, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      const safeName = (data.teacher.name || 'Teacher').replace(/[^a-zA-Z0-9]/g, '_');
+      link.setAttribute('download', `Final_Feedback_${safeName}.docx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      toast.success('Word report (.docx) downloaded successfully!');
+    } catch {
+      toast.error('Failed to download Word report');
+    } finally {
+      setExportingDoc(false);
+    }
+  };
+
   if (loading || !data) return <div className="teacher-profile-page page-transition"><div className="container container-sm"><div className="skeleton skeleton-heading" /><div className="skeleton" style={{ height: 200 }} /></div></div>;
 
   const { teacher, feedbacks, trends, criteriaRadar, ratingDistribution } = data;
@@ -64,18 +88,29 @@ export default function TeacherProfile() {
   return (
     <div className="teacher-profile-page page-transition">
       <div className="container">
-        <div className="profile-header-actions">
+        <div className="profile-header-actions" style={{ flexWrap: 'wrap', gap: '10px' }}>
           <Link to="/dashboard" className="back-link" style={{ marginBottom: 0 }}><ArrowLeft size={18} /> Back to Dashboard</Link>
           {isAdmin && (
-            <button
-              className="btn btn-outline"
-              onClick={handleExportExcel}
-              disabled={exporting}
-              style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-            >
-              {exporting ? <Loader2 size={16} className="spin" /> : <FileSpreadsheet size={16} />}
-              {exporting ? 'Generating Excel...' : 'Download Excel Report'}
-            </button>
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+              <button
+                className="btn btn-outline"
+                onClick={handleExportExcel}
+                disabled={exporting}
+                style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+              >
+                {exporting ? <Loader2 size={16} className="spin" /> : <FileSpreadsheet size={16} />}
+                {exporting ? 'Generating Excel...' : 'Download Excel Report'}
+              </button>
+              <button
+                className="btn btn-outline"
+                onClick={handleExportWord}
+                disabled={exportingDoc}
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', borderColor: 'rgba(59, 130, 246, 0.45)', color: '#60A5FA' }}
+              >
+                {exportingDoc ? <Loader2 size={16} className="spin" /> : <FileText size={16} />}
+                {exportingDoc ? 'Generating Word...' : 'Download Word Report'}
+              </button>
+            </div>
           )}
         </div>
 

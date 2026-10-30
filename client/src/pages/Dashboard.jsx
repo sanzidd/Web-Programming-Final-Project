@@ -1,17 +1,17 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   MessageSquare, Star, Users, Building2, TrendingUp, TrendingDown,
-  ArrowUpRight, Clock, ChevronRight, Download, BookOpen, UserCheck, Key, Trash2
+  ArrowUpRight, Clock, ChevronRight, Download, BookOpen, UserCheck, Key, Trash2, FileQuestion
 } from 'lucide-react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import api from '../services/api';
 import { useToast } from '../context/ToastContext';
 import AdminAssignments from '../components/AdminAssignments';
 import AdminTeachers from '../components/AdminTeachers';
+import AdminQuestions from '../components/AdminQuestions';
 import './Dashboard.css';
 
 const COLORS = ['#EF4444', '#F59E0B', '#818CF8', '#10B981', '#D4A843'];
@@ -64,7 +64,6 @@ export default function Dashboard() {
   const [deptAnalytics, setDeptAnalytics] = useState([]);
   const [topTeachers, setTopTeachers] = useState([]);
   const [bottomTeachers, setBottomTeachers] = useState([]);
-  const [reviewSession, setReviewSession] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
@@ -234,7 +233,7 @@ export default function Dashboard() {
             className={`btn ${activeTab === 'assignments' ? 'btn-primary' : 'btn-outline'}`}
             style={{ padding: '8px 18px', display: 'flex', alignItems: 'center', gap: '6px' }}
           >
-            <BookOpen size={16} /> Course Assignments
+            <BookOpen size={16} /> Create Assignment
           </button>
           <button
             onClick={() => setActiveTab('teachers')}
@@ -242,6 +241,13 @@ export default function Dashboard() {
             style={{ padding: '8px 18px', display: 'flex', alignItems: 'center', gap: '6px' }}
           >
             <UserCheck size={16} /> Manage Teachers
+          </button>
+          <button
+            onClick={() => setActiveTab('questions')}
+            className={`btn ${activeTab === 'questions' ? 'btn-primary' : 'btn-outline'}`}
+            style={{ padding: '8px 18px', display: 'flex', alignItems: 'center', gap: '6px' }}
+          >
+            <FileQuestion size={16} /> Feedback Questions
           </button>
         </div>
 
@@ -463,6 +469,7 @@ export default function Dashboard() {
 
         {activeTab === 'assignments' && <AdminAssignments />}
         {activeTab === 'teachers' && <AdminTeachers />}
+        {activeTab === 'questions' && <AdminQuestions />}
       </div>
 
       {showPasswordModal && (

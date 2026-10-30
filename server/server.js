@@ -42,6 +42,16 @@ connectDB().then(() => {
   // Safe drop of legacy hash index on feedbacklogs if it exists
   const mongoose = require('mongoose');
   mongoose.connection.collection('feedbacklogs').dropIndex('hash_1').catch(() => {});
+
+  // Auto-seed OBE Course Catalog & default Feedback Questions Config
+  const CourseCatalog = require('./models/CourseCatalog');
+  const FeedbackConfig = require('./models/FeedbackConfig');
+  CourseCatalog.ensureSeeded()
+    .then(() => console.log('[Catalog] Pre-enlisted OBE courses & COs synchronized'))
+    .catch(err => console.error('[Catalog] Seed error:', err.message));
+  FeedbackConfig.getConfig()
+    .then(() => console.log('[FeedbackConfig] Default feedback questions ready'))
+    .catch(err => console.error('[FeedbackConfig] Init error:', err.message));
 });
 
 // Routes

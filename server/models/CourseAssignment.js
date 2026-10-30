@@ -15,9 +15,22 @@ const courseAssignmentSchema = new mongoose.Schema({
   series: { type: String, required: true, trim: true }, // e.g. "20", "21", or "all"
   teacher: { type: mongoose.Schema.Types.ObjectId, ref: 'Teacher', required: true },
   courseOutcomes: { type: [courseOutcomeSchema], default: [] },
+  feedbackDeadline: { type: Date, default: null },
   isActive: { type: Boolean, default: true },
   isReviewSessionOpen: { type: Boolean, default: true },
 }, { timestamps: true });
+
+courseAssignmentSchema.statics.isDeadlinePassed = function (doc) {
+  if (!doc || !doc.feedbackDeadline) return false;
+  const d = new Date(doc.feedbackDeadline);
+  return !isNaN(d.getTime()) && new Date() > d;
+};
+
+courseAssignmentSchema.statics.isEffectiveSessionOpen = function (doc) {
+  if (!doc || doc.isReviewSessionOpen === false) return false;
+  if (this.isDeadlinePassed(doc)) return false;
+  return true;
+};
 
 // Index for fast lookups by student department and series
 courseAssignmentSchema.index({ department: 1, series: 1, isActive: 1 });

@@ -10,7 +10,7 @@ import './Navbar.css';
 
 export default function Navbar() {
   const { isAuthenticated, isAdmin, isTeacher, isStudent, logout } = useAuth();
-  const { theme, toggleTheme, isDark } = useTheme();
+  const { toggleTheme, isDark } = useTheme();
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -34,11 +34,13 @@ export default function Navbar() {
       <div className="navbar-inner container">
         <Link to="/" className="navbar-brand">
           <div className="navbar-logo">
-            <img src="/ruet-logo.png" alt="RUET Logo" style={{ height: '32px', width: 'auto' }} />
+            <img src="/ruet-logo.png" alt="Department Logo" style={{ height: '32px', width: 'auto' }} />
           </div>
           <div className="navbar-brand-text">
-            <span className="navbar-brand-name">RUET</span>
-            <span className="navbar-brand-sub">Feedback System</span>
+            <span className="navbar-brand-name">Student Feedback</span>
+            <span className="navbar-brand-sub" style={{ maxWidth: '280px', lineHeight: 1.25 }}>
+              Department of Electronics and Telecommunication Engineering
+            </span>
           </div>
         </Link>
 
@@ -47,7 +49,7 @@ export default function Navbar() {
             type="button" 
             onClick={toggleTheme} 
             className="theme-toggle-btn"
-            title={isDark ? "Switch to RUET Light Theme (result.ruet.ac.bd)" : "Switch to RUET Dark Theme"}
+            title={isDark ? "Switch to Light Theme" : "Switch to Dark Theme"}
             aria-label="Toggle Theme"
             id="nav-theme-toggle"
           >

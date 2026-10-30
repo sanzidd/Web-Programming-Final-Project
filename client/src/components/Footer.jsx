@@ -1,4 +1,4 @@
-import { GraduationCap, Heart, Mail, MapPin } from 'lucide-react';
+import { Heart, Mail, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './Footer.css';
@@ -12,16 +12,16 @@ export default function Footer() {
           <div className="footer-brand">
             <div className="footer-logo-wrap">
               <div className="footer-logo">
-                <img src="/ruet-logo.png" alt="RUET Logo" style={{ height: '36px', width: 'auto' }} />
+                <img src="/ruet-logo.png" alt="Department Logo" style={{ height: '36px', width: 'auto' }} />
               </div>
               <div>
-                <h3 className="footer-title">RUET Feedback</h3>
-                <p className="footer-subtitle">Anonymous Teacher Evaluation</p>
+                <h3 className="footer-title">Student Feedback</h3>
+                <p className="footer-subtitle">Department of Electronics and Telecommunication Engineering</p>
               </div>
             </div>
             <p className="footer-desc">
               Empowering students to share honest feedback and helping educators 
-              improve teaching quality at Rajshahi University of Engineering & Technology.
+              improve teaching quality in the Department of Electronics and Telecommunication Engineering.
             </p>
           </div>
 
@@ -47,8 +47,8 @@ export default function Footer() {
 
         <div className="footer-bottom">
           <p>
-            © {new Date().getFullYear()} RUET Teacher Feedback System. Made with{' '}
-            <Heart size={14} className="footer-heart" /> for RUET.
+            © {new Date().getFullYear()} Student Feedback — Department of Electronics and Telecommunication Engineering. Made with{' '}
+            <Heart size={14} className="footer-heart" /> for ETE.
           </p>
           <p className="footer-tech">
             Built with React + Node.js + MongoDB

@@ -7,10 +7,23 @@ const Teacher = require('../models/Teacher');
 const Feedback = require('../models/Feedback');
 const Department = require('../models/Department');
 const CourseAssignment = require('../models/CourseAssignment');
+const CourseCatalog = require('../models/CourseCatalog');
 const teacherAuth = require('../middleware/teacherAuth');
 const { sendVerificationEmail } = require('../utils/sendEmail');
 const { generateFeedbackExcel } = require('../services/excelReportGenerator');
+const { generateFeedbackWord } = require('../services/wordReportGenerator');
 const { aggregateScores, feedbackAverage } = require('../utils/feedbackScores');
+
+function enrichAssignment(doc) {
+  if (!doc) return doc;
+  const obj = doc.toObject ? doc.toObject() : { ...doc };
+  return {
+    ...obj,
+    feedbackDeadline: obj.feedbackDeadline || null,
+    isDeadlinePassed: CourseAssignment.isDeadlinePassed(obj),
+    effectiveSessionOpen: CourseAssignment.isEffectiveSessionOpen(obj),
+  };
+}
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'ruet-feedback-secret-key-2026';
@@ -463,9 +476,10 @@ router.get('/dashboard', teacherAuth, async (req, res) => {
     }
 
     // Get assigned courses from admin assignments
-    const assignedCourses = await CourseAssignment.find({ teacher: req.teacherId, isActive: true })
+    const assignedCoursesRaw = await CourseAssignment.find({ teacher: req.teacherId, isActive: true })
       .populate('department', 'name code')
       .sort({ semester: 1, courseCode: 1 });
+    const assignedCourses = assignedCoursesRaw.map(enrichAssignment);
 
     res.json({
       teacher,
@@ -520,6 +534,34 @@ router.get('/course-feedback/:courseName', teacherAuth, async (req, res) => {
   }
 });
 
+async function buildTeacherCourseReportData(teacherId, courseName) {
+  const feedbacks = await Feedback.find({ teacher: teacherId, courseName })
+    .populate('department', 'name code')
+    .sort({ createdAt: 1 });
+
+  const teacher = await Teacher.findById(teacherId).populate('department', 'name code');
+
+  const assignmentDoc = await CourseAssignment.findOne({
+    teacher: teacherId,
+    courseName
+  }).populate('department', 'name code');
+
+  const assignment = {
+    courseName,
+    courseCode: assignmentDoc?.courseCode || '',
+    semester: assignmentDoc?.semester || '',
+    series: assignmentDoc?.series || '',
+    courseOutcomes: assignmentDoc?.courseOutcomes || [],
+    teacher: {
+      name: teacher?.name || 'Unknown',
+      designation: teacher?.designation || ''
+    },
+    department: assignmentDoc?.department || teacher?.department || feedbacks[0]?.department || { name: 'Electronics and Telecommunication Engineering', code: 'ETE' }
+  };
+
+  return { assignment, feedbacks };
+}
+
 // ══════════════════════════════════════════
 //  GET /course-feedback/:courseName/export — Download full .xlsx report
 // ══════════════════════════════════════════
@@ -530,31 +572,7 @@ router.get('/course-feedback/:courseName/export', teacherAuth, async (req, res) 
     }
 
     const courseName = decodeURIComponent(req.params.courseName);
-    const feedbacks = await Feedback.find({ teacher: req.teacherId, courseName })
-      .populate('department', 'name code')
-      .sort({ createdAt: 1 });
-
-    // Get teacher info
-    const teacher = await Teacher.findById(req.teacherId).populate('department', 'name code');
-
-    // Get course assignment to find COs
-    const assignmentDoc = await CourseAssignment.findOne({ 
-      teacher: req.teacherId, 
-      courseName 
-    }).populate('department', 'name code');
-
-    const assignment = {
-      courseName,
-      courseCode: assignmentDoc?.courseCode || '',
-      semester: assignmentDoc?.semester || '',
-      series: assignmentDoc?.series || '',
-      courseOutcomes: assignmentDoc?.courseOutcomes || [],
-      teacher: {
-        name: teacher?.name || 'Unknown',
-        designation: teacher?.designation || ''
-      },
-      department: assignmentDoc?.department || teacher?.department || feedbacks[0]?.department || { name: 'Unknown', code: '' }
-    };
+    const { assignment, feedbacks } = await buildTeacherCourseReportData(req.teacherId, courseName);
 
     const buffer = await generateFeedbackExcel({ assignment, feedbacks });
     const filename = `Student_Feedback_${courseName.replace(/[^a-zA-Z0-9]/g, '_')}.xlsx`;
@@ -569,7 +587,88 @@ router.get('/course-feedback/:courseName/export', teacherAuth, async (req, res) 
 });
 
 // ══════════════════════════════════════════
-//  PUT /assignments/:id/course-outcomes — Teacher can add/edit COs for their assigned courses
+//  GET /course-feedback/:courseName/export-doc — Download Final Feedback .docx report
+// ══════════════════════════════════════════
+router.get('/course-feedback/:courseName/export-doc', teacherAuth, async (req, res) => {
+  try {
+    if (!req.teacherId) {
+      return res.status(400).json({ message: 'No teacher profile linked' });
+    }
+
+    const courseName = decodeURIComponent(req.params.courseName);
+    const { assignment, feedbacks } = await buildTeacherCourseReportData(req.teacherId, courseName);
+
+    const buffer = await generateFeedbackWord({ assignment, feedbacks });
+    const filename = `Final_Feedback_${courseName.replace(/[^a-zA-Z0-9]/g, '_')}.docx`;
+
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(buffer);
+  } catch (error) {
+    console.error('Word export error:', error);
+    res.status(500).json({ message: 'Failed to export Word feedback report' });
+  }
+});
+
+// ══════════════════════════════════════════
+//  GET /assignments/:id/export & /assignments/:id/export-doc — Download reports by assignment ID
+// ══════════════════════════════════════════
+router.get('/assignments/:id/export', teacherAuth, async (req, res) => {
+  try {
+    if (!req.teacherId) return res.status(400).json({ message: 'No teacher profile linked' });
+    const assignment = await CourseAssignment.findById(req.params.id).populate('teacher department');
+    if (!assignment) return res.status(404).json({ message: 'Assignment not found' });
+    const assignedTeacherId = assignment.teacher?._id || assignment.teacher;
+    if (!assignedTeacherId || assignedTeacherId.toString() !== req.teacherId.toString()) {
+      return res.status(403).json({ message: 'You are not assigned to this course' });
+    }
+
+    const feedbacks = await Feedback.find({
+      teacher: req.teacherId,
+      courseName: assignment.courseName
+    }).populate('department', 'name code').sort({ createdAt: 1 });
+
+    const buffer = await generateFeedbackExcel({ assignment, feedbacks });
+    const filename = `Student_Feedback_${assignment.courseName.replace(/[^a-zA-Z0-9]/g, '_')}.xlsx`;
+
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(buffer);
+  } catch (error) {
+    console.error('Teacher assignment Excel export error:', error);
+    res.status(500).json({ message: 'Failed to export Excel report' });
+  }
+});
+
+router.get('/assignments/:id/export-doc', teacherAuth, async (req, res) => {
+  try {
+    if (!req.teacherId) return res.status(400).json({ message: 'No teacher profile linked' });
+    const assignment = await CourseAssignment.findById(req.params.id).populate('teacher department');
+    if (!assignment) return res.status(404).json({ message: 'Assignment not found' });
+    const assignedTeacherId = assignment.teacher?._id || assignment.teacher;
+    if (!assignedTeacherId || assignedTeacherId.toString() !== req.teacherId.toString()) {
+      return res.status(403).json({ message: 'You are not assigned to this course' });
+    }
+
+    const feedbacks = await Feedback.find({
+      teacher: req.teacherId,
+      courseName: assignment.courseName
+    }).populate('department', 'name code').sort({ createdAt: 1 });
+
+    const buffer = await generateFeedbackWord({ assignment, feedbacks });
+    const filename = `Final_Feedback_${assignment.courseName.replace(/[^a-zA-Z0-9]/g, '_')}.docx`;
+
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(buffer);
+  } catch (error) {
+    console.error('Teacher assignment Word export error:', error);
+    res.status(500).json({ message: 'Failed to export Word report' });
+  }
+});
+
+// ══════════════════════════════════════════
+//  PUT /assignments/:id/course-outcomes — Teacher can edit CO title and details for assigned courses
 // ══════════════════════════════════════════
 router.put('/assignments/:id/course-outcomes', teacherAuth, async (req, res) => {
   try {
@@ -582,7 +681,6 @@ router.put('/assignments/:id/course-outcomes', teacherAuth, async (req, res) => 
       return res.status(404).json({ message: 'Assignment not found' });
     }
 
-    // Verify the teacher is assigned to this course
     if (assignment.teacher.toString() !== req.teacherId.toString()) {
       return res.status(403).json({ message: 'You are not assigned to this course' });
     }
@@ -592,29 +690,86 @@ router.put('/assignments/:id/course-outcomes', teacherAuth, async (req, res) => 
       return res.status(400).json({ message: 'courseOutcomes must be an array' });
     }
 
-    // Validate each CO has at least a title
     const validCOs = courseOutcomes
-      .filter(co => co.title && co.title.trim())
-      .map((co, idx) => ({
-        coNumber: co.coNumber || idx + 1,
-        title: co.title.trim(),
-        description: (co.description || '').trim()
-      }));
+      .filter(co => co && ((co.title && String(co.title).trim()) || (co.description && String(co.description).trim())))
+      .map((co, idx) => {
+        const coNumber = Number(co.coNumber) || idx + 1;
+        return {
+          coNumber,
+          title: (co.title && String(co.title).trim()) ? String(co.title).trim() : `CO${coNumber}`,
+          description: (co.description || '').trim()
+        };
+      });
 
     assignment.courseOutcomes = validCOs;
+    await assignment.save();
+
+    if (assignment.courseCode && validCOs.length > 0) {
+      const escaped = assignment.courseCode.trim().replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+      await CourseCatalog.findOneAndUpdate(
+        { courseCode: { $regex: new RegExp(`^${escaped}$`, 'i') } },
+        { $set: { courseOutcomes: validCOs } }
+      );
+    }
+
+    const populated = await CourseAssignment.findById(assignment._id)
+      .populate('department', 'name code')
+      .populate('teacher', 'name designation email');
+
+    res.json({
+      message: `Course Outcomes updated successfully (${validCOs.length} COs)`,
+      assignment: enrichAssignment(populated)
+    });
+  } catch (error) {
+    console.error('Teacher CO update error:', error);
+    res.status(500).json({ message: 'Failed to update Course Outcomes' });
+  }
+});
+
+// ══════════════════════════════════════════
+//  PUT /assignments/:id/deadline — Assigned Teacher can set or extend feedback deadline
+// ══════════════════════════════════════════
+router.put('/assignments/:id/deadline', teacherAuth, async (req, res) => {
+  try {
+    if (!req.teacherId) {
+      return res.status(400).json({ message: 'No teacher profile linked' });
+    }
+
+    const assignment = await CourseAssignment.findById(req.params.id);
+    if (!assignment) {
+      return res.status(404).json({ message: 'Assignment not found' });
+    }
+
+    if (assignment.teacher.toString() !== req.teacherId.toString()) {
+      return res.status(403).json({ message: 'You are not assigned to this course' });
+    }
+
+    const { feedbackDeadline } = req.body;
+    let parsedDeadline = null;
+    if (feedbackDeadline !== null && feedbackDeadline !== '' && feedbackDeadline !== undefined) {
+      parsedDeadline = new Date(feedbackDeadline);
+      if (Number.isNaN(parsedDeadline.getTime())) {
+        return res.status(400).json({ message: 'Invalid deadline date format' });
+      }
+    }
+
+    assignment.feedbackDeadline = parsedDeadline;
+    if (parsedDeadline && parsedDeadline.getTime() > Date.now()) {
+      assignment.isReviewSessionOpen = true;
+    }
     await assignment.save();
 
     const populated = await CourseAssignment.findById(assignment._id)
       .populate('department', 'name code')
       .populate('teacher', 'name designation email');
 
-    res.json({ 
-      message: `Course Outcomes updated successfully (${validCOs.length} COs)`, 
-      assignment: populated 
+    res.json({
+      message: parsedDeadline ? 'Feedback deadline updated successfully' : 'Feedback deadline cleared',
+      assignment: enrichAssignment(populated)
     });
   } catch (error) {
-    console.error('Teacher CO update error:', error);
-    res.status(500).json({ message: 'Failed to update Course Outcomes' });
+    console.error('Teacher deadline update error:', error);
+    res.status(500).json({ message: 'Failed to update feedback deadline' });
   }
 });
 
