@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect } from 'react';
 
 const ThemeContext = createContext(null);
@@ -12,7 +13,7 @@ export function ThemeProvider({ children }) {
     } catch {
       // Ignore localStorage errors
     }
-    return 'dark'; // Dark theme is default as requested
+    return 'light'; // Light theme is default as requested
   });
 
   useEffect(() => {

@@ -1,9 +1,10 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { BarChart3, TrendingUp, Building2, Filter } from 'lucide-react';
 import { 
-  LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, 
+  AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, 
   ResponsiveContainer, CartesianGrid, RadarChart, Radar, PolarGrid, 
   PolarAngleAxis, PolarRadiusAxis, Legend
 } from 'recharts';
@@ -47,7 +48,7 @@ export default function Analytics() {
       setTrends(trendsRes.data);
       setDeptData(deptRes.data);
       setTeachers(teachersRes.data.filter(t => t.totalFeedbacks > 0));
-    } catch (err) {
+    } catch {
       toast.error('Failed to load analytics');
     } finally {
       setLoading(false);

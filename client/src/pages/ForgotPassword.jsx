@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { 
   KeyRound, Mail, Lock, Eye, EyeOff, ArrowRight, ArrowLeft, 
   CheckCircle2, Loader2, ShieldCheck 

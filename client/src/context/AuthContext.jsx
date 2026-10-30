@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect } from 'react';
 import api from '../services/api';
 
@@ -111,7 +112,7 @@ export function AuthProvider({ children }) {
         updateStudent(res.data);
         return res.data;
       }
-    } catch (e) {
+    } catch {
       // ignore silently if not authenticated
     }
   };

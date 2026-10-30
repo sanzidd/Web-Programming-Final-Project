@@ -385,19 +385,40 @@
     font-size: var(--fs-lg);
   }
 
+  .feedback-form-card {
+    padding: var(--sp-5) var(--sp-4);
+    margin-top: var(--sp-4);
+    border-radius: var(--radius-lg);
+  }
+
   .step-indicator {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    justify-content: flex-start;
+    padding: 8px 6px 16px;
     gap: 0;
-    padding: 0;
+    max-width: 100%;
+  }
+
+  .step-indicator::-webkit-scrollbar {
+    display: none;
+  }
+
+  .step-dot-wrap {
+    flex-shrink: 0;
   }
 
   .step-line {
     flex: 1;
-    min-width: 8px;
+    min-width: 16px;
+    flex-shrink: 0;
   }
 
   .step-dot {
-    width: 34px;
-    height: 34px;
+    width: 32px;
+    height: 32px;
     font-size: var(--fs-xs);
   }
 

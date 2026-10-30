@@ -141,6 +141,15 @@
   animation: shimmer 6s linear infinite;
 }
 
+.hero-dept-title {
+  display: block;
+  font-size: clamp(1.2rem, 2.4vw, 1.85rem);
+  margin-top: 10px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--text-primary);
+}
+
 .hero-subtitle {
   font-size: var(--fs-md);
   color: #B8BECF;
@@ -853,6 +862,74 @@
     font-size: 1.75rem;
   }
 
+  .hero-dept-title {
+    font-size: 1.05rem;
+    margin-top: 6px;
+    line-height: 1.3;
+  }
+
+  .hero-card-stack {
+    width: 270px;
+    height: 270px;
+    max-width: 100%;
+    margin: 0 auto;
+  }
+
+  .hero-central-graphic {
+    width: 180px;
+    height: 180px;
+  }
+
+  .hero-central-graphic img,
+  .hero-logo-img {
+    width: 130px;
+    height: 130px;
+  }
+
+  .hero-logo-orbit {
+    width: 220px;
+    height: 220px;
+  }
+
+  .card-2 {
+    bottom: -6px;
+    right: 4px;
+    padding: 8px 12px;
+    gap: 8px;
+  }
+
+  .hero-card-value {
+    font-size: 0.95rem;
+  }
+
+  .hero-card-label {
+    font-size: 0.65rem;
+  }
+
+  .trust-shield-graphic {
+    width: 180px;
+    height: 180px;
+  }
+
+  .shield-outer {
+    width: 80px;
+    height: 80px;
+  }
+
+  .shield-inner {
+    width: 56px;
+    height: 56px;
+  }
+
+  .shield-inner svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  .shield-ring.ring-1 { width: 110px; height: 110px; }
+  .shield-ring.ring-2 { width: 140px; height: 140px; }
+  .shield-ring.ring-3 { width: 175px; height: 175px; }
+
   .hero-subtitle {
     font-size: var(--fs-sm);
     line-height: 1.65;
@@ -961,9 +1038,55 @@
   }
 }
 
+/* Very Narrow Phone (360px and below) */
+@media (max-width: 360px) {
+  .hero-dept-title {
+    font-size: 0.95rem;
+    line-height: 1.25;
+  }
+
+  .hero-card-stack {
+    width: 230px;
+    height: 230px;
+  }
+
+  .hero-central-graphic {
+    width: 150px;
+    height: 150px;
+  }
+
+  .hero-central-graphic img,
+  .hero-logo-img {
+    width: 110px;
+    height: 110px;
+  }
+
+  .hero-logo-orbit {
+    width: 180px;
+    height: 180px;
+  }
+
+  .hero-floating-card {
+    padding: 6px 10px;
+    gap: 6px;
+  }
+
+  .hero-card-value {
+    font-size: 0.88rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Light Theme Overrides (RUET Portal) */
 [data-theme="light"] .hero-title {
   color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .hero-dept-title {
+  color: #0F172A !important;
 }
 
 [data-theme="light"] .hero-title .text-gradient {

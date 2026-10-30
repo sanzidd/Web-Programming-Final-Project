@@ -129,6 +129,7 @@
     border: 1px solid var(--border-default);
     border-radius: var(--radius-md);
     text-align: left;
+    min-height: 48px;
   }
   
   .likert-option.selected {

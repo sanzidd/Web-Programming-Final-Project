@@ -1,12 +1,20 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/ruet-logo.png" />
     <link rel="apple-touch-icon" href="/ruet-logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Student Feedback — Department of Electronics and Telecommunication Engineering. Anonymous course and teacher evaluation platform." />
-    <meta name="theme-color" content="#B91C3A" />
+    <meta name="theme-color" content="#1D4ED8" />
+    <script>
+      (function() {
+        try {
+          var t = localStorage.getItem('ruet_theme') || 'light';
+          document.documentElement.setAttribute('data-theme', t);
+        } catch(e) {}
+      })();
+    </script>
     <meta property="og:title" content="Student Feedback — Department of Electronics and Telecommunication Engineering" />
     <meta property="og:description" content="Anonymous student feedback and OBE analytics for the Department of Electronics and Telecommunication Engineering" />
     <title>Student Feedback — Department of Electronics and Telecommunication Engineering</title>

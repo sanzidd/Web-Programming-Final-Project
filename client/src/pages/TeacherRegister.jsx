@@ -5,12 +5,12 @@ import { useToast } from '../context/ToastContext';
 import api from '../services/api';
 import {
   GraduationCap, Mail, Lock, User, Building2, BadgeCheck,
-  Eye, EyeOff, ArrowRight, ShieldCheck, KeyRound, Loader2
+  Eye, EyeOff, ArrowRight, Loader2
 } from 'lucide-react';
 import './TeacherRegister.css';
 
 export default function TeacherRegister() {
-  const { teacherVerify, isAuthenticated, isTeacher } = useAuth();
+  const { isAuthenticated, isTeacher } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
 

@@ -717,7 +717,7 @@ export default function AdminAssignments() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="glass-card"
+              className="glass-card modal-card glass-card-modal"
               style={{ width: '100%', maxWidth: '820px', padding: '30px', background: 'var(--bg-card)', maxHeight: '92vh', overflowY: 'auto' }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '18px' }}>
@@ -787,7 +787,7 @@ export default function AdminAssignments() {
                 </div>
 
                 {/* Row 1: Course Code & Course Name */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.6fr', gap: '16px' }}>
+                <div className="form-grid-2-asym">
                   <div>
                     <label className="form-label">Course Code *</label>
                     <input
@@ -813,7 +813,7 @@ export default function AdminAssignments() {
                 </div>
 
                 {/* Row 2: Student Department & Series */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div className="form-grid-2">
                   <div>
                     <label className="form-label">Student Department (Enrolled Class) *</label>
                     <select
@@ -845,7 +845,7 @@ export default function AdminAssignments() {
                 </div>
 
                 {/* Row 3: Teacher's Department & Assigned Teacher */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div className="form-grid-2">
                   <div>
                     <label className="form-label">Teacher&apos;s Department (Faculty)</label>
                     <select
@@ -878,7 +878,7 @@ export default function AdminAssignments() {
                 </div>
 
                 {/* Row 4: Semester & Feedback Deadline */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div className="form-grid-2">
                   <div>
                     <label className="form-label">Semester *</label>
                     <select

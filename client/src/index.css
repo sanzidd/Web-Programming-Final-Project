@@ -1130,6 +1130,20 @@ html, body {
   box-sizing: border-box !important;
 }
 
+/* Responsive Grid Utilities */
+.form-grid-2,
+.modal-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.form-grid-2-asym {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr;
+  gap: 16px;
+}
+
 @media (max-width: 768px) {
   .container {
     padding: 0 16px !important;
@@ -1146,12 +1160,42 @@ html, body {
   /* Form & Modal Grids collapse smoothly on mobile */
   .modal-two-col,
   .form-grid-2,
+  .form-grid-2-asym,
   .register-two-col,
   .form-row,
   [style*="gridTemplateColumns: '1fr 1fr'"],
-  [style*="grid-template-columns: 1fr 1fr"] {
+  [style*="grid-template-columns: 1fr 1fr"],
+  [style*="gridTemplateColumns: '1fr 1.6fr'"],
+  [style*="grid-template-columns: 1fr 1.6fr"] {
     grid-template-columns: 1fr !important;
     gap: 14px !important;
+  }
+
+  /* Admin questions & sections responsive layout */
+  .admin-section-header-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .admin-section-header-row > div {
+    width: 100% !important;
+    min-width: 100% !important;
+  }
+
+  .admin-question-row {
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+
+  .admin-question-row .form-input {
+    width: 100% !important;
+    min-width: 100% !important;
+    order: 2;
+  }
+
+  .admin-question-row > div:last-child {
+    margin-left: auto;
+    order: 3;
   }
 
   /* Modal Containers on Mobile */

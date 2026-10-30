@@ -91,7 +91,7 @@ export default function Home() {
             <h1 className="hero-title font-display">
               Student{' '}
               <span className="text-gradient">Feedback</span>
-              <span style={{ display: 'block', fontSize: 'clamp(1.25rem, 2.3vw, 1.85rem)', marginTop: '10px', fontWeight: 600, lineHeight: 1.35 }}>
+              <span className="hero-dept-title">
                 Department of Electronics and Telecommunication Engineering
               </span>
             </h1>

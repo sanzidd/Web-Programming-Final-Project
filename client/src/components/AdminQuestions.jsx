@@ -228,7 +228,7 @@ export default function AdminQuestions() {
         className="glass-card"
         style={{ padding: '24px', marginBottom: '20px', borderLeft: `4px solid ${color}` }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', flexWrap: 'wrap', marginBottom: '16px' }}>
+        <div className="admin-section-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', flexWrap: 'wrap', marginBottom: '16px' }}>
           <div style={{ flex: 1, minWidth: '260px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
               <IconComp size={18} style={{ color }} />
@@ -308,6 +308,7 @@ export default function AdminQuestions() {
             questions.map((q, qIdx) => (
               <div
                 key={q.id || qIdx}
+                className="admin-question-row"
                 style={{
                   display: 'flex', alignItems: 'center', gap: '10px',
                   background: 'var(--bg-elevated)', padding: '10px 12px',
